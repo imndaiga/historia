@@ -14,6 +14,9 @@ migrate = Migrate(app, db)
 
 # Attach functions to app-runtime flags
 def make_shell_context():
+	if app.config['DEBUG']:
+		if not os.path.exists(app.config['SQLALCHEMY_DATABASE_URI']):
+			db.create_all()
 	return dict(db=db, Person=Person, Node=Node, app=app)
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
