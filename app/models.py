@@ -8,7 +8,10 @@ class Node(db.Model):
 		primary_key=True)
 	descendant_id = db.Column(db.Integer, db.ForeignKey('persons.id'),
 		primary_key=True)
-	relation = db.Column(db.String(20))
+	edge_weight = db.Column(db.Integer)
+
+	def __repr__(self):
+		return '<Node %s-%s:%s>' % (self.ascendant_id, self.descendant_id, self.edge_weight)
 
 class Person(db.Model):
 	"""all miminani subscribed persons"""
@@ -78,8 +81,63 @@ class Person(db.Model):
 		db.session.add(n)
 		return True
 
-	def count_hierarchy_steps(self, person):
+	def count_steps(self, person):
 		pass
+
+	@staticmethod
+	def commit_test_tree():
+		nuclei = {
+				1 : ['John','Mary', 'Jack', 'Mark'],
+				2 : ['Jack', 'Lucy', 'Ben', 'Lynda'],
+				3 : ['Mark', 'Anne', 'Michael', 'Janet'],
+				4 : ['Ben', 'Ruth', 'Susan', 'Beth'],
+				5 : ['Beth', 'Andrew', 'Cyrus','Lloyd'],
+				6 : ['Michael', 'Lucille', 'Anthony', 'Lucas'],
+				7 : ['Janet', 'Moses', 'Joy', 'Edgar'],
+				8 : ['Lucas', 'Marjorie', 'Margot', 'Alan'],
+				9 : ['Alan', 'Sarah', 'Daniel', 'Ginette'],
+				10 : ['Daniel', 'Loise', 'Clark', 'Henry']
+		}
+		master_found = None
+		for key in nuclei:
+			nucleic_family = []
+			for person in nuclei[key]:
+				person_is_master = Person.query.filter_by(baptism_name=person).first()
+				if not person_is_master:
+					nucleic_family.append(Person(baptism_name=person))
+				else:
+					master_found = person_is_master
+			db.session.add_all(nucleic_family)
+			db.session.commit()
+
+			if not master_found:
+				for index,person in enumerate(nucleic_family):
+					if index==0:
+						n1 = Node(ascendant=person,descendant=nucleic_family[index+1],edge_weight=0)
+						n2 = Node(ascendant=person,descendant=nucleic_family[index+2],edge_weight=1)
+						n3 = Node(ascendant=person,descendant=nucleic_family[index+3],edge_weight=1)
+					if index==1:
+						n4 = Node(ascendant=person,descendant=nucleic_family[index+1],edge_weight=1)
+						n5 = Node(ascendant=person,descendant=nucleic_family[index+2],edge_weight=1)
+					if index==2:
+						n6 = Node(ascendant=person,descendant=nucleic_family[index+1],edge_weight=0)
+			else:
+				for index,person in enumerate(nucleic_family):
+					if index==0:
+						n1 = Node(ascendant=master_found,descendant=nucleic_family[index],edge_weight=0)
+						n2 = Node(ascendant=master_found,descendant=nucleic_family[index+1],edge_weight=1)
+						n3 = Node(ascendant=master_found,descendant=nucleic_family[index+2],edge_weight=1)
+						n4 = Node(ascendant=person,descendant=nucleic_family[index+1],edge_weight=1)
+						n5 = Node(ascendant=person,descendant=nucleic_family[index+2],edge_weight=1)
+					if index==1:
+						n6 = Node(ascendant=person,descendant=nucleic_family[index+1],edge_weight=0)
+				master_found = None
+			db.session.add_all([n1,n2,n3,n4,n5,n6])		
+			db.session.commit()
+
+		return 'Test tree committed to database'
+
+
 
 	def __repr__(self):
 		return 'Person: <%s>' % self.baptism_name
