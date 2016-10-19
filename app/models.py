@@ -1,21 +1,21 @@
 from . import db
 from datetime import date
 
-class Node(db.Model):
-	"""self-referential association table that connects persons"""
-	__tablename__ = 'nodes'
-	ascendant_id = db.Column(db.Integer, db.ForeignKey('persons.id'),
+class Edge(db.Model):
+	"""self-referential association table that connects Nodes"""
+	__tablename__ = 'Edges'
+	ascendant_id = db.Column(db.Integer, db.ForeignKey('nodes.id'),
 		primary_key=True)
-	descendant_id = db.Column(db.Integer, db.ForeignKey('persons.id'),
+	descendant_id = db.Column(db.Integer, db.ForeignKey('nodes.id'),
 		primary_key=True)
 	edge_weight = db.Column(db.Integer)
 
 	def __repr__(self):
-		return '<Node %s-%s:%s>' % (self.ascendant_id, self.descendant_id, self.edge_weight)
+		return '<Edge %s-%s:%s>' % (self.ascendant_id, self.descendant_id, self.edge_weight)
 
-class Person(db.Model):
-	"""all miminani subscribed persons"""
-	__tablename__ = 'persons'
+class Node(db.Model):
+	"""all miminani subscribed Nodes"""
+	__tablename__ = 'nodes'
 	id = db.Column(db.Integer, primary_key=True)
 	baptism_name = db.Column(db.String(64))
 	ethnic_name = db.Column(db.String(64), index=True)
@@ -25,63 +25,63 @@ class Person(db.Model):
 	email_confirmed = db.Column(db.Boolean, default=False)
 	email = db.Column(db.String(64), unique=True)
 
-	descended_by = db.relationship('Node',
-								foreign_keys=[Node.ascendant_id],
+	descended_by = db.relationship('Edge',
+								foreign_keys=[Edge.ascendant_id],
 								backref=db.backref('ascendant', lazy='joined'),
 								lazy='dynamic',
 								cascade='all, delete-orphan')
-	ascended_by = db.relationship('Node',
-								foreign_keys=[Node.descendant_id],
+	ascended_by = db.relationship('Edge',
+								foreign_keys=[Edge.descendant_id],
 								backref=db.backref('descendant', lazy='joined'),
 								lazy='dynamic',
 								cascade='all, delete-orphan')
 
-	def step_ascend(self, person, relation):
-		if not self.is_step_ascendant_to(person):
-			n = Node(ascendant=self, descendant=person, relation=relation)
+	def step_ascend(self, node, relation):
+		if not self.is_step_ascendant_to(node):
+			n = Edge(ascendant=self, descendant=Node, relation=relation)
 			db.session.add(n)
 
-	def step_descend(self, person, relation):
-		if not self.is_step_descendant_to(person):
-			n = Node(ascendant=person, descendant=self, relation=relation)
+	def step_descend(self, node, relation):
+		if not self.is_step_descendant_to(node):
+			n = Edge(ascendant=Node, descendant=self, relation=relation)
 			db.session.add(n)
 
-	def is_step_ascendant_to(self, person):
+	def is_step_ascendant_to(self, node):
 		return self.descended_by.filter_by(
-			descendant_id=person.id).first() is not None
+			descendant_id=node.id).first() is not None
 
-	def is_step_descendant_to(self, person):
+	def is_step_descendant_to(self, node):
 		return self.ascended_by.filter_by(
-			ascendant_id=person.id).first() is not None
+			ascendant_id=node.id).first() is not None
 
-	def change_step_relation(self, person, relation):
-		if self.is_step_ascendant_to(person):
-			n = Node.query.filter_by(descendant_id=person.id).first()
-		elif self.is_step_descendant_to(person):
-			n = Node.query.filter_by(ascendant_id=person.id).first()
+	def change_step_relation(self, node, relation):
+		if self.is_step_ascendant_to(node):
+			n = Edge.query.filter_by(descendant_id=node.id).first()
+		elif self.is_step_descendant_to(node):
+			n = Edge.query.filter_by(ascendant_id=node.id).first()
 		else:
-			# Self and person are not related, no relation change can be made
+			# Self and Node are not related, no relation change can be made
 			return False
 		n.relation = relation
 		db.session.add(n)
 		return True
 
-	def switch_step_hierarchy(self,person):
-		if self.is_step_ascendant_to(person):
-			n = Node.query.filter_by(descendant_id=person.id).first()
+	def switch_step_hierarchy(self,node):
+		if self.is_step_ascendant_to(node):
+			n = Edge.query.filter_by(descendant_id=node.id).first()
 			n.descendant_id = self.id
-			n.ascendant_id = person.id
-		elif self.is_step_descendant_to(person):
-			n = Node.query.filter_by(ascendant_id=person.id).first()
+			n.ascendant_id = node.id
+		elif self.is_step_descendant_to(node):
+			n = Edge.query.filter_by(ascendant_id=node.id).first()
 			n.ascendant_id = self.id
-			n.descendant_id = person.id
+			n.descendant_id = node.id
 		else:
-			# Self and person are not related, no relation change can be made
+			# Self and Node are not related, no relation change can be made
 			return False
 		db.session.add(n)
 		return True
 
-	def count_steps(self, person):
+	def count_steps(self, node):
 		pass
 
 	@staticmethod
@@ -101,43 +101,41 @@ class Person(db.Model):
 		master_found = None
 		for key in nuclei:
 			nucleic_family = []
-			for person in nuclei[key]:
-				person_is_master = Person.query.filter_by(baptism_name=person).first()
-				if not person_is_master:
-					nucleic_family.append(Person(baptism_name=person))
+			for node in nuclei[key]:
+				node_is_master = Node.query.filter_by(baptism_name=node).first()
+				if not node_is_master:
+					nucleic_family.append(Node(baptism_name=node))
 				else:
-					master_found = person_is_master
+					master_found = node_is_master
 			db.session.add_all(nucleic_family)
 			db.session.commit()
 
 			if not master_found:
-				for index,person in enumerate(nucleic_family):
+				for index,node in enumerate(nucleic_family):
 					if index==0:
-						n1 = Node(ascendant=person,descendant=nucleic_family[index+1],edge_weight=0)
-						n2 = Node(ascendant=person,descendant=nucleic_family[index+2],edge_weight=1)
-						n3 = Node(ascendant=person,descendant=nucleic_family[index+3],edge_weight=1)
+						n1 = Edge(ascendant=node,descendant=nucleic_family[index+1],edge_weight=0)
+						n2 = Edge(ascendant=node,descendant=nucleic_family[index+2],edge_weight=1)
+						n3 = Edge(ascendant=node,descendant=nucleic_family[index+3],edge_weight=1)
 					if index==1:
-						n4 = Node(ascendant=person,descendant=nucleic_family[index+1],edge_weight=1)
-						n5 = Node(ascendant=person,descendant=nucleic_family[index+2],edge_weight=1)
+						n4 = Edge(ascendant=node,descendant=nucleic_family[index+1],edge_weight=1)
+						n5 = Edge(ascendant=node,descendant=nucleic_family[index+2],edge_weight=1)
 					if index==2:
-						n6 = Node(ascendant=person,descendant=nucleic_family[index+1],edge_weight=0)
+						n6 = Edge(ascendant=node,descendant=nucleic_family[index+1],edge_weight=0)
 			else:
-				for index,person in enumerate(nucleic_family):
+				for index,node in enumerate(nucleic_family):
 					if index==0:
-						n1 = Node(ascendant=master_found,descendant=nucleic_family[index],edge_weight=0)
-						n2 = Node(ascendant=master_found,descendant=nucleic_family[index+1],edge_weight=1)
-						n3 = Node(ascendant=master_found,descendant=nucleic_family[index+2],edge_weight=1)
-						n4 = Node(ascendant=person,descendant=nucleic_family[index+1],edge_weight=1)
-						n5 = Node(ascendant=person,descendant=nucleic_family[index+2],edge_weight=1)
+						n1 = Edge(ascendant=master_found,descendant=nucleic_family[index],edge_weight=0)
+						n2 = Edge(ascendant=master_found,descendant=nucleic_family[index+1],edge_weight=1)
+						n3 = Edge(ascendant=master_found,descendant=nucleic_family[index+2],edge_weight=1)
+						n4 = Edge(ascendant=node,descendant=nucleic_family[index+1],edge_weight=1)
+						n5 = Edge(ascendant=node,descendant=nucleic_family[index+2],edge_weight=1)
 					if index==1:
-						n6 = Node(ascendant=person,descendant=nucleic_family[index+1],edge_weight=0)
+						n6 = Edge(ascendant=node,descendant=nucleic_family[index+1],edge_weight=0)
 				master_found = None
 			db.session.add_all([n1,n2,n3,n4,n5,n6])		
 			db.session.commit()
 
-		return 'Test tree committed to database'
-
 
 
 	def __repr__(self):
-		return 'Person: <%s>' % self.baptism_name
+		return 'Node: <%s>' % self.baptism_name
