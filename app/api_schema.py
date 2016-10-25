@@ -1,5 +1,5 @@
-import graphene
-from graphene_sqlalchemy import SQLAlchemyConnectionField, SQLAlchemyObjectType
+from graphene import ObjectType, Schema, List
+from graphene_sqlalchemy import SQLAlchemyObjectType
 from .models import Node as NodeModel
 from .models import Edge as EdgeModel
 
@@ -11,16 +11,16 @@ class Edge(SQLAlchemyObjectType):
 	class Meta:
 		model = EdgeModel
 
-class Query(graphene.ObjectType):
-	nodes = graphene.List(Node)
-	edges = graphene.List(Edge)
+class Query(ObjectType):
+	all_nodes = List(Node)
+	all_edges = List(Edge)
 
-	def resolve_nodes(self, args, context, info):
+	def resolve_all_nodes(self, args, context, info):
 		query = Node.get_query(context)
 		return query.all()
 
-	def resolve_edges(self, args, context, info):
+	def resolve_all_edges(self, args, context, info):
 		query = Edge.get_query(context)
 		return query.all()
 
-schema = graphene.Schema(query=Query)
+schema = Schema(query=Query)

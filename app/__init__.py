@@ -17,6 +17,6 @@ def create_app(config_name):
 	# register app blueprints here
 	from .api_schema import schema
 	app.add_url_rule('/graphiql', view_func=GraphQLView.as_view('graphql',
-		schema=schema, graphiql=app.config['GRAPHIQL']))
+		schema=schema, graphiql=app.config['MIMINANI_GRAPHIQL']))
 
 	return app

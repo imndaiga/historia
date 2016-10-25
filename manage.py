@@ -15,9 +15,6 @@ migrate = Migrate(app, db)
 
 # Attach functions to app-runtime flags
 def make_shell_context():
-	if app.config['DEBUG']:
-		if not os.path.exists(app.config['SQLALCHEMY_DATABASE_URI']):
-			db.create_all()
 	return dict(db=db, Node=Node, Edge=Edge, app=app)
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
@@ -26,8 +23,6 @@ manager.add_command('db', MigrateCommand)
 def forge():
 	"""Seed fake family tree data"""
 	if app.config['DEBUG']:
-		if not os.path.exists(app.config['SQLALCHEMY_DATABASE_URI']):
-			db.create_all()
 		n1 = Node(baptism_name='John', dob=date(1901,1,1))
 		n2 = Node(baptism_name='Mary', dob=date(1902,2,2))
 		n3 = Node(baptism_name='Jack', dob=date(1910,3,3))
@@ -41,7 +36,7 @@ def forge():
 			6:[n3,n4,0]
 		}
 		Node.seed_node_family(links)
-		return Node.query.all()
+		return links
 	return None
 
 
@@ -53,4 +48,9 @@ def test():
 	unittest.TextTestRunner(verbosity=2).run(tests)
 
 if __name__ == '__main__':
+	with app.app_context():
+		basedir = os.path.abspath(os.path.dirname(__file__))
+		if app.config['DEBUG'] and (basedir in app.config['SQLALCHEMY_DATABASE_URI']):
+			if not os.path.exists('data-dev.sqlite'):
+				print('No development database present')
 	manager.run()

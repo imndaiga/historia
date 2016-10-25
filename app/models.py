@@ -36,25 +36,25 @@ class Node(db.Model):
 								lazy='dynamic',
 								cascade='all, delete-orphan')
 
-	def create_step_edge(self, node, edge_weight):
+	def create_edge(self, node, edge_weight):
 		if self.baptism_name != node.baptism_name:
 			if node.dob > self.dob:
-				if not self._is_step_ascendant_to(node):
+				if not self._is_edge_ascendant_to(node):
 					n = Edge(ascendant=self, descendant=node, edge_weight=edge_weight)
 					db.session.add(n)
 					return self
 			else:
-				if not node._is_step_ascendant_to(self):
+				if not node._is_edge_ascendant_to(self):
 					n = Edge(ascendant=node, descendant=self, edge_weight=edge_weight)
 					db.session.add(n)
 					return node
 		return None
 
-	def change_step_edge_weight(self, node, edge_weight):
+	def change_edge_weight(self, node, edge_weight):
 		if self.baptism_name != node.baptism_name:
-			if self._is_step_ascendant_to(node):
+			if self._is_edge_ascendant_to(node):
 				n = Edge.query.filter_by(descendant_id=node.id).first()
-			elif self._is_step_descendant_to(node):
+			elif self._is_edge_descendant_to(node):
 				n = Edge.query.filter_by(ascendant_id=node.id).first()
 			else:
 				# Self and Node are not related, no edge_weight change can be made
@@ -70,19 +70,16 @@ class Node(db.Model):
 			for link in links:
 				db.session.add_all([links[link][0],links[link][1]])
 				db.session.commit()
-				links[link][0].create_step_edge(links[link][1], edge_weight=links[link][2])
+				links[link][0].create_edge(links[link][1], edge_weight=links[link][2])
 			return links
 		else:
 			return None
 
-	def count_steps(self, node):
-		pass
-
-	def _is_step_ascendant_to(self, node):
+	def _is_edge_ascendant_to(self, node):
 		return self.descended_by.filter_by(
 			descendant_id=node.id).first() is not None
 
-	def _is_step_descendant_to(self, node):
+	def _is_edge_descendant_to(self, node):
 		return self.ascended_by.filter_by(
 			ascendant_id=node.id).first() is not None
 					

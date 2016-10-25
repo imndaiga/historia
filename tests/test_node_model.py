@@ -35,34 +35,44 @@ class NodeModelTestCase(unittest.TestCase):
 	def test_edge_count(self):
 		self.assertTrue(Edge.query.count() == 6)
 
-	def test_valid_step_edges(self):
+	def test_valid_edges(self):
 		(n1,n2,n3,n4) = Node.query.all()
-		self.assertTrue(n1._is_step_ascendant_to(n3))
-		self.assertTrue(n1._is_step_ascendant_to(n2))
-		self.assertTrue(n1._is_step_ascendant_to(n4))
-		self.assertTrue(n2._is_step_ascendant_to(n3))
-		self.assertTrue(n2._is_step_ascendant_to(n4))
-		self.assertTrue(n3._is_step_ascendant_to(n4))
+		self.assertTrue(n1._is_edge_ascendant_to(n3))
+		self.assertTrue(n1._is_edge_ascendant_to(n2))
+		self.assertTrue(n1._is_edge_ascendant_to(n4))
+		self.assertTrue(n2._is_edge_ascendant_to(n3))
+		self.assertTrue(n2._is_edge_ascendant_to(n4))
+		self.assertTrue(n3._is_edge_ascendant_to(n4))
 		
 
-	def test_invalid_step_edges(self):
+	def test_invalid_edges(self):
 		(n1,n2,n3,n4) = Node.query.all()
-		self.assertFalse(n1._is_step_descendant_to(n3))
-		self.assertFalse(n1._is_step_descendant_to(n2))
-		self.assertFalse(n1._is_step_descendant_to(n4))
-		self.assertFalse(n2._is_step_descendant_to(n3))
-		self.assertFalse(n2._is_step_descendant_to(n4))
-		self.assertFalse(n3._is_step_descendant_to(n4))
+		self.assertFalse(n1._is_edge_descendant_to(n3))
+		self.assertFalse(n1._is_edge_descendant_to(n2))
+		self.assertFalse(n1._is_edge_descendant_to(n4))
+		self.assertFalse(n2._is_edge_descendant_to(n3))
+		self.assertFalse(n2._is_edge_descendant_to(n4))
+		self.assertFalse(n3._is_edge_descendant_to(n4))
 
-	def test_change_step_edge_weights(self):
+	def test_invalid_edge_change(self):
 		(n1,n2,n3,n4) = Node.query.all()
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		db.session.add(n5)
 		db.session.commit()
-		self.assertFalse(n5.change_step_edge_weight(n1,1))
-		self.assertFalse(n5.change_step_edge_weight(n2,1))
-		self.assertFalse(n5.change_step_edge_weight(n3,0))
-		self.assertFalse(n5.change_step_edge_weight(n4,0))
+		self.assertFalse(n5.change_edge_weight(n1,1))
+		self.assertFalse(n5.change_edge_weight(n2,1))
+		self.assertFalse(n5.change_edge_weight(n3,0))
+		self.assertFalse(n5.change_edge_weight(n4,0))
+		self.assertFalse(n1.change_edge_weight(n5,1))
+		self.assertFalse(n2.change_edge_weight(n5,1))
+		self.assertFalse(n3.change_edge_weight(n5,0))
+		self.assertFalse(n4.change_edge_weight(n5,0))
+
+	def test_valid_edge_change(self):
+		(n1,n2,n3,n4) = Node.query.all()
+		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
+		db.session.add(n5)
+		db.session.commit()
 		links = {
 			1:[n1,n5,1],
 			2:[n2,n5,1],
@@ -70,13 +80,17 @@ class NodeModelTestCase(unittest.TestCase):
 			4:[n4,n5,0]
 		}
 		Node.seed_node_family(links)
-		self.assertTrue(n5.change_step_edge_weight(n1,1))
-		self.assertTrue(n5.change_step_edge_weight(n2,1))
-		self.assertTrue(n5.change_step_edge_weight(n3,0))
-		self.assertTrue(n5.change_step_edge_weight(n4,0))
+		self.assertTrue(n5.change_edge_weight(n1,1))
+		self.assertTrue(n5.change_edge_weight(n2,1))
+		self.assertTrue(n5.change_edge_weight(n3,0))
+		self.assertTrue(n5.change_edge_weight(n4,0))
+		self.assertTrue(n1.change_edge_weight(n5,1))
+		self.assertTrue(n2.change_edge_weight(n5,1))
+		self.assertTrue(n3.change_edge_weight(n5,0))
+		self.assertTrue(n4.change_edge_weight(n5,0))
 
 
-	def test_invalid_self_edge(self):
+	def test_invalid_loop(self):
 		n1 = Node.query.get(1)
-		self.assertFalse(n1.create_step_edge(n1,1))
-		self.assertFalse(n1.change_step_edge_weight(n1,1))
+		self.assertFalse(n1.create_edge(n1,1))
+		self.assertFalse(n1.change_edge_weight(n1,1))
