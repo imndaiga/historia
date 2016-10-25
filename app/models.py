@@ -21,7 +21,7 @@ class Node(db.Model):
 	ethnic_name = db.Column(db.String(64), index=True)
 	surname = db.Column(db.String(64), index=True)
 	sex = db.Column(db.String(64))
-	yob = db.Column(db.DateTime, default=date(9999,1,1))
+	dob = db.Column(db.DateTime, default=date(9999,1,1))
 	email_confirmed = db.Column(db.Boolean, default=False)
 	email = db.Column(db.String(64), unique=True)
 
@@ -38,7 +38,7 @@ class Node(db.Model):
 
 	def create_step_edge(self, node, edge_weight):
 		if self.baptism_name != node.baptism_name:
-			if node.yob > self.yob:
+			if node.dob > self.dob:
 				if not self._is_step_ascendant_to(node):
 					n = Edge(ascendant=self, descendant=node, edge_weight=edge_weight)
 					db.session.add(n)
@@ -48,7 +48,7 @@ class Node(db.Model):
 					n = Edge(ascendant=node, descendant=self, edge_weight=edge_weight)
 					db.session.add(n)
 					return node
-		return False
+		return None
 
 	def change_step_edge_weight(self, node, edge_weight):
 		if self.baptism_name != node.baptism_name:
@@ -58,22 +58,22 @@ class Node(db.Model):
 				n = Edge.query.filter_by(ascendant_id=node.id).first()
 			else:
 				# Self and Node are not related, no edge_weight change can be made
-				return False
+				return None
 			n.edge_weight = edge_weight
 			db.session.add(n)
-			return True
-		return False
+			return n
+		return None
 
 	@staticmethod
-	def commit_node_branch(links=None):
+	def seed_node_family(links=None):
 		if links:
 			for link in links:
 				db.session.add_all([links[link][0],links[link][1]])
 				db.session.commit()
 				links[link][0].create_step_edge(links[link][1], edge_weight=links[link][2])
-			return True
+			return links
 		else:
-			return False
+			return None
 
 	def count_steps(self, node):
 		pass

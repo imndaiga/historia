@@ -19,6 +19,8 @@ class Config:
 	MIMINANI_MAIL_SENDER = 'MIMINANI'
 	MIMINANI_ADMIN = os.environ.get('MIMINANI_ADMIN')
 
+	GRAPHIQL = True
+
 	@staticmethod
 	def init_app(app):
 		pass

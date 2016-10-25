@@ -10,10 +10,10 @@ class NodeModelTestCase(unittest.TestCase):
 		self.app_context.push()
 		db.create_all()
 
-		n1 = Node(baptism_name='Chris', yob=date(1900,11,1))
-		n2 = Node(baptism_name='Christine', yob=date(1910,12,2))
-		n3 = Node(baptism_name='Charlie', yob=date(1925,10,3))
-		n4 = Node(baptism_name='Carol', yob=date(1930,8,4))
+		n1 = Node(baptism_name='Chris', dob=date(1900,11,1))
+		n2 = Node(baptism_name='Christine', dob=date(1910,12,2))
+		n3 = Node(baptism_name='Charlie', dob=date(1925,10,3))
+		n4 = Node(baptism_name='Carol', dob=date(1930,8,4))
 		links = {
 			1: [n1,n2,0],
 			2: [n1,n3,1],
@@ -22,7 +22,7 @@ class NodeModelTestCase(unittest.TestCase):
 			5: [n2,n4,1],
 			6: [n3,n4,0]
 		}
-		Node.commit_node_branch(links)
+		Node.seed_node_family(links)
 
 	def tearDown(self):
 		db.session.remove()
@@ -56,7 +56,7 @@ class NodeModelTestCase(unittest.TestCase):
 
 	def test_change_step_edge_weights(self):
 		(n1,n2,n3,n4) = Node.query.all()
-		n5 = Node(baptism_name='Coraline',yob=date(1940,7,5))
+		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		db.session.add(n5)
 		db.session.commit()
 		self.assertFalse(n5.change_step_edge_weight(n1,1))
@@ -69,7 +69,7 @@ class NodeModelTestCase(unittest.TestCase):
 			3:[n3,n5,0],
 			4:[n4,n5,0]
 		}
-		n5.commit_node_branch(links)
+		Node.seed_node_family(links)
 		self.assertTrue(n5.change_step_edge_weight(n1,1))
 		self.assertTrue(n5.change_step_edge_weight(n2,1))
 		self.assertTrue(n5.change_step_edge_weight(n3,0))

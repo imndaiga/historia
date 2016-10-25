@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from config import config
+from flask_graphql import GraphQLView
 
 # extension attribute references here
 db = SQLAlchemy()
@@ -14,5 +15,8 @@ def create_app(config_name):
 	db.init_app(app)
 
 	# register app blueprints here
+	from .api_schema import schema
+	app.add_url_rule('/graphiql', view_func=GraphQLView.as_view('graphql',
+		schema=schema, graphiql=app.config['GRAPHIQL']))
 
 	return app
