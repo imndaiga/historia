@@ -38,23 +38,14 @@ class Node(db.Model):
 								lazy='dynamic',
 								cascade='all, delete-orphan')
 
-	def generate_login_token(self, remember_me=False, expiration=3600):
+	def generate_login_token(self, email, remember_me=False, next_url=None, expiration=3600):
 		s = Serializer(current_app.config['SECRET_KEY'], expiration)
-		return s.dumps({'login': self.id, 'remember_me': remember_me})
+		return s.dumps({'login': self.id, 'remember_me': remember_me,
+			'next_url': next_url, 'email': email})
 
-	def generate_confirmation_and_login_token(self, expiration=3600):
+	def generate_confirm_and_login_token(self, email, expiration=3600):
 		s = Serializer(current_app.config['SECRET_KEY'], expiration)
-		return s.dumps({'confirm': self.id, 'login': self.id, 'remember_me': False})
-
-	def confirm_login(self, token):
-		s = Serializer(current_app.config['SECRET_KEY'])
-		try:
-			data = s.loads(token)
-		except:
-			return False
-		if data.get('login') != self.id:
-			return False
-		return {'remember_me': data.get('remember_me')}
+		return s.dumps({'confirm': self.id, 'login': self.id, 'email': email})
 
 	def confirm_email(self, token):
 		s = Serializer(current_app.config['SECRET_KEY'])
@@ -67,6 +58,16 @@ class Node(db.Model):
 		self.confirmed = True
 		db.session.add(self)
 		return True
+
+	def confirm_login(self, token):
+		s = Serializer(current_app.config['SECRET_KEY'])
+		try:
+			data = s.loads(token)
+		except:
+			return False
+		if data.get('login') != self.id:
+			return False
+		return {'remember_me': data.get('remember_me'), 'next_url': data.get('next_url')}
 
 	def create_edge(self, node, edge_weight):
 		if self.baptism_name != node.baptism_name:
@@ -95,6 +96,16 @@ class Node(db.Model):
 			db.session.add(n)
 			return n
 		return None
+		
+	@staticmethod
+	def node_from_token(token):
+		s = Serializer(current_app.config['SECRET_KEY'])
+		try:
+			data = s.loads(token)
+		except:
+			return False
+		if data.get('email'):
+			return Node.query.filter_by(email=data.get('email')).first()
 
 	@staticmethod
 	def seed_node_family(links=None):

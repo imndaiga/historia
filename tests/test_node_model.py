@@ -11,10 +11,10 @@ class NodeModelTestCase(unittest.TestCase):
 		self.app_context.push()
 		db.create_all()
 
-		n1 = Node(baptism_name='Chris', dob=date(1900,11,1))
-		n2 = Node(baptism_name='Christine', dob=date(1910,12,2))
-		n3 = Node(baptism_name='Charlie', dob=date(1925,10,3))
-		n4 = Node(baptism_name='Carol', dob=date(1930,8,4))
+		n1 = Node(baptism_name='Chris', email='chris@family.com', dob=date(1900,11,1))
+		n2 = Node(baptism_name='Christine', email='christine@family.com', dob=date(1910,12,2))
+		n3 = Node(baptism_name='Charlie', email='charlie@family.com', dob=date(1925,10,3))
+		n4 = Node(baptism_name='Carol', email='carol@family.com', dob=date(1930,8,4))
 		links = {
 			1: [n1,n2,0],
 			2: [n1,n3,1],
@@ -96,38 +96,56 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertFalse(n1.create_edge(n1,1))
 		self.assertFalse(n1.change_edge_weight(n1,1))
 
+	def test_invalid_tokens(self):
+		(n1,n2) = Node.query.slice(0,2)
+		token1 = n1.generate_confirm_and_login_token(email=n1.email)
+		token2 = n1.generate_login_token(email=n1.email)
+		self.assertFalse(n1.confirm_email(token2))
+		self.assertFalse(n2.confirm_login(token1))
+
+	def test_valid_node_from_token(self):
+		n1 = Node.query.get(1)
+		token = n1.generate_confirm_and_login_token(email=n1.email)
+		node = Node.node_from_token(token)
+		self.assertTrue(node.email == n1.email)
+
+	def test_invalid_node_from_token(self):
+		(n1,n2) = Node.query.slice(0,2)
+		token = n1.generate_confirm_and_login_token(email=n1.email)
+		node = Node.node_from_token(token)
+		self.assertFalse(node.email == n2.email)
+
 	def test_valid_confirmation_token(self):
 		n1 = Node.query.get(1)
-		token = n1.generate_confirmation_and_login_token()
+		token = n1.generate_confirm_and_login_token(email=n1.email)
 		self.assertTrue(n1.confirm_email(token))
 		self.assertTrue(n1.confirm_login(token))
 
 	def test_invalid_confirmation_token(self):
 		(n1,n2) = Node.query.slice(0,2)
-		token = n1.generate_confirmation_and_login_token()
+		token = n1.generate_confirm_and_login_token(email=n1.email)
 		self.assertFalse(n2.confirm_email(token))
 		self.assertFalse(n2.confirm_login(token))
 
 	def test_expired_confirmation_token(self):
 		n1 = Node.query.get(1)
-		token = n1.generate_confirmation_and_login_token(expiration=1)
+		token = n1.generate_confirm_and_login_token(expiration=1,email=n1.email)
 		time.sleep(2)
 		self.assertFalse(n1.confirm_email(token))
+		self.assertFalse(n1.confirm_login(token))
 
 	def test_valid_login_token(self):
 		n1 = Node.query.get(1)
-		token = n1.generate_login_token()
+		token = n1.generate_login_token(email=n1.email)
 		self.assertTrue(n1.confirm_login(token))
 
 	def test_invalid_login_token(self):
 		(n1,n2) = Node.query.slice(0,2)
-		token = n1.generate_login_token()
+		token = n1.generate_login_token(email=n1.email)
 		self.assertFalse(n2.confirm_login(token))
-		self.assertFalse(n2.confirm_email(token))
-		self.assertFalse(n1.confirm_email(token))
 
 	def test_expired_login_token(self):
 		n1 = Node.query.get(1)
-		token = n1.generate_login_token(expiration=1)
+		token = n1.generate_login_token(expiration=1, email=n1.email)
 		time.sleep(2)
 		self.assertFalse(n1.confirm_login(token))
