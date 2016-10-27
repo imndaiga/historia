@@ -2,6 +2,7 @@ import unittest
 from app import create_app, db
 from app.models import Node, Edge
 from datetime import date
+import time
 
 class NodeModelTestCase(unittest.TestCase):
 	def setUp(self):
@@ -90,7 +91,43 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertTrue(n4.change_edge_weight(n5,0))
 
 
-	def test_invalid_loop(self):
+	def test_invalid_node_loop(self):
 		n1 = Node.query.get(1)
 		self.assertFalse(n1.create_edge(n1,1))
 		self.assertFalse(n1.change_edge_weight(n1,1))
+
+	def test_valid_confirmation_token(self):
+		n1 = Node.query.get(1)
+		token = n1.generate_confirmation_and_login_token()
+		self.assertTrue(n1.confirm_email(token))
+		self.assertTrue(n1.confirm_login(token))
+
+	def test_invalid_confirmation_token(self):
+		(n1,n2) = Node.query.slice(0,2)
+		token = n1.generate_confirmation_and_login_token()
+		self.assertFalse(n2.confirm_email(token))
+		self.assertFalse(n2.confirm_login(token))
+
+	def test_expired_confirmation_token(self):
+		n1 = Node.query.get(1)
+		token = n1.generate_confirmation_and_login_token(expiration=1)
+		time.sleep(2)
+		self.assertFalse(n1.confirm_email(token))
+
+	def test_valid_login_token(self):
+		n1 = Node.query.get(1)
+		token = n1.generate_login_token()
+		self.assertTrue(n1.confirm_login(token))
+
+	def test_invalid_login_token(self):
+		(n1,n2) = Node.query.slice(0,2)
+		token = n1.generate_login_token()
+		self.assertFalse(n2.confirm_login(token))
+		self.assertFalse(n2.confirm_email(token))
+		self.assertFalse(n1.confirm_email(token))
+
+	def test_expired_login_token(self):
+		n1 = Node.query.get(1)
+		token = n1.generate_login_token(expiration=1)
+		time.sleep(2)
+		self.assertFalse(n1.confirm_login(token))

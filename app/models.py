@@ -1,5 +1,7 @@
 from . import db
 from datetime import date
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from flask import current_app
 
 class Edge(db.Model):
 	"""self-referential association table that connects Nodes"""
@@ -22,8 +24,8 @@ class Node(db.Model):
 	surname = db.Column(db.String(64), index=True)
 	sex = db.Column(db.String(64))
 	dob = db.Column(db.DateTime, default=date(9999,1,1))
-	email_confirmed = db.Column(db.Boolean, default=False)
 	email = db.Column(db.String(64), unique=True)
+	confirmed = db.Column(db.Boolean, default=False)
 
 	descended_by = db.relationship('Edge',
 								foreign_keys=[Edge.ascendant_id],
@@ -35,6 +37,36 @@ class Node(db.Model):
 								backref=db.backref('descendant', lazy='joined'),
 								lazy='dynamic',
 								cascade='all, delete-orphan')
+
+	def generate_login_token(self, remember_me=False, expiration=3600):
+		s = Serializer(current_app.config['SECRET_KEY'], expiration)
+		return s.dumps({'login': self.id, 'remember_me': remember_me})
+
+	def generate_confirmation_and_login_token(self, expiration=3600):
+		s = Serializer(current_app.config['SECRET_KEY'], expiration)
+		return s.dumps({'confirm': self.id, 'login': self.id, 'remember_me': False})
+
+	def confirm_login(self, token):
+		s = Serializer(current_app.config['SECRET_KEY'])
+		try:
+			data = s.loads(token)
+		except:
+			return False
+		if data.get('login') != self.id:
+			return False
+		return {'remember_me': data.get('remember_me')}
+
+	def confirm_email(self, token):
+		s = Serializer(current_app.config['SECRET_KEY'])
+		try:
+			data = s.loads(token)
+		except:
+			return False
+		if data.get('confirm') != self.id:
+			return False
+		self.confirmed = True
+		db.session.add(self)
+		return True
 
 	def create_edge(self, node, edge_weight):
 		if self.baptism_name != node.baptism_name:
