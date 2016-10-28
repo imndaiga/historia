@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<div class="jumbotron">
+	<div class="container">
+		{% for message in get_flashed_messages() %}
+		<div class="alert alert-warning">
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
+			{{ message }}
+		</div>
+		{% endfor %}
+		<h1 style="padding-left: 2%">Hello from MIMINANI!</h1>
+		<div class="col-md-1">
+		</div>
+		<div class="col-md-5">
+			<p>MIMINANI helps you <strong>finally</strong> create your family tree! All it takes to start is your email address and name.</p>
+			<p><a class="btn btn-primary btn-lg" href="#" role="button">Learn More</a></p>
+		</div>
+		<div class="col-md-2">
+		</div>
+		<div class="col-md-3 well">
+			{{ wtf.quick_form(form) }}
+			<br>
+			<p>Sign Up or Login here.</p>
+			<small>(we use <a href="https://www.sitepoint.com/passwordless-authentication-works/">passwordless</a> logins!)</small>
+		</div>
+	</div>
+</div>
+{% endblock %}

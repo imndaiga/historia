@@ -1,0 +1,18 @@
+from flask_wtf import FlaskForm
+from wtforms import StringField, BooleanField, SubmitField
+from wtforms.validators import Required, Email, Length
+from wtforms import ValidationError
+from ..models import Node
+
+class EmailRememberMeForm(FlaskForm):
+	email = StringField('Email', validators=[Required(), Length(1,64), Email()])
+	remember_me = BooleanField('Keep me logged in')
+	submit = SubmitField('Submit')
+
+class ChangeEmailForm(FlaskForm):
+	email = StringField('New Email', validators=[Required(), Length(1,64), Email()])
+	submit = SubmitField('Update Email Address')
+
+	def validate_email(self, field):
+		if Node.query.filter_by(email=field.data).first():
+			raise ValidationError('Email already registered.')
