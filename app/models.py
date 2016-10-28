@@ -2,6 +2,8 @@ from . import db
 from datetime import date
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
+from flask_login import UserMixin
+from . import login_manager
 
 class Edge(db.Model):
 	"""self-referential association table that connects Nodes"""
@@ -15,7 +17,7 @@ class Edge(db.Model):
 	def __repr__(self):
 		return '<Edge %s-%s:%s>' % (self.ascendant_id, self.descendant_id, self.edge_weight)
 
-class Node(db.Model):
+class Node(db.Model, UserMixin):
 	"""all miminani subscribed Nodes"""
 	__tablename__ = 'nodes'
 	id = db.Column(db.Integer, primary_key=True)
@@ -125,6 +127,10 @@ class Node(db.Model):
 	def _is_edge_descendant_to(self, node):
 		return self.ascended_by.filter_by(
 			ascendant_id=node.id).first() is not None
+
+	@login_manager.user_loader
+	def load_user(user_id):
+		return Node.query.get(int(user_id))
 					
 	def __repr__(self):
 		return 'Node: <%s>' % self.baptism_name

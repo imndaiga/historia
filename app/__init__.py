@@ -1,10 +1,15 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from config import config
 from flask_graphql import GraphQLView
+from flask_login import LoginManager
+from config import config
 
 # extension attribute references here
 db = SQLAlchemy()
+
+login_manager = LoginManager()
+login_manager.session_protection = 'strong'
+login_manager.login_view = 'auth.request_login'
 
 def create_app(config_name):
 	app = Flask(__name__)
@@ -13,6 +18,7 @@ def create_app(config_name):
 
 	# initialise extensions here
 	db.init_app(app)
+	login_manager.init_app(app)
 
 	# register app blueprints here
 	from .api_schema import schema
