@@ -1,0 +1,13 @@
+Hello there!
+
+Welcome to MIMINANI!
+
+You recently signed up for an account with us at MIMINANI. To confirm into your account, please paste the following link in your browser's address bar:
+
+{{ url_for('auth.login', token=token, _external=True) }}.
+
+Sincerely,
+
+The MIMINANI Team
+
+Note: replies to this email address are not monitored.

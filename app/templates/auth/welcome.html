@@ -10,7 +10,8 @@
 			{{ message }}
 		</div>
 		{% endfor %}
-		<h1 style="padding-left: 2%">Hello from MIMINANI!</h1>
+		<h1>Welcome!</h1>
+		<br>
 		<div class="col-md-1">
 		</div>
 		<div class="col-md-5">
@@ -19,11 +20,13 @@
 		</div>
 		<div class="col-md-2">
 		</div>
-		<div class="col-md-3 well">
-			{{ wtf.quick_form(form) }}
-			<br>
-			<p>Sign Up or Login here.</p>
-			<small>(we use <a href="https://www.sitepoint.com/passwordless-authentication-works/">passwordless</a> logins!)</small>
+		<div class="col-md-4">
+			<div class="well">
+				{{ wtf.quick_form(form) }}
+				<br>
+				<p>Sign Up or Login here.</p>
+				<small>(we use <a href="https://www.sitepoint.com/passwordless-authentication-works/">passwordless</a> logins!)</small>
+			</div>
 		</div>
 	</div>
 </div>

@@ -1,4 +1,4 @@
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, BooleanField, SubmitField
 from wtforms.validators import Required, Email, Length
 from wtforms import ValidationError
@@ -7,6 +7,7 @@ from ..models import Node
 class EmailRememberMeForm(FlaskForm):
 	email = StringField('Email', validators=[Required(), Length(1,64), Email()])
 	remember_me = BooleanField('Keep me logged in')
+	recaptcha = RecaptchaField()
 	submit = SubmitField('Submit')
 
 class ChangeEmailForm(FlaskForm):
