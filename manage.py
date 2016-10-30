@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from app import create_app, db
+from app.email import send_email
 from app.models import Node, Edge
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
@@ -15,7 +16,7 @@ migrate = Migrate(app, db)
 
 # Attach functions to app-runtime flags
 def make_shell_context():
-	return dict(db=db, Node=Node, Edge=Edge, app=app)
+	return dict(db=db, Node=Node, Edge=Edge, app=app, send_email=send_email)
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 

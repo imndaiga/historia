@@ -3,11 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_graphql import GraphQLView
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
+from flask_mail import Mail
 from config import config
 
 # extension attribute references here
 db = SQLAlchemy()
 bootstrap = Bootstrap()
+mail = Mail()
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
@@ -22,6 +24,7 @@ def create_app(config_name):
 	db.init_app(app)
 	login_manager.init_app(app)
 	bootstrap.init_app(app)
+	mail.init_app(app)
 
 	# register app blueprints here
 	from .api_schema import schema

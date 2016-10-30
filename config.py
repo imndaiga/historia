@@ -7,8 +7,8 @@ class Config:
 	SECRET_KEY = os.environ.get('SECRET_KEY') or 'kabdkjb893b39*B*(SB'
 	SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
-	MAIL_SERVER = 'smtp.gmail.com'
-	MAIL_PORT = 465
+	MAIL_SERVER = os.environ.get('MAIL_SERVER') or 'smtp-relay.sendinblue.com'
+	MAIL_PORT = os.environ.get('MAIL_PORT') or 587
 	MAIL_USE_TLS = False
 	MAIL_USE_SSL = True
 	MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
@@ -16,10 +16,14 @@ class Config:
 
 	# App context environment variables
 	MIMINANI_MAIL_SUBJECT_PREFIX = '[MIMINANI]'
-	MIMINANI_MAIL_SENDER = 'MIMINANI'
+	MIMINANI_MAIL_SENDER = 'MIMINANI <admin@miminani.com>'
 	MIMINANI_ADMIN = os.environ.get('MIMINANI_ADMIN')
 
 	MIMINANI_GRAPHIQL = True
+
+	RECAPTCHA_PUBLIC_KEY=os.environ.get('RECAPTCHA_PUBLIC_KEY')
+	RECAPTCHA_PRIVATE_KEY=os.environ.get('RECAPTCHA_PRIVATE_KEY')
+	RECAPTCHA_DATA_ATTRS = {'size': 'normal'}
 
 	@staticmethod
 	def init_app(app):
