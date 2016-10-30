@@ -96,43 +96,24 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertFalse(n1.create_edge(n1,1))
 		self.assertFalse(n1.change_edge_weight(n1,1))
 
-	def test_invalid_tokens(self):
-		(n1,n2) = Node.query.slice(0,2)
-		token1 = n1.generate_confirm_and_login_token(email=n1.email)
-		token2 = n1.generate_login_token(email=n1.email)
-		self.assertFalse(n1.confirm_email(token2))
-		self.assertFalse(n2.confirm_login(token1))
-
 	def test_valid_node_from_token(self):
 		n1 = Node.query.get(1)
-		token = n1.generate_confirm_and_login_token(email=n1.email)
-		node = Node.node_from_token(token)
-		self.assertTrue(node.email == n1.email)
+		token = n1.generate_login_token(email=n1.email)
+		sig_data = Node.node_from_token(token)
+		self.assertTrue(sig_data['node'].email == n1.email)
 
 	def test_invalid_node_from_token(self):
 		(n1,n2) = Node.query.slice(0,2)
-		token = n1.generate_confirm_and_login_token(email=n1.email)
-		node = Node.node_from_token(token)
-		self.assertFalse(node.email == n2.email)
+		token = n1.generate_login_token(email=n1.email)
+		sig_data = Node.node_from_token(token)
+		self.assertFalse(sig_data['node'].email == n2.email)
 
-	def test_valid_confirmation_token(self):
+	def test_expired_node_from_token(self):
 		n1 = Node.query.get(1)
-		token = n1.generate_confirm_and_login_token(email=n1.email)
-		self.assertTrue(n1.confirm_email(token))
-		self.assertTrue(n1.confirm_login(token))
-
-	def test_invalid_confirmation_token(self):
-		(n1,n2) = Node.query.slice(0,2)
-		token = n1.generate_confirm_and_login_token(email=n1.email)
-		self.assertFalse(n2.confirm_email(token))
-		self.assertFalse(n2.confirm_login(token))
-
-	def test_expired_confirmation_token(self):
-		n1 = Node.query.get(1)
-		token = n1.generate_confirm_and_login_token(expiration=1,email=n1.email)
+		token = n1.generate_login_token(email=n1.email, expiration=1)
 		time.sleep(2)
-		self.assertFalse(n1.confirm_email(token))
-		self.assertFalse(n1.confirm_login(token))
+		sig_data = Node.node_from_token(token)
+		self.assertFalse(sig_data['sig'])
 
 	def test_valid_login_token(self):
 		n1 = Node.query.get(1)

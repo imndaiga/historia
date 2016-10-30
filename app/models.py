@@ -40,26 +40,10 @@ class Node(db.Model, UserMixin):
 								lazy='dynamic',
 								cascade='all, delete-orphan')
 
-	def generate_login_token(self, email, remember_me=False, next_url=None, expiration=3600):
+	def generate_login_token(self, email, remember_me=False, next_url=None, expiration=300):
 		s = Serializer(current_app.config['SECRET_KEY'], expiration)
 		return s.dumps({'login': self.id, 'remember_me': remember_me,
 			'next_url': next_url, 'email': email})
-
-	def generate_confirm_and_login_token(self, email, expiration=3600):
-		s = Serializer(current_app.config['SECRET_KEY'], expiration)
-		return s.dumps({'confirm': self.id, 'login': self.id, 'email': email})
-
-	def confirm_email(self, token):
-		s = Serializer(current_app.config['SECRET_KEY'])
-		try:
-			data = s.loads(token)
-		except:
-			return False
-		if data.get('confirm') != self.id:
-			return False
-		self.confirmed = True
-		db.session.add(self)
-		return True
 
 	def confirm_login(self, token):
 		s = Serializer(current_app.config['SECRET_KEY'])
@@ -105,9 +89,11 @@ class Node(db.Model, UserMixin):
 		try:
 			data = s.loads(token)
 		except:
-			return False
+			return {'sig': False, 'node': None}
 		if data.get('email'):
-			return Node.query.filter_by(email=data.get('email')).first()
+			return {'sig': True, 'node': Node.query.filter_by(email=data.get('email')).first()}
+		else:
+			return {'sig': False, 'node': None}
 
 	@staticmethod
 	def seed_node_family(links=None):
