@@ -16,13 +16,15 @@ class NodeModelTestCase(unittest.TestCase):
 		n3 = Node(baptism_name='Charlie', email='charlie@family.com', dob=date(1925,10,3))
 		n4 = Node(baptism_name='Carol', email='carol@family.com', dob=date(1930,8,4))
 		links = {
-			1: [n1,n2,0],
-			2: [n1,n3,1],
-			3: [n1,n4,1],
-			4: [n2,n3,1],
-			5: [n2,n4,1],
-			6: [n3,n4,0]
+			1: [n1,n2,1],
+			2: [n1,n3,3],
+			3: [n1,n4,3],
+			4: [n2,n3,3],
+			5: [n2,n4,3],
+			6: [n3,n4,2]
 		}
+		db.session.add_all([n1,n2,n3,n4])
+		db.session.commit()
 		Node.seed_node_family(links)
 
 	def tearDown(self):
@@ -34,40 +36,40 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertTrue(Node.query.count() == 4)
 
 	def test_edge_count(self):
-		self.assertTrue(Edge.query.count() == 6)
+		self.assertTrue(Edge.query.count() == 10)
 
 	def test_valid_edges(self):
 		(n1,n2,n3,n4) = Node.query.all()
-		self.assertTrue(n1._is_edge_ascendant_to(n3))
-		self.assertTrue(n1._is_edge_ascendant_to(n2))
-		self.assertTrue(n1._is_edge_ascendant_to(n4))
-		self.assertTrue(n2._is_edge_ascendant_to(n3))
-		self.assertTrue(n2._is_edge_ascendant_to(n4))
-		self.assertTrue(n3._is_edge_ascendant_to(n4))
+		self.assertTrue(n1.edge_ascends(n3))
+		self.assertTrue(n1.edge_ascends(n2))
+		self.assertTrue(n1.edge_ascends(n4))
+		self.assertTrue(n2.edge_ascends(n3))
+		self.assertTrue(n2.edge_ascends(n4))
+		self.assertTrue(n3.edge_ascends(n4))
+		self.assertTrue(n1.edge_descends(n3))
+		self.assertTrue(n1.edge_descends(n4))
+		self.assertTrue(n2.edge_descends(n3))
+		self.assertTrue(n2.edge_descends(n4))
 		
 
 	def test_invalid_edges(self):
 		(n1,n2,n3,n4) = Node.query.all()
-		self.assertFalse(n1._is_edge_descendant_to(n3))
-		self.assertFalse(n1._is_edge_descendant_to(n2))
-		self.assertFalse(n1._is_edge_descendant_to(n4))
-		self.assertFalse(n2._is_edge_descendant_to(n3))
-		self.assertFalse(n2._is_edge_descendant_to(n4))
-		self.assertFalse(n3._is_edge_descendant_to(n4))
+		self.assertFalse(n1.edge_descends(n2))
+		self.assertFalse(n3.edge_descends(n4))
 
-	def test_invalid_edge_change(self):
+	def test_valid_edge_addition(self):
 		(n1,n2,n3,n4) = Node.query.all()
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		db.session.add(n5)
 		db.session.commit()
-		self.assertFalse(n5.change_edge_label(n1,1))
-		self.assertFalse(n5.change_edge_label(n2,1))
-		self.assertFalse(n5.change_edge_label(n3,0))
-		self.assertFalse(n5.change_edge_label(n4,0))
-		self.assertFalse(n1.change_edge_label(n5,1))
-		self.assertFalse(n2.change_edge_label(n5,1))
-		self.assertFalse(n3.change_edge_label(n5,0))
-		self.assertFalse(n4.change_edge_label(n5,0))
+		links = {
+			1:[n1,n5,3],
+			2:[n2,n5,3],
+			3:[n3,n5,2],
+			4:[n4,n5,2]
+		}
+		Node.seed_node_family(links)
+		self.assertTrue(Edge.query.count() == 16)
 
 	def test_valid_edge_change(self):
 		(n1,n2,n3,n4) = Node.query.all()
@@ -75,26 +77,39 @@ class NodeModelTestCase(unittest.TestCase):
 		db.session.add(n5)
 		db.session.commit()
 		links = {
-			1:[n1,n5,1],
-			2:[n2,n5,1],
-			3:[n3,n5,0],
-			4:[n4,n5,0]
+			1:[n1,n5,3],
+			2:[n2,n5,3],
+			3:[n3,n5,2],
+			4:[n4,n5,2]
 		}
 		Node.seed_node_family(links)
-		self.assertTrue(n5.change_edge_label(n1,1))
-		self.assertTrue(n5.change_edge_label(n2,1))
-		self.assertTrue(n5.change_edge_label(n3,0))
-		self.assertTrue(n5.change_edge_label(n4,0))
-		self.assertTrue(n1.change_edge_label(n5,1))
-		self.assertTrue(n2.change_edge_label(n5,1))
-		self.assertTrue(n3.change_edge_label(n5,0))
-		self.assertTrue(n4.change_edge_label(n5,0))
+		self.assertTrue(n5._change_edge_label(n1,1))
+		self.assertTrue(n5._change_edge_label(n2,1))
+		self.assertTrue(n5._change_edge_label(n3,0))
+		self.assertTrue(n5._change_edge_label(n4,0))
+		self.assertTrue(n1._change_edge_label(n5,1))
+		self.assertTrue(n2._change_edge_label(n5,1))
+		self.assertTrue(n3._change_edge_label(n5,0))
+		self.assertTrue(n4._change_edge_label(n5,0))
 
+	def test_invalid_edge_change(self):
+		(n1,n2,n3,n4) = Node.query.all()
+		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
+		db.session.add(n5)
+		db.session.commit()
+		self.assertFalse(n5._change_edge_label(n1,1))
+		self.assertFalse(n5._change_edge_label(n2,1))
+		self.assertFalse(n5._change_edge_label(n3,0))
+		self.assertFalse(n5._change_edge_label(n4,0))
+		self.assertFalse(n1._change_edge_label(n5,1))
+		self.assertFalse(n2._change_edge_label(n5,1))
+		self.assertFalse(n3._change_edge_label(n5,0))
+		self.assertFalse(n4._change_edge_label(n5,0))
 
 	def test_invalid_node_loop(self):
 		n1 = Node.query.get(1)
 		self.assertFalse(n1.create_edge(n1,1))
-		self.assertFalse(n1.change_edge_label(n1,1))
+		self.assertFalse(n1._change_edge_label(n1,1))
 
 	def test_valid_node_from_token(self):
 		n1 = Node.query.get(1)
