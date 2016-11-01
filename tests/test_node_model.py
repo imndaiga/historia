@@ -60,14 +60,14 @@ class NodeModelTestCase(unittest.TestCase):
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		db.session.add(n5)
 		db.session.commit()
-		self.assertFalse(n5.change_edge_weight(n1,1))
-		self.assertFalse(n5.change_edge_weight(n2,1))
-		self.assertFalse(n5.change_edge_weight(n3,0))
-		self.assertFalse(n5.change_edge_weight(n4,0))
-		self.assertFalse(n1.change_edge_weight(n5,1))
-		self.assertFalse(n2.change_edge_weight(n5,1))
-		self.assertFalse(n3.change_edge_weight(n5,0))
-		self.assertFalse(n4.change_edge_weight(n5,0))
+		self.assertFalse(n5.change_edge_label(n1,1))
+		self.assertFalse(n5.change_edge_label(n2,1))
+		self.assertFalse(n5.change_edge_label(n3,0))
+		self.assertFalse(n5.change_edge_label(n4,0))
+		self.assertFalse(n1.change_edge_label(n5,1))
+		self.assertFalse(n2.change_edge_label(n5,1))
+		self.assertFalse(n3.change_edge_label(n5,0))
+		self.assertFalse(n4.change_edge_label(n5,0))
 
 	def test_valid_edge_change(self):
 		(n1,n2,n3,n4) = Node.query.all()
@@ -81,20 +81,20 @@ class NodeModelTestCase(unittest.TestCase):
 			4:[n4,n5,0]
 		}
 		Node.seed_node_family(links)
-		self.assertTrue(n5.change_edge_weight(n1,1))
-		self.assertTrue(n5.change_edge_weight(n2,1))
-		self.assertTrue(n5.change_edge_weight(n3,0))
-		self.assertTrue(n5.change_edge_weight(n4,0))
-		self.assertTrue(n1.change_edge_weight(n5,1))
-		self.assertTrue(n2.change_edge_weight(n5,1))
-		self.assertTrue(n3.change_edge_weight(n5,0))
-		self.assertTrue(n4.change_edge_weight(n5,0))
+		self.assertTrue(n5.change_edge_label(n1,1))
+		self.assertTrue(n5.change_edge_label(n2,1))
+		self.assertTrue(n5.change_edge_label(n3,0))
+		self.assertTrue(n5.change_edge_label(n4,0))
+		self.assertTrue(n1.change_edge_label(n5,1))
+		self.assertTrue(n2.change_edge_label(n5,1))
+		self.assertTrue(n3.change_edge_label(n5,0))
+		self.assertTrue(n4.change_edge_label(n5,0))
 
 
 	def test_invalid_node_loop(self):
 		n1 = Node.query.get(1)
 		self.assertFalse(n1.create_edge(n1,1))
-		self.assertFalse(n1.change_edge_weight(n1,1))
+		self.assertFalse(n1.change_edge_label(n1,1))
 
 	def test_valid_node_from_token(self):
 		n1 = Node.query.get(1)

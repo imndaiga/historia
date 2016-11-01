@@ -12,10 +12,10 @@ class Edge(db.Model):
 		primary_key=True)
 	descendant_id = db.Column(db.Integer, db.ForeignKey('nodes.id'),
 		primary_key=True)
-	edge_weight = db.Column(db.Integer)
+	edge_label = db.Column(db.Integer)
 
 	def __repr__(self):
-		return '<Edge %s-%s:%s>' % (self.ascendant_id, self.descendant_id, self.edge_weight)
+		return '<Edge %s-%s:%s>' % (self.ascendant_id, self.descendant_id, self.edge_label)
 
 class Node(db.Model, UserMixin):
 	"""all miminani subscribed Nodes"""
@@ -55,30 +55,30 @@ class Node(db.Model, UserMixin):
 			return False
 		return {'remember_me': data.get('remember_me'), 'next_url': data.get('next_url')}
 
-	def create_edge(self, node, edge_weight):
+	def create_edge(self, node, edge_label):
 		if self.baptism_name != node.baptism_name:
 			if node.dob > self.dob:
 				if not self._is_edge_ascendant_to(node):
-					n = Edge(ascendant=self, descendant=node, edge_weight=edge_weight)
+					n = Edge(ascendant=self, descendant=node, edge_label=edge_label)
 					db.session.add(n)
 					return self
 			else:
 				if not node._is_edge_ascendant_to(self):
-					n = Edge(ascendant=node, descendant=self, edge_weight=edge_weight)
+					n = Edge(ascendant=node, descendant=self, edge_label=edge_label)
 					db.session.add(n)
 					return node
 		return None
 
-	def change_edge_weight(self, node, edge_weight):
+	def change_edge_label(self, node, edge_label):
 		if self.baptism_name != node.baptism_name:
 			if self._is_edge_ascendant_to(node):
 				n = Edge.query.filter_by(descendant_id=node.id).first()
 			elif self._is_edge_descendant_to(node):
 				n = Edge.query.filter_by(ascendant_id=node.id).first()
 			else:
-				# Self and Node are not related, no edge_weight change can be made
+				# Self and Node are not related, no edge_label change can be made
 				return None
-			n.edge_weight = edge_weight
+			n.edge_label = edge_label
 			db.session.add(n)
 			return n
 		return None
@@ -101,7 +101,7 @@ class Node(db.Model, UserMixin):
 			for link in links:
 				db.session.add_all([links[link][0],links[link][1]])
 				db.session.commit()
-				links[link][0].create_edge(links[link][1], edge_weight=links[link][2])
+				links[link][0].create_edge(links[link][1], edge_label=links[link][2])
 			return links
 		else:
 			return None
