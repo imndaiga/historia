@@ -14,12 +14,6 @@ app = create_app(os.getenv('MIMINANI_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
 
-# Attach functions to app-runtime flags
-def make_shell_context():
-	return dict(db=db, Node=Node, Edge=Edge, app=app, send_email=send_email)
-manager.add_command('shell', Shell(make_context=make_shell_context))
-manager.add_command('db', MigrateCommand)
-
 @manager.command
 def forge():
 	"""Seed fake family tree data"""
@@ -29,13 +23,15 @@ def forge():
 		n3 = Node(baptism_name='Jack', dob=date(1910,3,3))
 		n4 = Node(baptism_name='Mark', dob=date(1920,4,4))
 		links = {
-			1:[n1,n2,0],
-			2:[n1,n3,1],
-			3:[n1,n4,1],
-			4:[n2,n4,1],
-			5:[n2,n3,1],
-			6:[n3,n4,0]
+			1: [n1,n2,1],
+			2: [n1,n3,3],
+			3: [n1,n4,3],
+			4: [n2,n3,3],
+			5: [n2,n4,3],
+			6: [n3,n4,2]
 		}
+		db.session.add_all([n1,n2,n3,n4])
+		db.session.commit()
 		Node.seed_node_family(links)
 		return links
 	return None
@@ -47,6 +43,12 @@ def test():
 	import unittest
 	tests = unittest.TestLoader().discover('tests')
 	unittest.TextTestRunner(verbosity=2).run(tests)
+
+# Attach functions to app-runtime flags
+def make_shell_context():
+	return dict(db=db, Node=Node, Edge=Edge, app=app, send_email=send_email, forge=forge)
+manager.add_command('shell', Shell(make_context=make_shell_context))
+manager.add_command('db', MigrateCommand)
 
 if __name__ == '__main__':
 	with app.app_context():
