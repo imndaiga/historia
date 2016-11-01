@@ -7,12 +7,55 @@ from . import login_manager
 
 class Edge(db.Model):
 	"""self-referential association table that connects Nodes"""
-	__tablename__ = 'Edges'
+	__tablename__ = 'edges'
+
+	def __init__(self, edge_label, **kwargs):
+		super(Edge, self).__init__(**kwargs)
+		self.edge_label = edge_label
+
 	ascendant_id = db.Column(db.Integer, db.ForeignKey('nodes.id'),
 		primary_key=True)
 	descendant_id = db.Column(db.Integer, db.ForeignKey('nodes.id'),
 		primary_key=True)
-	edge_label = db.Column(db.Integer)
+	_edge_label = db.Column(db.Integer, default=0)
+
+	directed_types = {
+		'parent-child':[3,4],
+		'uncle_aunt-nibling':[6,5]
+	}
+
+	undirected_types = {
+		2:'siblings',
+		1:'partners'
+	}
+
+	@classmethod
+	def set_label(cls, asc, des, _edge_label):
+		e = cls(ascendant=des, descendant=asc, edge_label=None)
+		e._edge_label=_edge_label
+		db.session.add(e)
+	
+	@property
+	def edge_label(self):
+		return self._edge_label
+
+	@edge_label.setter
+	def edge_label(self, label):
+		for stype in self.directed_types:
+			if label in self.directed_types[stype]:
+				ascendant_tree = self.query.filter_by(ascendant=self.ascendant).filter_by(descendant=self.descendant).all()
+				descendant_tree = self.query.filter_by(ascendant=self.descendant).filter_by(descendant=self.ascendant).all()
+				if ascendant_tree and descendant_tree:
+					return self
+				elif not ascendant_tree and not descendant_tree:
+					self._edge_label = self.directed_types[stype][0]
+					Edge.set_label(self.ascendant,self.descendant,_edge_label=self.directed_types[stype][1])
+				elif ascendant_tree and not descendant_tree:
+					Edge.set_label(self.ascendant,self.descendant,_edge_label=self.directed_types[stype][1])
+				elif not ascendant_tree and descendant_tree:
+					self._edge_label = self.directed_types[stype][0]
+			else:
+				self._edge_label = label
 
 	def __repr__(self):
 		return '<Edge %s-%s:%s>' % (self.ascendant_id, self.descendant_id, self.edge_label)
@@ -55,25 +98,34 @@ class Node(db.Model, UserMixin):
 			return False
 		return {'remember_me': data.get('remember_me'), 'next_url': data.get('next_url')}
 
-	def create_edge(self, node, edge_label):
+	def edge_ascends(self, node):
+		return self.descended_by.filter_by(
+			descendant_id=node.id).first() is not None
+
+	def edge_descends(self, node):
+		return self.ascended_by.filter_by(
+			ascendant_id=node.id).first() is not None
+
+	def create_edge(self, node, label):
 		if self.baptism_name != node.baptism_name:
 			if node.dob > self.dob:
-				if not self._is_edge_ascendant_to(node):
-					n = Edge(ascendant=self, descendant=node, edge_label=edge_label)
+				if not self.edge_ascends(node):
+					n = Edge(ascendant=self, descendant=node, edge_label=label)
 					db.session.add(n)
 					return self
 			else:
-				if not node._is_edge_ascendant_to(self):
-					n = Edge(ascendant=node, descendant=self, edge_label=edge_label)
+				if not node.edge_ascends(self):
+					n = Edge(ascendant=node, descendant=self, edge_label=label)
 					db.session.add(n)
 					return node
 		return None
 
-	def change_edge_label(self, node, edge_label):
+	# This function should be password protected or hidden
+	def _change_edge_label(self, node, edge_label):
 		if self.baptism_name != node.baptism_name:
-			if self._is_edge_ascendant_to(node):
+			if self.edge_ascends(node):
 				n = Edge.query.filter_by(descendant_id=node.id).first()
-			elif self._is_edge_descendant_to(node):
+			elif self.edge_descends(node):
 				n = Edge.query.filter_by(ascendant_id=node.id).first()
 			else:
 				# Self and Node are not related, no edge_label change can be made
@@ -96,23 +148,11 @@ class Node(db.Model, UserMixin):
 			return {'sig': False, 'node': None}
 
 	@staticmethod
-	def seed_node_family(links=None):
-		if links:
-			for link in links:
-				db.session.add_all([links[link][0],links[link][1]])
-				db.session.commit()
-				links[link][0].create_edge(links[link][1], edge_label=links[link][2])
-			return links
-		else:
-			return None
-
-	def _is_edge_ascendant_to(self, node):
-		return self.descended_by.filter_by(
-			descendant_id=node.id).first() is not None
-
-	def _is_edge_descendant_to(self, node):
-		return self.ascended_by.filter_by(
-			ascendant_id=node.id).first() is not None
+	def seed_node_family(links):
+		for link in links:
+			links[link][0].create_edge(links[link][1], label=links[link][2])
+			db.session.commit()
+		return links
 
 	@login_manager.user_loader
 	def load_user(user_id):
