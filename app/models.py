@@ -108,16 +108,9 @@ class Node(db.Model, UserMixin):
 
 	def create_edge(self, node, label):
 		if self.baptism_name != node.baptism_name:
-			if node.dob > self.dob:
-				if not self.edge_ascends(node):
-					n = Edge(ascendant=self, descendant=node, edge_label=label)
-					db.session.add(n)
-					return self
-			else:
-				if not node.edge_ascends(self):
-					n = Edge(ascendant=node, descendant=self, edge_label=label)
-					db.session.add(n)
-					return node
+			n = Edge(ascendant=self, descendant=node, edge_label=label)
+			db.session.add(n)
+			return self
 		return None
 
 	# This function should be password protected or hidden
