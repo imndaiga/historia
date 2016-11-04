@@ -71,7 +71,7 @@ class NodeModelTestCase(unittest.TestCase):
 		Node.seed_node_family(links)
 		self.assertTrue(Edge.query.count() == 16)
 
-	def test_valid_edge_change(self):
+	def test_valid_label_change(self):
 		(n1,n2,n3,n4) = Node.query.all()
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		db.session.add(n5)
@@ -92,7 +92,7 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertTrue(n3._change_edge_label(n5,0))
 		self.assertTrue(n4._change_edge_label(n5,0))
 
-	def test_invalid_edge_change(self):
+	def test_invalid_label_change(self):
 		(n1,n2,n3,n4) = Node.query.all()
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		db.session.add(n5)
