@@ -5,7 +5,7 @@ apt-get update
 # Install git for version control, pip for install python packages
 echo 'Installing git, python3.4...'
 apt-get install git python3.4 python3.4-dev -q -y
-wget https://bootstrap.pypa.io/get-pip.py
+wget -q https://bootstrap.pypa.io/get-pip.py
 python3 get-pip.py
 
 # Install python package dependancies from requirements.txt
