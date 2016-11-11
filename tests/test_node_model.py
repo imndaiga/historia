@@ -24,7 +24,6 @@ class NodeModelTestCase(unittest.TestCase):
 			6: [n3,n4,2]
 		}
 		db.session.add_all([n1,n2,n3,n4])
-		db.session.commit()
 		Node.seed_node_family(links)
 
 	def tearDown(self):
@@ -68,20 +67,20 @@ class NodeModelTestCase(unittest.TestCase):
 			3:[n3,n5,2],
 			4:[n4,n5,2]
 		}
+		db.session.add(n5)
 		Node.seed_node_family(links)
 		self.assertTrue(Edge.query.count() == 16)
 
 	def test_valid_label_change(self):
 		(n1,n2,n3,n4) = Node.query.all()
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		db.session.add(n5)
-		db.session.commit()
 		links = {
 			1:[n1,n5,3],
 			2:[n2,n5,3],
 			3:[n3,n5,2],
 			4:[n4,n5,2]
 		}
+		db.session.add(n5)
 		Node.seed_node_family(links)
 		self.assertTrue(n5._change_edge_label(n1,1))
 		self.assertTrue(n5._change_edge_label(n2,1))
