@@ -17,45 +17,7 @@ class Edge(db.Model):
 		primary_key=True)
 	descendant_id = db.Column(db.Integer, db.ForeignKey('nodes.id'),
 		primary_key=True)
-	_edge_label = db.Column(db.Integer, default=0)
-
-	directed_types = {
-		'parent-child':[3,4],
-		'uncle_aunt-nibling':[6,5]
-	}
-
-	undirected_types = {
-		2:'siblings',
-		1:'partners'
-	}
-
-	@classmethod
-	def set_label(cls, asc, des, _edge_label):
-		e = cls(ascendant=des, descendant=asc, edge_label=None)
-		e._edge_label=_edge_label
-		db.session.add(e)
-	
-	@property
-	def edge_label(self):
-		return self._edge_label
-
-	@edge_label.setter
-	def edge_label(self, label):
-		for stype in self.directed_types:
-			if label in self.directed_types[stype]:
-				ascendant_tree = self.query.filter_by(ascendant=self.ascendant).filter_by(descendant=self.descendant).all()
-				descendant_tree = self.query.filter_by(ascendant=self.descendant).filter_by(descendant=self.ascendant).all()
-				if ascendant_tree and descendant_tree:
-					return self
-				elif not ascendant_tree and not descendant_tree:
-					self._edge_label = self.directed_types[stype][0]
-					Edge.set_label(self.ascendant,self.descendant,_edge_label=self.directed_types[stype][1])
-				elif ascendant_tree and not descendant_tree:
-					Edge.set_label(self.ascendant,self.descendant,_edge_label=self.directed_types[stype][1])
-				elif not ascendant_tree and descendant_tree:
-					self._edge_label = self.directed_types[stype][0]
-			else:
-				self._edge_label = label
+	edge_label = db.Column(db.Integer, default=0)
 
 	def __repr__(self):
 		return '<Edge %s-%s:%s>' % (self.ascendant_id, self.descendant_id, self.edge_label)
@@ -107,10 +69,45 @@ class Node(db.Model, UserMixin):
 			ascendant_id=node.id).first() is not None
 
 	def create_edge(self, node, label):
+		label_check = 0
+
+		directed_types = {
+		'parent-child':[3,4],
+		'uncle_aunt-nibling':[6,5]
+		}
+
+		undirected_types = {
+			'siblings':2,
+			'partners':1
+		}
+
 		if self.baptism_name != node.baptism_name:
-			n = Edge(ascendant=self, descendant=node, edge_label=label)
-			db.session.add(n)
-			return self
+			for relation in directed_types:
+				if label in directed_types[relation]:
+					dir1 = Edge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
+					dir2 = Edge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
+					if not dir1 and not dir2:
+						n1 = Edge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
+						n2 = Edge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
+						db.session.add_all([n1,n2])
+						label_check = 3
+					elif dir1 and not dir2:
+						n2 = Edge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
+						db.session.add(n2)
+						label_check = 2
+					elif not dir1 and dir2:
+						n1 = Edge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
+						db.session.add(n1)
+						label_check = 1
+					else:
+						return None
+			for relation in undirected_types:
+				if label == undirected_types[relation]:
+					n = Edge(ascendant=self, descendant=node, edge_label=label)
+					db.session.add(n)
+				elif label not in list(undirected_types.values()):
+					return None
+			return (self,node,label_check)
 		return None
 
 	# This function should be password protected or hidden
@@ -144,7 +141,7 @@ class Node(db.Model, UserMixin):
 	def seed_node_family(links):
 		for link in links:
 			links[link][0].create_edge(links[link][1], label=links[link][2])
-			db.session.commit()
+		db.session.commit()
 		return links
 
 	@login_manager.user_loader
