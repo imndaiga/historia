@@ -82,31 +82,36 @@ class Node(db.Model, UserMixin):
 		}
 
 		if self.baptism_name != node.baptism_name:
-			for relation in directed_types:
-				if label in directed_types[relation]:
-					dir1 = Edge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
-					dir2 = Edge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
-					if not dir1 and not dir2:
-						n1 = Edge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
-						n2 = Edge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
-						db.session.add_all([n1,n2])
-						label_check = 3
-					elif dir1 and not dir2:
-						n2 = Edge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
-						db.session.add(n2)
-						label_check = 2
-					elif not dir1 and dir2:
-						n1 = Edge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
-						db.session.add(n1)
-						label_check = 1
-					else:
-						return None
-			for relation in undirected_types:
-				if label == undirected_types[relation]:
-					n = Edge(ascendant=self, descendant=node, edge_label=label)
-					db.session.add(n)
-				elif label not in list(undirected_types.values()):
-					return None
+			dir_type_list = []
+			for l in list(directed_types.values()):
+				dir_type_list.extend(l)
+			if label in dir_type_list:
+				for relation in directed_types:
+					if label in directed_types[relation]:
+						dir1 = Edge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
+						dir2 = Edge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
+						if not dir1 and not dir2:
+							n1 = Edge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
+							n2 = Edge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
+							db.session.add_all([n1,n2])
+							label_check = 3
+						elif dir1 and not dir2:
+							n2 = Edge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
+							db.session.add(n2)
+							label_check = 2
+						elif not dir1 and dir2:
+							n1 = Edge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
+							db.session.add(n1)
+							label_check = 1
+						else:
+							return None
+			elif label in list(undirected_types.values()):
+				for relation in undirected_types:
+					if label == undirected_types[relation]:
+						n = Edge(ascendant=self, descendant=node, edge_label=label)
+						db.session.add(n)
+			else:
+				return None
 			return (self,node,label_check)
 		return None
 
@@ -139,10 +144,11 @@ class Node(db.Model, UserMixin):
 
 	@staticmethod
 	def seed_node_family(links):
+		result = []
 		for link in links:
-			links[link][0].create_edge(links[link][1], label=links[link][2])
+			result.append(links[link][0].create_edge(links[link][1], label=links[link][2]))
 		db.session.commit()
-		return links
+		return result
 
 	@login_manager.user_loader
 	def load_user(user_id):
