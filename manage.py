@@ -31,9 +31,8 @@ def forge():
 			6: [n3,n4,2]
 		}
 		db.session.add_all([n1,n2,n3,n4])
-		db.session.commit()
-		Node.seed_node_family(links)
-		return links
+		result = Node.seed_node_family(links)
+		return result
 	return None
 
 
