@@ -4,6 +4,8 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
 from flask_login import UserMixin
 from . import login_manager
+import networkx as nx
+from sqlalchemy import or_
 
 class Edge(db.Model):
 	"""self-referential association table that connects Nodes"""
@@ -156,3 +158,21 @@ class Node(db.Model, UserMixin):
 					
 	def __repr__(self):
 		return 'Node: <%s>' % self.baptism_name
+
+class Graph:
+	def __init__(self, **kwargs):
+		if isinstance(node, Node):
+			self.node == node
+		else:
+			raise TypeError('{} is of type {}. Node type is expected.'.format(node, type(node)))
+
+	def create_graph(node):
+		nodegraph = nx.Graph()
+		db_paths = db.session.query(Edge).filter(or_(Edge.descendant==node, Edge.ascendant==node)).all()
+		for edge in db_paths:
+			n1 = edge.descendant
+			n2 = edge.ascendant
+			label = edge.edge_label
+			nodegraph.add_nodes_from([n1,n2])
+			nodegraph.add_edges_from([(n1,n2,{'label':label})])
+		return nodegraph
