@@ -160,19 +160,19 @@ class Node(db.Model, UserMixin):
 		return 'Node: <%s>' % self.baptism_name
 
 class Graph:
-	def __init__(self, **kwargs):
+	def __init__(self, node, **kwargs):
 		if isinstance(node, Node):
-			self.node == node
+			self.node = node
+			self.nodegraph = nx.Graph()
+			db_paths = db.session.query(Edge).filter(or_(Edge.descendant==node, Edge.ascendant==node)).all()
+			for edge in db_paths:
+				n1 = edge.descendant
+				n2 = edge.ascendant
+				label = edge.edge_label
+				self.nodegraph.add_nodes_from([n1,n2])
+				self.nodegraph.add_edges_from([(n1,n2,{'label':label})])
 		else:
 			raise TypeError('{} is of type {}. Node type is expected.'.format(node, type(node)))
 
-	def create_graph(node):
-		nodegraph = nx.Graph()
-		db_paths = db.session.query(Edge).filter(or_(Edge.descendant==node, Edge.ascendant==node)).all()
-		for edge in db_paths:
-			n1 = edge.descendant
-			n2 = edge.ascendant
-			label = edge.edge_label
-			nodegraph.add_nodes_from([n1,n2])
-			nodegraph.add_edges_from([(n1,n2,{'label':label})])
-		return nodegraph
+	def return_graph(self):
+		return self.nodegraph
