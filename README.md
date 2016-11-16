@@ -3,7 +3,7 @@
 
 ### miminani is a Kiswahili portmanteau of two words, **_"Mimi Nani?"_** A question that asks **_"Who Am I?"_**
 
-**miminani** is a web app that computatively graphs a users lineage using their social network connections. The user can then add, modify and share their trees as needed. Submitted data is used for basic research into the genealogical structures that define the over 40 tribes in Kenya. However, this repository's source code can be put to use in other regions. For the purposes of this project, none of the data collected/stored will be shared with any third party without the direct consent of any users. I'm not a fan of terms and conditions, but if this should change at any point you can expect an email from me <miminani@squarenomad.com> requesting as much.
+**miminani** is a web app that computatively graphs a users lineage using their social network connections. The user can then add, modify and share their trees as needed. Submitted data is used for basic research into the genealogical structures that define the over 40 tribes in Kenya. However, this repository's source code can be put to use in other regions. For the purposes of this project, none of the data collected will be shared with any third party without the direct consent of any users (opt-in). Any and all data being collected will also be declared openly. I'm not a fan of terms and conditions, but if this should change at any point please expect an email from me <miminani@squarenomad.com> indicating as much.
 
 Currently, the feature pipeline is as follows:
 - Integrate with Facebook's Social Graph API.
