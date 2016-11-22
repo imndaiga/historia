@@ -180,4 +180,4 @@ class Graph():
 				self.nodegraph.add_edges_from([(n1,n2,{'label':label})])
 		else:
 			raise TypeError('{} is of type {}. Node type is expected.'.format(self.node, type(self.node)))			
-		return self.nodegraph
+		return (self.nodegraph, len(self.nodegraph.nodes()), len(self.nodegraph.edges()))
