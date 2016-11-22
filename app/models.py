@@ -168,7 +168,7 @@ class Graph():
 			self.node = node
 			self.valid = False
 
-	def create(self, gtype=nx.Graph):
+	def create(self, gtype=nx.DiGraph):
 		if self.valid:
 			self.nodegraph = gtype()
 			db_paths = db.session.query(Edge).filter(or_(Edge.descendant==self.node, Edge.ascendant==self.node)).all()
