@@ -5,6 +5,7 @@ from flask import current_app
 from flask_login import UserMixin
 from . import login_manager
 import networkx as nx
+from sqlalchemy import and_
 
 class GlobalEdge(db.Model):
 	"""self-referential association table that connects Nodes"""
@@ -169,9 +170,10 @@ class NodeGraph:
 			self.valid = False
 
 	def create(self, gtype=nx.Graph):
+		ascendant_labels = [1,3,6]
 		if self.valid:
 			self.output = gtype()
-			db_paths = db.session.query(GlobalEdge).filter(GlobalEdge.ascendant==self.node).all()
+			db_paths = db.session.query(GlobalEdge).filter(and_(GlobalEdge.descendant!=self.node, GlobalEdge.edge_label.in_(ascendant_labels))).all()
 			for edge in db_paths:
 				n1 = edge.descendant
 				n2 = edge.ascendant
