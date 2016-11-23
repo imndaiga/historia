@@ -159,7 +159,7 @@ class Node(db.Model, UserMixin):
 	def __repr__(self):
 		return 'Node: <%s>' % self.baptism_name
 
-class Graph():
+class Graph:
 	def __init__(self, node, **kwargs):
 		if isinstance(node, Node):
 			self.node = node
@@ -183,6 +183,6 @@ class Graph():
 		return self
 
 	def count(self):
-			self.numedges=len(self.output.edges())
-			self.numnodes=len(self.output.nodes())
+			self.all_edges=len(self.output.edges())
+			self.all_nodes=len(self.output.nodes())
 			return self
