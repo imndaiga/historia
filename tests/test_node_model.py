@@ -140,17 +140,17 @@ class NodeModelTestCase(unittest.TestCase):
 		time.sleep(2)
 		self.assertFalse(n1.confirm_login(token))
 
-	def test_invalid_node_digraph_argument(self):
+	def test_invalid_node_undirgraph_argument(self):
 		n1 = Node.query.get(1)
 		with self.assertRaises(TypeError):
 			NodeGraph('node').create()
 
-	def test_valid_node_digraph_argument(self):
+	def test_valid_node_undirgraph_argument(self):
 		n1 = Node.query.get(1)
 		self.assertTrue(isinstance(NodeGraph(n1).create().output.nodes(), list))
 		self.assertTrue(isinstance(NodeGraph(n1).create().output.edges(), list))
 
-	def test_count_node_digraph_elements(self):
+	def test_count_node_undirgraph_elements(self):
 		n1 = Node.query.get(1)
 		self.assertTrue(NodeGraph(n1).create().count().all_edges==3)
 		self.assertTrue(NodeGraph(n1).create().count().all_nodes==4)
