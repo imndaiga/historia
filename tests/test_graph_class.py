@@ -38,17 +38,17 @@ class GraphTestCase(unittest.TestCase):
 
 	def test_valid_graph_argument(self):
 		n1 = Node.query.get(1)
-		self.assertTrue(isinstance(Graph(n1).create()[0].nodes(), list))
-		self.assertTrue(isinstance(Graph(n1).create()[0].edges(), list))
+		self.assertTrue(isinstance(Graph(n1).create().output.nodes(), list))
+		self.assertTrue(isinstance(Graph(n1).create().output.edges(), list))
 
 	def test_count_digraph_elements(self):
 		n1 = Node.query.get(1)
-		self.assertTrue(Graph(n1).create()[2]==5)
-		self.assertTrue(Graph(n1).create()[1]==4)
+		self.assertTrue(Graph(n1).create().count().numedges==5)
+		self.assertTrue(Graph(n1).create().count().numnodes==4)
 
 	def test_count_undirgraph_elements(self):
 		n1 = Node.query.get(1)
-		self.assertTrue(Graph(n1).create(gtype=nx.Graph)[2]==3)
-		self.assertTrue(Graph(n1).create(gtype=nx.Graph)[1]==4)
+		self.assertTrue(Graph(n1).create(gtype=nx.Graph).count().numedges==3)
+		self.assertTrue(Graph(n1).create(gtype=nx.Graph).count().numnodes==4)
 
 		

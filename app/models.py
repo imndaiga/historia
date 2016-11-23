@@ -170,14 +170,19 @@ class Graph():
 
 	def create(self, gtype=nx.DiGraph):
 		if self.valid:
-			self.nodegraph = gtype()
+			self.output = gtype()
 			db_paths = db.session.query(Edge).filter(or_(Edge.descendant==self.node, Edge.ascendant==self.node)).all()
 			for edge in db_paths:
 				n1 = edge.descendant
 				n2 = edge.ascendant
 				label = edge.edge_label
-				self.nodegraph.add_nodes_from([n1,n2])
-				self.nodegraph.add_edges_from([(n1,n2,{'label':label})])
+				self.output.add_nodes_from([n1,n2])
+				self.output.add_edges_from([(n1,n2,{'label':label})])
 		else:
-			raise TypeError('{} is of type {}. Node type is expected.'.format(self.node, type(self.node)))			
-		return (self.nodegraph, len(self.nodegraph.nodes()), len(self.nodegraph.edges()))
+			raise TypeError('{} is of type {}. Node type is expected.'.format(self.node, type(self.node)))
+		return self
+
+	def count(self):
+			self.numedges=len(self.output.edges())
+			self.numnodes=len(self.output.nodes())
+			return self
