@@ -5,7 +5,6 @@ from flask import current_app
 from flask_login import UserMixin
 from . import login_manager
 import networkx as nx
-from sqlalchemy import or_
 
 class Edge(db.Model):
 	"""self-referential association table that connects Nodes"""
