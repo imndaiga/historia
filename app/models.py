@@ -159,7 +159,7 @@ class Node(db.Model, UserMixin):
 	def __repr__(self):
 		return 'Node: <%s>' % self.baptism_name
 
-class Graph:
+class NodeGraph:
 	def __init__(self, node, **kwargs):
 		if isinstance(node, Node):
 			self.node = node
