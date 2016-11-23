@@ -31,24 +31,17 @@ class GraphTestCase(unittest.TestCase):
 		db.drop_all()
 		self.app_context.pop()
 
-	def test_invalid_graph_argument(self):
+	def test_invalid_node_digraph_argument(self):
 		n1 = Node.query.get(1)
 		with self.assertRaises(TypeError):
 			Graph('node').create()
 
-	def test_valid_graph_argument(self):
+	def test_valid_node_digraph_argument(self):
 		n1 = Node.query.get(1)
 		self.assertTrue(isinstance(Graph(n1).create().output.nodes(), list))
 		self.assertTrue(isinstance(Graph(n1).create().output.edges(), list))
 
-	def test_count_digraph_elements(self):
+	def test_count_node_digraph_elements(self):
 		n1 = Node.query.get(1)
-		self.assertTrue(Graph(n1).create().count().all_edges==5)
+		self.assertTrue(Graph(n1).create().count().all_edges==3)
 		self.assertTrue(Graph(n1).create().count().all_nodes==4)
-
-	def test_count_undirgraph_elements(self):
-		n1 = Node.query.get(1)
-		self.assertTrue(Graph(n1).create(gtype=nx.Graph).count().all_edges==3)
-		self.assertTrue(Graph(n1).create(gtype=nx.Graph).count().all_nodes==4)
-
-		
