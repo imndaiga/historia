@@ -110,8 +110,9 @@ class Node(db.Model, UserMixin):
 			elif label in list(undirected_types.values()):
 				for relation in undirected_types:
 					if label == undirected_types[relation]:
-						n = Edge(ascendant=self, descendant=node, edge_label=label)
-						db.session.add(n)
+						n1 = Edge(ascendant=self, descendant=node, edge_label=label)
+						n2 = Edge(ascendant=node, descendant=self, edge_label=label)
+						db.session.add_all([n1,n2])
 			else:
 				return None
 			return (self,node,create_check)
@@ -171,12 +172,11 @@ class Graph:
 	def create(self, gtype=nx.DiGraph):
 		if self.valid:
 			self.output = gtype()
-			db_paths = db.session.query(Edge).filter(or_(Edge.descendant==self.node, Edge.ascendant==self.node)).all()
+			db_paths = db.session.query(Edge).filter(Edge.ascendant==self.node).all()
 			for edge in db_paths:
 				n1 = edge.descendant
 				n2 = edge.ascendant
 				label = edge.edge_label
-				self.output.add_nodes_from([n1,n2])
 				self.output.add_edges_from([(n1,n2,{'label':label})])
 		else:
 			raise TypeError('{} is of type {}. Node type is expected.'.format(self.node, type(self.node)))
