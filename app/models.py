@@ -118,6 +118,16 @@ class Node(db.Model, UserMixin):
 			return (self,node,create_check)
 		return None
 
+	def node_relation(self, target_node):
+		G = NodeGraph(self).create().output
+		try:
+			self.get_path = nx.dijkstra_path(G, source=self, target=target_node, weight='label')
+		except nx.NetworkXNoPath as e:
+			self.get_path = None
+			self.get_type = None
+			print('No relation between {} and {}.'.format(self, target_node))
+		return self
+
 	# This function should be password protected or hidden
 	def _change_edge_label(self, node, edge_label):
 		if self.baptism_name != node.baptism_name:
