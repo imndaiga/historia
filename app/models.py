@@ -71,7 +71,7 @@ class Node(db.Model, UserMixin):
 			ascendant_id=node.id).first() is not None
 
 	def create_edge(self, node, label):
-		label_check = 0
+		create_check = 0
 
 		directed_types = {
 		'parent-child':[3,4],
@@ -96,15 +96,15 @@ class Node(db.Model, UserMixin):
 							n1 = Edge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
 							n2 = Edge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
 							db.session.add_all([n1,n2])
-							label_check = 3
+							create_check = 3
 						elif dir1 and not dir2:
 							n2 = Edge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
 							db.session.add(n2)
-							label_check = 2
+							create_check = 2
 						elif not dir1 and dir2:
 							n1 = Edge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
 							db.session.add(n1)
-							label_check = 1
+							create_check = 1
 						else:
 							return None
 			elif label in list(undirected_types.values()):
@@ -114,7 +114,7 @@ class Node(db.Model, UserMixin):
 						db.session.add(n)
 			else:
 				return None
-			return (self,node,label_check)
+			return (self,node,create_check)
 		return None
 
 	# This function should be password protected or hidden
