@@ -1,6 +1,6 @@
 import unittest
 from app import create_app, db
-from app.models import Node, Edge, NodeGraph
+from app.models import Node, GlobalEdge, NodeGraph
 from datetime import date
 import time
 import networkx as nx
@@ -36,7 +36,7 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertTrue(Node.query.count() == 4)
 
 	def test_edge_count(self):
-		self.assertTrue(Edge.query.count() == 12)
+		self.assertTrue(GlobalEdge.query.count() == 12)
 
 	def test_valid_edges(self):
 		(n1,n2,n3,n4) = Node.query.all()
@@ -64,7 +64,7 @@ class NodeModelTestCase(unittest.TestCase):
 		}
 		db.session.add(n5)
 		Node.seed_node_family(links)
-		self.assertTrue(Edge.query.count() == 20)
+		self.assertTrue(GlobalEdge.query.count() == 20)
 
 	def test_valid_label_change(self):
 		(n1,n2,n3,n4) = Node.query.all()

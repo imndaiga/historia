@@ -6,12 +6,12 @@ from flask_login import UserMixin
 from . import login_manager
 import networkx as nx
 
-class Edge(db.Model):
+class GlobalEdge(db.Model):
 	"""self-referential association table that connects Nodes"""
 	__tablename__ = 'edges'
 
 	def __init__(self, edge_label, **kwargs):
-		super(Edge, self).__init__(**kwargs)
+		super(GlobalEdge, self).__init__(**kwargs)
 		self.edge_label = edge_label
 
 	ascendant_id = db.Column(db.Integer, db.ForeignKey('nodes.id'),
@@ -21,7 +21,7 @@ class Edge(db.Model):
 	edge_label = db.Column(db.Integer, default=0)
 
 	def __repr__(self):
-		return '<Edge %s-%s:%s>' % (self.ascendant_id, self.descendant_id, self.edge_label)
+		return '<GlobalEdge %s-%s:%s>' % (self.ascendant_id, self.descendant_id, self.edge_label)
 
 class Node(db.Model, UserMixin):
 	"""all miminani subscribed Nodes"""
@@ -35,13 +35,13 @@ class Node(db.Model, UserMixin):
 	email = db.Column(db.String(64), unique=True)
 	confirmed = db.Column(db.Boolean, default=False)
 
-	descended_by = db.relationship('Edge',
-								foreign_keys=[Edge.ascendant_id],
+	descended_by = db.relationship('GlobalEdge',
+								foreign_keys=[GlobalEdge.ascendant_id],
 								backref=db.backref('ascendant', lazy='joined'),
 								lazy='dynamic',
 								cascade='all, delete-orphan')
-	ascended_by = db.relationship('Edge',
-								foreign_keys=[Edge.descendant_id],
+	ascended_by = db.relationship('GlobalEdge',
+								foreign_keys=[GlobalEdge.descendant_id],
 								backref=db.backref('descendant', lazy='joined'),
 								lazy='dynamic',
 								cascade='all, delete-orphan')
@@ -89,19 +89,19 @@ class Node(db.Model, UserMixin):
 			if label in dir_type_list:
 				for relation in directed_types:
 					if label in directed_types[relation]:
-						dir1 = Edge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
-						dir2 = Edge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
+						dir1 = GlobalEdge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
+						dir2 = GlobalEdge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
 						if not dir1 and not dir2:
-							n1 = Edge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
-							n2 = Edge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
+							n1 = GlobalEdge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
+							n2 = GlobalEdge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
 							db.session.add_all([n1,n2])
 							create_check = 3
 						elif dir1 and not dir2:
-							n2 = Edge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
+							n2 = GlobalEdge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
 							db.session.add(n2)
 							create_check = 2
 						elif not dir1 and dir2:
-							n1 = Edge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
+							n1 = GlobalEdge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
 							db.session.add(n1)
 							create_check = 1
 						else:
@@ -109,31 +109,21 @@ class Node(db.Model, UserMixin):
 			elif label in list(undirected_types.values()):
 				for relation in undirected_types:
 					if label == undirected_types[relation]:
-						n1 = Edge(ascendant=self, descendant=node, edge_label=label)
-						n2 = Edge(ascendant=node, descendant=self, edge_label=label)
+						n1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
+						n2 = GlobalEdge(ascendant=node, descendant=self, edge_label=label)
 						db.session.add_all([n1,n2])
 			else:
 				return None
 			return (self,node,create_check)
 		return None
 
-	def node_relation(self, target_node):
-		G = NodeGraph(self).create().output
-		try:
-			self.get_path = nx.shortest_path(G, source=self, target=target_node, weight='label')
-		except nx.NetworkXNoPath as e:
-			self.get_path = None
-			self.get_type = None
-			print('No relation between {} and {}.'.format(self, target_node))
-		return self
-
 	# This function should be password protected or hidden
 	def _change_edge_label(self, node, edge_label):
 		if self.baptism_name != node.baptism_name:
 			if self.edge_ascends(node):
-				n = Edge.query.filter_by(descendant_id=node.id).first()
+				n = GlobalEdge.query.filter_by(descendant_id=node.id).first()
 			elif self.edge_descends(node):
-				n = Edge.query.filter_by(ascendant_id=node.id).first()
+				n = GlobalEdge.query.filter_by(ascendant_id=node.id).first()
 			else:
 				# Self and Node are not related, no edge_label change can be made
 				return None
@@ -181,7 +171,7 @@ class NodeGraph:
 	def create(self, gtype=nx.Graph):
 		if self.valid:
 			self.output = gtype()
-			db_paths = db.session.query(Edge).filter(Edge.ascendant==self.node).all()
+			db_paths = db.session.query(GlobalEdge).filter(GlobalEdge.ascendant==self.node).all()
 			for edge in db_paths:
 				n1 = edge.descendant
 				n2 = edge.ascendant
