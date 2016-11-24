@@ -39,7 +39,7 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertTrue(GlobalEdge.query.count() == 12)
 
 	def test_valid_edges(self):
-		(n1,n2,n3,n4) = Node.query.all()
+		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		self.assertTrue(n1.edge_ascends(n3))
 		self.assertTrue(n1.edge_ascends(n2))
 		self.assertTrue(n1.edge_ascends(n4))
@@ -52,7 +52,7 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertTrue(n2.edge_descends(n4))
 
 	def test_valid_edge_addition(self):
-		(n1,n2,n3,n4) = Node.query.all()
+		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		db.session.add(n5)
 		db.session.commit()
@@ -67,7 +67,7 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertTrue(GlobalEdge.query.count() == 20)
 
 	def test_valid_label_change(self):
-		(n1,n2,n3,n4) = Node.query.all()
+		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		links = {
 			1:[n1,n5,3],
@@ -87,7 +87,7 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertTrue(n4._change_edge_label(n5,0))
 
 	def test_invalid_label_change(self):
-		(n1,n2,n3,n4) = Node.query.all()
+		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		db.session.add(n5)
 		db.session.commit()
