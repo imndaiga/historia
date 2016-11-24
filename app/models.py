@@ -192,8 +192,3 @@ class NodeGraph:
 		else:
 			raise TypeError('{} is of type {}. Node type is expected.'.format(self.node, type(self.node)))
 		return self
-
-	def count(self):
-			self.all_edges=len(self.output.edges())
-			self.all_nodes=len(self.output.nodes())
-			return self

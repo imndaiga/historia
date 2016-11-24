@@ -152,5 +152,5 @@ class NodeModelTestCase(unittest.TestCase):
 
 	def test_count_node_undirgraph_elements(self):
 		n1 = Node.query.get(1)
-		self.assertTrue(NodeGraph(n1).create().count().all_edges==3)
-		self.assertTrue(NodeGraph(n1).create().count().all_nodes==4)
+		self.assertTrue(NodeGraph(n1).create().output.number_of_edges()==3)
+		self.assertTrue(NodeGraph(n1).create().output.number_of_nodes()==4)
