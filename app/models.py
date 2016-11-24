@@ -129,6 +129,7 @@ class Node(db.Model, UserMixin):
 			self.get_path = None
 			self.get_type = None
 			print('No relation between {} and {}.'.format(self, target_node))
+			return None
 		return self
 
 	def _create_graph(self, gtype=nx.Graph):
