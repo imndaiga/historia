@@ -1,6 +1,6 @@
 import unittest
 from app import create_app, db
-from app.models import Node, GlobalEdge, NodeGraph
+from app.models import Node, GlobalEdge
 from datetime import date
 import time
 import networkx as nx
@@ -140,17 +140,12 @@ class NodeModelTestCase(unittest.TestCase):
 		time.sleep(2)
 		self.assertFalse(n1.confirm_login(token))
 
-	def test_invalid_node_undirgraph_argument(self):
-		n1 = Node.query.get(1)
-		with self.assertRaises(TypeError):
-			NodeGraph('node').graph_output
-
 	def test_valid_node_undirgraph_argument(self):
 		n1 = Node.query.get(1)
-		self.assertTrue(isinstance(NodeGraph(n1).graph_output.nodes(), list))
-		self.assertTrue(isinstance(NodeGraph(n1).graph_output.edges(), list))
+		self.assertTrue(isinstance(n1.graph_output.nodes(), list))
+		self.assertTrue(isinstance(n1.graph_output.edges(), list))
 
 	def test_count_node_undirgraph_elements(self):
 		n1 = Node.query.get(1)
-		self.assertTrue(NodeGraph(n1).graph_output.number_of_edges()==6)
-		self.assertTrue(NodeGraph(n1).graph_output.number_of_nodes()==4)
+		self.assertTrue(n1.graph_output.number_of_edges()==6)
+		self.assertTrue(n1.graph_output.number_of_nodes()==4)

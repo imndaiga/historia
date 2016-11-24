@@ -27,6 +27,7 @@ class GlobalEdge(db.Model):
 class Node(db.Model, UserMixin):
 	"""all miminani subscribed Nodes"""
 	__tablename__ = 'nodes'
+
 	id = db.Column(db.Integer, primary_key=True)
 	baptism_name = db.Column(db.String(64))
 	ethnic_name = db.Column(db.String(64), index=True)
@@ -46,6 +47,18 @@ class Node(db.Model, UserMixin):
 								backref=db.backref('descendant', lazy='joined'),
 								lazy='dynamic',
 								cascade='all, delete-orphan')
+
+	directed_types = {
+		'parent-child':[3,4],
+		'uncle_aunt-nibling':[6,5]
+		}
+
+	undirected_types = {
+		'siblings':2,
+		'partners':1
+	}
+
+	ascendant_labels = [1,2,3,6]
 
 	def generate_login_token(self, email, remember_me=False, next_url=None, expiration=300):
 		s = Serializer(current_app.config['SECRET_KEY'], expiration)
@@ -73,43 +86,33 @@ class Node(db.Model, UserMixin):
 	def create_edge(self, node, label):
 		create_check = 0
 
-		directed_types = {
-		'parent-child':[3,4],
-		'uncle_aunt-nibling':[6,5]
-		}
-
-		undirected_types = {
-			'siblings':2,
-			'partners':1
-		}
-
 		if self.baptism_name != node.baptism_name:
 			dir_type_list = []
-			for l in list(directed_types.values()):
+			for l in list(self.directed_types.values()):
 				dir_type_list.extend(l)
 			if label in dir_type_list:
-				for relation in directed_types:
-					if label in directed_types[relation]:
+				for relation in self.directed_types:
+					if label in self.directed_types[relation]:
 						dir1 = GlobalEdge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
 						dir2 = GlobalEdge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
 						if not dir1 and not dir2:
-							n1 = GlobalEdge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
-							n2 = GlobalEdge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
+							n1 = GlobalEdge(ascendant=self, descendant=node, edge_label=self.directed_types[relation][0])
+							n2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[relation][1])
 							db.session.add_all([n1,n2])
 							create_check = 3
 						elif dir1 and not dir2:
-							n2 = GlobalEdge(ascendant=node, descendant=self, edge_label=directed_types[relation][1])
+							n2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[relation][1])
 							db.session.add(n2)
 							create_check = 2
 						elif not dir1 and dir2:
-							n1 = GlobalEdge(ascendant=self, descendant=node, edge_label=directed_types[relation][0])
+							n1 = GlobalEdge(ascendant=self, descendant=node, edge_label=self.directed_types[relation][0])
 							db.session.add(n1)
 							create_check = 1
 						else:
 							return None
-			elif label in list(undirected_types.values()):
-				for relation in undirected_types:
-					if label == undirected_types[relation]:
+			elif label in list(self.undirected_types.values()):
+				for relation in self.undirected_types:
+					if label == self.undirected_types[relation]:
 						n1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
 						n2 = GlobalEdge(ascendant=node, descendant=self, edge_label=label)
 						db.session.add_all([n1,n2])
@@ -119,13 +122,23 @@ class Node(db.Model, UserMixin):
 		return None
 
 	def node_relation(self, target_node):
-		G = NodeGraph(self).graph_output
+		G = self.graph_output
 		try:
 			self.get_path = nx.dijkstra_path(G, source=self, target=target_node, weight='label')
 		except nx.NetworkXNoPath as e:
 			self.get_path = None
 			self.get_type = None
 			print('No relation between {} and {}.'.format(self, target_node))
+		return self
+
+	def _create_graph(self, gtype=nx.Graph):
+		self._graph_output = gtype()
+		db_paths = db.session.query(GlobalEdge).filter(and_(GlobalEdge.descendant!=self, GlobalEdge.edge_label.in_(self.ascendant_labels))).all()
+		for edge in db_paths:
+			n1 = edge.descendant
+			n2 = edge.ascendant
+			label = edge.edge_label
+			self._graph_output.add_edges_from([(n1,n2,{'label':label})])
 		return self
 
 	# This function should be password protected or hidden
@@ -142,7 +155,11 @@ class Node(db.Model, UserMixin):
 			db.session.add(n)
 			return n
 		return None
-		
+
+	@property
+	def graph_output(self):
+		return self._create_graph()._graph_output
+
 	@staticmethod
 	def node_from_token(token):
 		s = Serializer(current_app.config['SECRET_KEY'])
@@ -169,30 +186,3 @@ class Node(db.Model, UserMixin):
 					
 	def __repr__(self):
 		return 'Node: <%s>' % self.baptism_name
-
-class NodeGraph:
-	def __init__(self, node, **kwargs):
-		if isinstance(node, Node):
-			self.node = node
-			self.valid = True
-		else:
-			self.node = node
-			self.valid = False
-
-	def _create(self, gtype=nx.Graph):
-		ascendant_labels = [1,2,3,6]
-		if self.valid:
-			self._graph_output = gtype()
-			db_paths = db.session.query(GlobalEdge).filter(and_(GlobalEdge.descendant!=self.node, GlobalEdge.edge_label.in_(ascendant_labels))).all()
-			for edge in db_paths:
-				n1 = edge.descendant
-				n2 = edge.ascendant
-				label = edge.edge_label
-				self._graph_output.add_edges_from([(n1,n2,{'label':label})])
-		else:
-			raise TypeError('{} is of type {}. Node type is expected.'.format(self.node, type(self.node)))
-		return self
-
-	@property
-	def graph_output(self):
-		return self._create()._graph_output
