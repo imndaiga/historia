@@ -132,14 +132,14 @@ class Node(db.Model, UserMixin):
 		return self
 
 	def _create_graph(self, gtype=nx.Graph):
-		self._graph_output = gtype()
+		_graph_output = gtype()
 		db_paths = db.session.query(GlobalEdge).filter(and_(GlobalEdge.descendant!=self, GlobalEdge.edge_label.in_(self.ascendant_labels))).all()
 		for edge in db_paths:
 			n1 = edge.descendant
 			n2 = edge.ascendant
 			label = edge.edge_label
-			self._graph_output.add_edges_from([(n1,n2,{'label':label})])
-		return self
+			_graph_output.add_edges_from([(n1,n2,{'label':label})])
+		return (self, _graph_output)
 
 	# This function should be password protected or hidden
 	def _change_edge_label(self, node, edge_label):
@@ -158,7 +158,7 @@ class Node(db.Model, UserMixin):
 
 	@property
 	def graph_output(self):
-		return self._create_graph()._graph_output
+		return self._create_graph()[1]
 
 	@staticmethod
 	def node_from_token(token):
