@@ -143,14 +143,14 @@ class NodeModelTestCase(unittest.TestCase):
 	def test_invalid_node_undirgraph_argument(self):
 		n1 = Node.query.get(1)
 		with self.assertRaises(TypeError):
-			NodeGraph('node').create()
+			NodeGraph('node').graph_output
 
 	def test_valid_node_undirgraph_argument(self):
 		n1 = Node.query.get(1)
-		self.assertTrue(isinstance(NodeGraph(n1).create().output.nodes(), list))
-		self.assertTrue(isinstance(NodeGraph(n1).create().output.edges(), list))
+		self.assertTrue(isinstance(NodeGraph(n1).graph_output.nodes(), list))
+		self.assertTrue(isinstance(NodeGraph(n1).graph_output.edges(), list))
 
 	def test_count_node_undirgraph_elements(self):
 		n1 = Node.query.get(1)
-		self.assertTrue(NodeGraph(n1).create().output.number_of_edges()==6)
-		self.assertTrue(NodeGraph(n1).create().output.number_of_nodes()==4)
+		self.assertTrue(NodeGraph(n1).graph_output.number_of_edges()==6)
+		self.assertTrue(NodeGraph(n1).graph_output.number_of_nodes()==4)

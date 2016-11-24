@@ -119,7 +119,7 @@ class Node(db.Model, UserMixin):
 		return None
 
 	def node_relation(self, target_node):
-		G = NodeGraph(self).create().output
+		G = NodeGraph(self).graph_output
 		try:
 			self.get_path = nx.dijkstra_path(G, source=self, target=target_node, weight='label')
 		except nx.NetworkXNoPath as e:
@@ -179,16 +179,20 @@ class NodeGraph:
 			self.node = node
 			self.valid = False
 
-	def create(self, gtype=nx.Graph):
+	def _create(self, gtype=nx.Graph):
 		ascendant_labels = [1,2,3,6]
 		if self.valid:
-			self.output = gtype()
+			self._graph_output = gtype()
 			db_paths = db.session.query(GlobalEdge).filter(and_(GlobalEdge.descendant!=self.node, GlobalEdge.edge_label.in_(ascendant_labels))).all()
 			for edge in db_paths:
 				n1 = edge.descendant
 				n2 = edge.ascendant
 				label = edge.edge_label
-				self.output.add_edges_from([(n1,n2,{'label':label})])
+				self._graph_output.add_edges_from([(n1,n2,{'label':label})])
 		else:
 			raise TypeError('{} is of type {}. Node type is expected.'.format(self.node, type(self.node)))
 		return self
+
+	@property
+	def graph_output(self):
+		return self._create()._graph_output
