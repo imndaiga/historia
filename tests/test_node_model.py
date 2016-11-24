@@ -149,3 +149,50 @@ class NodeModelTestCase(unittest.TestCase):
 		n1 = Node.query.get(1)
 		self.assertTrue(n1.graph_output.number_of_edges()==6)
 		self.assertTrue(n1.graph_output.number_of_nodes()==4)
+
+	def test_pre_existing_node_relations(self):
+		(n1,n2,n3,n4) = Node.query.slice(0,4)
+		self.assertTrue(n1.node_relation(n2))
+		self.assertTrue(n1.node_relation(n3))
+		self.assertTrue(n1.node_relation(n4))
+		self.assertTrue(n2.node_relation(n1))
+		self.assertTrue(n2.node_relation(n3))
+		self.assertTrue(n2.node_relation(n4))
+		self.assertTrue(n3.node_relation(n1))
+		self.assertTrue(n3.node_relation(n2))
+		self.assertTrue(n3.node_relation(n4))
+		self.assertTrue(n4.node_relation(n1))
+		self.assertTrue(n4.node_relation(n2))
+		self.assertTrue(n4.node_relation(n3))
+
+	def test_error_ungraphed_node(self):
+		(n1,n2,n3,n4) = Node.query.slice(0,4)
+		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
+		db.session.add(n5)
+		db.session.commit()
+		with self.assertRaises(KeyError):
+			n5.node_relation(n1)
+			n5.node_relation(n2)
+			n5.node_relation(n3)
+			n5.node_relation(n4)
+			n1.node_relation(n5)
+			n2.node_relation(n5)
+			n3.node_relation(n5)
+			n4.node_relation(n5)
+
+	def test_positive_non_adjacent_node_relations(self):
+		(n1,n2,n3,n4) = Node.query.slice(0,4)
+		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
+		link = {
+			1:[n3,n5,1]
+		}
+		db.session.add(n5)
+		Node.seed_node_family(link)
+		self.assertTrue(n5.node_relation(n1))
+		self.assertTrue(n5.node_relation(n2))
+		self.assertTrue(n5.node_relation(n3))
+		self.assertTrue(n5.node_relation(n4))
+		self.assertTrue(n1.node_relation(n5))
+		self.assertTrue(n2.node_relation(n5))
+		self.assertTrue(n3.node_relation(n5))
+		self.assertTrue(n4.node_relation(n5))
