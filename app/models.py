@@ -180,7 +180,7 @@ class NodeGraph:
 			self.valid = False
 
 	def create(self, gtype=nx.Graph):
-		ascendant_labels = [1,3,6]
+		ascendant_labels = [1,2,3,6]
 		if self.valid:
 			self.output = gtype()
 			db_paths = db.session.query(GlobalEdge).filter(and_(GlobalEdge.descendant!=self.node, GlobalEdge.edge_label.in_(ascendant_labels))).all()
