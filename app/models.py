@@ -81,41 +81,45 @@ class Node(db.Model, UserMixin):
 			ascendant_id=node.id).first() is not None
 
 	def create_edge(self, node, label):
-		create_check = 0
+		created_tuple = ()
 
 		if self.baptism_name != node.baptism_name:
 			dir_type_list = []
+
 			for l in list(self.directed_types.values()):
 				dir_type_list.extend(l)
+
 			if label in dir_type_list:
 				for relation in self.directed_types:
 					if label in self.directed_types[relation]:
 						dir1 = GlobalEdge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
 						dir2 = GlobalEdge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
 						if not dir1 and not dir2:
-							n1 = GlobalEdge(ascendant=self, descendant=node, edge_label=self.directed_types[relation][0])
-							n2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[relation][1])
-							db.session.add_all([n1,n2])
-							create_check = 3
+							e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=self.directed_types[relation][0])
+							e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[relation][1])
+							db.session.add_all([e1,e2])
+							db.session.commit()
+							created_tuple=(e1,e2,label,2)
 						elif dir1 and not dir2:
-							n2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[relation][1])
-							db.session.add(n2)
-							create_check = 2
+							e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[relation][1])
+							db.session.add(e2)
+							created_tuple=(e1,e2,label,2)
 						elif not dir1 and dir2:
-							n1 = GlobalEdge(ascendant=self, descendant=node, edge_label=self.directed_types[relation][0])
-							db.session.add(n1)
-							create_check = 1
+							e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=self.directed_types[relation][0])
+							db.session.add(e1)
+							created_tuple=(e1,e2,label,2)
 						else:
 							return None
 			elif label in list(self.undirected_types.values()):
 				for relation in self.undirected_types:
 					if label == self.undirected_types[relation]:
-						n1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
-						n2 = GlobalEdge(ascendant=node, descendant=self, edge_label=label)
-						db.session.add_all([n1,n2])
+						e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
+						e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=label)
+						db.session.add_all([e1,e2])
+						created_tuple=(e1,e2,label,2)
 			else:
 				return None
-			return (self,node,create_check)
+			return (self,created_tuple)
 		return None
 
 	def node_relation(self, target_node):
