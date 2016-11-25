@@ -5,7 +5,6 @@ from flask import current_app
 from flask_login import UserMixin
 from . import login_manager
 import networkx as nx
-from sqlalchemy import and_
 
 class GlobalEdge(db.Model):
 	"""self-referential association table that connects Nodes"""
@@ -57,8 +56,6 @@ class Node(db.Model, UserMixin):
 		'siblings':2,
 		'partners':1
 	}
-
-	ascendant_labels = [1,2,3,6]
 
 	def generate_login_token(self, email, remember_me=False, next_url=None, expiration=300):
 		s = Serializer(current_app.config['SECRET_KEY'], expiration)
@@ -134,7 +131,7 @@ class Node(db.Model, UserMixin):
 
 	def _create_graph(self, gtype=nx.Graph):
 		_graph_output = gtype()
-		db_paths = db.session.query(GlobalEdge).filter(and_(GlobalEdge.descendant!=self, GlobalEdge.edge_label.in_(self.ascendant_labels))).all()
+		db_paths = db.session.query(GlobalEdge).filter(GlobalEdge.descendant!=self).all()
 		for edge in db_paths:
 			n1 = edge.descendant
 			n2 = edge.ascendant
