@@ -81,7 +81,7 @@ class Node(db.Model, UserMixin):
 			ascendant_id=node.id).first() is not None
 
 	def create_edge(self, node, label):
-		created_tuple = ()
+		result_dict = {}
 
 		if self.baptism_name != node.baptism_name:
 			dir_type_list = []
@@ -99,15 +99,16 @@ class Node(db.Model, UserMixin):
 							e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[relation][1])
 							db.session.add_all([e1,e2])
 							db.session.commit()
-							created_tuple=(e1,e2,label,2)
+							result_dict=GlobalGraph(edge_list=[e1,e2]).add()
 						elif dir1 and not dir2:
 							e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[relation][1])
 							db.session.add(e2)
-							created_tuple=(e1,e2,label,2)
+							result_dict=GlobalGraph(edge_list=[e2]).add()
 						elif not dir1 and dir2:
 							e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=self.directed_types[relation][0])
 							db.session.add(e1)
-							created_tuple=(e1,e2,label,2)
+							listed_tuple=(e1)
+							result_dict=GlobalGraph(edge_list=[e1]).add()
 						else:
 							return None
 			elif label in list(self.undirected_types.values()):
@@ -116,10 +117,10 @@ class Node(db.Model, UserMixin):
 						e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
 						e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=label)
 						db.session.add_all([e1,e2])
-						created_tuple=(e1,e2,label,2)
+						result_dict=GlobalGraph(edge_list=[e1,e2]).add()
 			else:
 				return None
-			return (self,created_tuple)
+			return result_dict
 		return None
 
 	def node_relation(self, target_node):
@@ -176,9 +177,8 @@ class Node(db.Model, UserMixin):
 
 	@staticmethod
 	def seed_node_family(links):
-		result = []
 		for link in links:
-			result.append(links[link][0].create_edge(links[link][1], label=links[link][2]))
+			result=links[link][0].create_edge(links[link][1], label=links[link][2])
 		db.session.commit()
 		return result
 
@@ -188,3 +188,19 @@ class Node(db.Model, UserMixin):
 					
 	def __repr__(self):
 		return 'Node: <%s>' % self.baptism_name
+
+class GlobalGraph:
+	def __init__(self, **kwargs):
+		self.edge_list = kwargs['edge_list']
+
+	def add(self):
+		# should read graph from database
+		G = nx.MultiDiGraph()
+
+		for index,edge in enumerate(self.edge_list):
+			self.source = self.edge_list[index].ascendant
+			self.target = self.edge_list[index].descendant
+			self.length = self.edge_list[index].edge_label
+			G.add_edge(self.source, self.target, weight=self.length)
+
+		return {'input':self.edge_list,'output':G}
