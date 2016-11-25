@@ -54,29 +54,13 @@ class NodeModelTestCase(unittest.TestCase):
 	def test_valid_edge_addition(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		db.session.add(n5)
-		db.session.commit()
-		links = {
-			1:[n1,n5,3],
-			2:[n2,n5,3],
-			3:[n3,n5,2],
-			4:[n4,n5,2]
-		}
-		db.session.add(n5)
-		Node.seed_node_family(links)
+		self.link_new_member(n1,n2,n3,n4,n5,type='daughter')
 		self.assertTrue(GlobalEdge.query.count() == 20)
 
 	def test_valid_label_change(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		links = {
-			1:[n1,n5,3],
-			2:[n2,n5,3],
-			3:[n3,n5,2],
-			4:[n4,n5,2]
-		}
-		db.session.add(n5)
-		Node.seed_node_family(links)
+		self.link_new_member(n1,n2,n3,n4,n5,type='daughter')
 		self.assertTrue(n5._change_edge_label(n1,1))
 		self.assertTrue(n5._change_edge_label(n2,1))
 		self.assertTrue(n5._change_edge_label(n3,0))
@@ -183,11 +167,7 @@ class NodeModelTestCase(unittest.TestCase):
 	def test_positive_non_adjacent_node_relations(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		link = {
-			1:[n3,n5,1]
-		}
-		db.session.add(n5)
-		Node.seed_node_family(link)
+		self.link_new_member(n3,n5,type='wife')
 		self.assertTrue(n5.node_relation(n1))
 		self.assertTrue(n5.node_relation(n2))
 		self.assertTrue(n5.node_relation(n3))
@@ -196,3 +176,21 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertTrue(n2.node_relation(n5))
 		self.assertTrue(n3.node_relation(n5))
 		self.assertTrue(n4.node_relation(n5))
+
+	@staticmethod
+	def link_new_member(*args, **kwargs):
+		if kwargs['type']=='daughter':
+			links = {
+				1:[args[0],args[4],3],
+				2:[args[1],args[4],3],
+				3:[args[2],args[4],2],
+				4:[args[3],args[4],2]
+			}
+			db.session.add(args[4])
+			Node.seed_node_family(links)
+		elif kwargs['type']=='wife':
+			link = {
+				1:[args[0],args[1],1]
+			}
+			db.session.add(args[1])
+			Node.seed_node_family(link)
