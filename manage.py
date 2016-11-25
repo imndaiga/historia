@@ -45,7 +45,7 @@ def test():
 
 # Attach functions to app-runtime flags
 def make_shell_context():
-	return dict(db=db, Node=Node, GlobalEdge=GlobalEdge, NodeGraph=NodeGraph, app=app, send_email=send_email, forge=forge)
+	return dict(db=db, Node=Node, GlobalEdge=GlobalEdge, app=app, send_email=send_email, forge=forge)
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 
