@@ -129,7 +129,7 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertTrue(isinstance(n1.graph_output.nodes(), list))
 		self.assertTrue(isinstance(n1.graph_output.edges(), list))
 
-	def test_count_node_undirgraph_elements(self):
+	def test_basic_undirgraph_count(self):
 		n1 = Node.query.get(1)
 		self.assertTrue(n1.graph_output.number_of_edges()==6)
 		self.assertTrue(n1.graph_output.number_of_nodes()==4)
@@ -164,7 +164,7 @@ class NodeModelTestCase(unittest.TestCase):
 			n3.node_relation(n5)
 			n4.node_relation(n5)
 
-	def test_positive_non_adjacent_node_relations(self):
+	def test_non_adjacent_node_relations_with_one(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		self.link_new_member(n3,n5,type='wife')
@@ -176,6 +176,58 @@ class NodeModelTestCase(unittest.TestCase):
 		self.assertTrue(n2.node_relation(n5))
 		self.assertTrue(n3.node_relation(n5))
 		self.assertTrue(n4.node_relation(n5))
+
+	def test_non_adjacent_node_relations_with_two(self):
+		(n1,n2,n3,n4) = Node.query.slice(0,4)
+		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
+		n6 = Node(baptism_name='Andrew',dob=date(1960,7,5))
+		self.link_new_member(n3,n5,type='wife')
+		self.link_new_member(n3,n5,n6,type='child')
+		self.assertTrue(n6.node_relation(n1))
+		self.assertTrue(n6.node_relation(n2))
+		self.assertTrue(n6.node_relation(n3))
+		self.assertTrue(n6.node_relation(n4))
+		self.assertTrue(n6.node_relation(n5))
+		self.assertTrue(n1.node_relation(n6))
+		self.assertTrue(n2.node_relation(n6))
+		self.assertTrue(n3.node_relation(n6))
+		self.assertTrue(n4.node_relation(n6))
+		self.assertTrue(n5.node_relation(n6))
+
+	def test_valid_undirgraph_edge_count(self):
+		n1 = Node.query.get(1)
+		data = n1.graph_output.edges(data=True)
+		c1 = self.count_edge_labels(data=data)
+		self.assertTrue(c1[1]==1)
+		self.assertTrue(c1[2]==1)
+		self.assertTrue(c1[3]==2)
+		self.assertTrue(c1[4]==2)
+
+	def test_valid_undirgraph_edge_count_with_one(self):
+		n1 = Node.query.get(1)
+		n3 = Node.query.get(3)
+		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
+		self.link_new_member(n3,n5,type='wife')
+		data = n1.graph_output.edges(data=True)
+		c2 = self.count_edge_labels(data=data)
+		self.assertTrue(c2[1]==2)
+		self.assertTrue(c2[2]==1)
+		self.assertTrue(c2[3]==2)
+		self.assertTrue(c2[4]==2)
+
+	def test_valid_undirgraph_edge_count_with_two(self):
+		n1 = Node.query.get(1)
+		n3 = Node.query.get(3)
+		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
+		n6 = Node(baptism_name='Andrew',dob=date(1960,7,5))
+		self.link_new_member(n3,n5,type='wife')
+		self.link_new_member(n3,n5,n6,type='child')
+		data = n1.graph_output.edges(data=True)
+		c2 = self.count_edge_labels(data=data)
+		self.assertTrue(c2[1]==2)
+		self.assertTrue(c2[2]==1)
+		self.assertTrue(c2[3]==2)
+		self.assertTrue(c2[4]==4)
 
 	@staticmethod
 	def link_new_member(*args, **kwargs):
@@ -194,3 +246,21 @@ class NodeModelTestCase(unittest.TestCase):
 			}
 			db.session.add(args[1])
 			Node.seed_node_family(link)
+		elif kwargs['type']=='child':
+			links = {
+				1:[args[0],args[2],3],
+				2:[args[1],args[2],3]
+			}
+			db.session.add_all([args[1],args[2]])
+			Node.seed_node_family(links)
+
+	@staticmethod
+	def count_edge_labels(**kwargs):
+		data = kwargs['data']
+		counts={}
+		for index,edge in enumerate(data):
+			if counts.get(data[index][2]['label']):
+				counts[data[index][2]['label']]=counts[data[index][2]['label']]+1
+			else:
+				counts[data[index][2]['label']]=1
+		return counts
