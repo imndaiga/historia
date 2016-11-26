@@ -5,6 +5,7 @@ from flask import current_app
 from flask_login import UserMixin
 from . import login_manager
 import networkx as nx
+import os
 
 class GlobalEdge(db.Model):
 	"""self-referential association table that connects Nodes"""
@@ -35,7 +36,6 @@ class Node(db.Model, UserMixin):
 	dob = db.Column(db.DateTime, default=date(9999,1,1))
 	email = db.Column(db.String(64), unique=True)
 	confirmed = db.Column(db.Boolean, default=False)
-
 	descended_by = db.relationship('GlobalEdge',
 								foreign_keys=[GlobalEdge.ascendant_id],
 								backref=db.backref('ascendant', lazy='joined'),
@@ -47,15 +47,8 @@ class Node(db.Model, UserMixin):
 								lazy='dynamic',
 								cascade='all, delete-orphan')
 
-	directed_types = {
-		'parent-child':[3,4],
-		'uncle_aunt-nibling':[6,5]
-		}
-
-	undirected_types = {
-		'siblings':2,
-		'partners':1
-	}
+	directed_types = { 3:['parent',4], 4:['child',3]}
+	undirected_types = { 1:['partner'], 2:['sibling',3]}
 
 	def generate_login_token(self, email, remember_me=False, next_url=None, expiration=300):
 		s = Serializer(current_app.config['SECRET_KEY'], expiration)
@@ -84,44 +77,38 @@ class Node(db.Model, UserMixin):
 		result_dict = {}
 
 		if self.baptism_name != node.baptism_name:
-			dir_type_list = []
-
-			for l in list(self.directed_types.values()):
-				dir_type_list.extend(l)
-
-			if label in dir_type_list:
-				for relation in self.directed_types:
-					if label in self.directed_types[relation]:
-						dir1 = GlobalEdge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
-						dir2 = GlobalEdge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
-						if not dir1 and not dir2:
-							e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=self.directed_types[relation][0])
-							e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[relation][1])
-							db.session.add_all([e1,e2])
-							db.session.commit()
-							result_dict=GlobalGraph(edge_list=[e1,e2]).add()
-						elif dir1 and not dir2:
-							e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[relation][1])
-							db.session.add(e2)
-							result_dict=GlobalGraph(edge_list=[e2]).add()
-						elif not dir1 and dir2:
-							e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=self.directed_types[relation][0])
-							db.session.add(e1)
-							listed_tuple=(e1)
-							result_dict=GlobalGraph(edge_list=[e1]).add()
-						else:
-							return None
-			elif label in list(self.undirected_types.values()):
-				for relation in self.undirected_types:
-					if label == self.undirected_types[relation]:
-						e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
-						e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=label)
-						db.session.add_all([e1,e2])
-						result_dict=GlobalGraph(edge_list=[e1,e2]).add()
+			if label in self.directed_types:
+				dir1 = GlobalEdge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
+				dir2 = GlobalEdge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
+				if not dir1 and not dir2:
+					e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
+					e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[label][1])
+					db.session.add_all([e1,e2])
+					db.session.commit()
+					result_dict=GlobalGraph().update(edge_list=[e1,e2])
+				elif dir1 and not dir2:
+					e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[label][1])
+					db.session.add(e2)
+					db.session.commit()
+					result_dict=GlobalGraph().update(edge_list=[e2])
+				elif not dir1 and dir2:
+					e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
+					db.session.add(e1)
+					db.session.commit()
+					result_dict=GlobalGraph().update(edge_list=[e1])
+				else:
+					return None
+			elif label in self.undirected_types:
+				e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
+				e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=label)
+				db.session.add_all([e1,e2])
+				db.session.commit()
+				result_dict=GlobalGraph().update(edge_list=[e1,e2])
 			else:
 				return None
 			return result_dict
-		return None
+		else:
+			return None
 
 	def node_relation(self, target_node):
 		G = self.graph_output
@@ -189,17 +176,23 @@ class Node(db.Model, UserMixin):
 		return 'Node: <%s>' % self.baptism_name
 
 class GlobalGraph:
-	def __init__(self, **kwargs):
-		self.edge_list = kwargs['edge_list']
 
-	def add(self):
-		# should read graph from database
-		G = nx.MultiDiGraph()
+	def update(self, edge_list):
+		G = self._load()
+		for edge in edge_list:
+			source = edge.ascendant.id
+			target = edge.descendant.id
+			length = edge.edge_label
+			G.add_edge(source, target, weight=length)
+		self._save(G)
+		return {'input':edge_list,'output':G}
 
-		for index,edge in enumerate(self.edge_list):
-			self.source = self.edge_list[index].ascendant
-			self.target = self.edge_list[index].descendant
-			self.length = self.edge_list[index].edge_label
-			G.add_edge(self.source, self.target, weight=self.length)
+	def _save(self, G):
+		nx.write_gpickle(G, current_app.config['GRAPH_PATH'])
 
-		return {'input':self.edge_list,'output':G}
+	def _load(self):
+		if os.path.exists(current_app.config['GRAPH_PATH']):
+			G = nx.read_gpickle(current_app.config['GRAPH_PATH'])
+		else:
+			G = nx.MultiDiGraph()
+		return G

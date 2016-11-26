@@ -21,8 +21,8 @@ class Config:
 
 	MIMINANI_GRAPHIQL = True
 
-	RECAPTCHA_PUBLIC_KEY=os.environ.get('RECAPTCHA_PUBLIC_KEY')
-	RECAPTCHA_PRIVATE_KEY=os.environ.get('RECAPTCHA_PRIVATE_KEY')
+	RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY')
+	RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY')
 	RECAPTCHA_DATA_ATTRS = {'size': 'normal'}
 
 	@staticmethod
@@ -33,12 +33,14 @@ class DevelopmentConfig(Config):
 	DEBUG = True
 	SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
 		'sqlite:///'+os.path.join(basedir, 'data-dev.sqlite')
+	GRAPH_PATH = os.environ.get('DEV_GRAPH_PATH') or os.path.join(basedir, 'graph-dev.gpickle')
 
 
 class TestingConfig(Config):
 	TESTING = True
 	SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
 		'sqlite:///'+os.path.join(basedir, 'data-test.sqlite')
+	GRAPH_PATH = os.environ.get('TEST_GRAPH_PATH') or os.path.join(basedir, 'graph-test.gpickle')
 	# Disable Cross-Site-Request-Forgery Protection to enable Flask-Test and Selenium
 	# testing suites to function properly
 	WTF_CSRF_ENABLED = False
@@ -46,6 +48,7 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
 	SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
 		'sqlite:///'+os.path.join(basedir, 'data.sqlite')
+	GRAPH_PATH = os.environ.get('GRAPH_PATH') or os.path.join(basedir, 'graph.gpickle')
 
 config = {
 	'development': DevelopmentConfig,
@@ -53,5 +56,3 @@ config = {
 	'production': ProductionConfig,
 	'default': DevelopmentConfig
 }
-
-	
