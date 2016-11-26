@@ -95,3 +95,6 @@ ENV/
 
 # Sqlite stuff
 *.sqlite
+
+# Gpickle stuff
+*.gpickle
