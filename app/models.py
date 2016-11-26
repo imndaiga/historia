@@ -126,12 +126,11 @@ class Node(db.Model, UserMixin):
 	def node_relation(self, target_node):
 		G = self.graph_output
 		try:
-			self.get_path = nx.dijkstra_path(G, source=self, target=target_node, weight='label')
+			self.path_nodes_list = nx.dijkstra_path(G, source=self, target=target_node, weight='label')
 		except nx.NetworkXNoPath as e:
-			self.get_path = None
-			self.get_type = None
-			print('No relation between {} and {}.'.format(self, target_node))
-			return None
+			# No relation between self and target_node
+			self.path_nodes_list = None
+			self.computed_relation_name = None
 		return self
 
 	def _create_graph(self, gtype=nx.Graph):

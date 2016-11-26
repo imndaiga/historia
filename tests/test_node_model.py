@@ -136,18 +136,18 @@ class NodeModelTestCase(unittest.TestCase):
 
 	def test_pre_existing_node_relations(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
-		self.assertTrue(n1.node_relation(n2))
-		self.assertTrue(n1.node_relation(n3))
-		self.assertTrue(n1.node_relation(n4))
-		self.assertTrue(n2.node_relation(n1))
-		self.assertTrue(n2.node_relation(n3))
-		self.assertTrue(n2.node_relation(n4))
-		self.assertTrue(n3.node_relation(n1))
-		self.assertTrue(n3.node_relation(n2))
-		self.assertTrue(n3.node_relation(n4))
-		self.assertTrue(n4.node_relation(n1))
-		self.assertTrue(n4.node_relation(n2))
-		self.assertTrue(n4.node_relation(n3))
+		self.assertTrue(n1.node_relation(n2).path_nodes_list)
+		self.assertTrue(n1.node_relation(n3).path_nodes_list)
+		self.assertTrue(n1.node_relation(n4).path_nodes_list)
+		self.assertTrue(n2.node_relation(n1).path_nodes_list)
+		self.assertTrue(n2.node_relation(n3).path_nodes_list)
+		self.assertTrue(n2.node_relation(n4).path_nodes_list)
+		self.assertTrue(n3.node_relation(n1).path_nodes_list)
+		self.assertTrue(n3.node_relation(n2).path_nodes_list)
+		self.assertTrue(n3.node_relation(n4).path_nodes_list)
+		self.assertTrue(n4.node_relation(n1).path_nodes_list)
+		self.assertTrue(n4.node_relation(n2).path_nodes_list)
+		self.assertTrue(n4.node_relation(n3).path_nodes_list)
 
 	def test_error_ungraphed_node(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
@@ -155,27 +155,27 @@ class NodeModelTestCase(unittest.TestCase):
 		db.session.add(n5)
 		db.session.commit()
 		with self.assertRaises(KeyError):
-			n5.node_relation(n1)
-			n5.node_relation(n2)
-			n5.node_relation(n3)
-			n5.node_relation(n4)
-			n1.node_relation(n5)
-			n2.node_relation(n5)
-			n3.node_relation(n5)
-			n4.node_relation(n5)
+			n5.node_relation(n1).path_nodes_list
+			n5.node_relation(n2).path_nodes_list
+			n5.node_relation(n3).path_nodes_list
+			n5.node_relation(n4).path_nodes_list
+			n1.node_relation(n5).path_nodes_list
+			n2.node_relation(n5).path_nodes_list
+			n3.node_relation(n5).path_nodes_list
+			n4.node_relation(n5).path_nodes_list
 
 	def test_non_adjacent_node_relations_with_one(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		self.link_new_member(n3,n5,type='wife')
-		self.assertTrue(n5.node_relation(n1))
-		self.assertTrue(n5.node_relation(n2))
-		self.assertTrue(n5.node_relation(n3))
-		self.assertTrue(n5.node_relation(n4))
-		self.assertTrue(n1.node_relation(n5))
-		self.assertTrue(n2.node_relation(n5))
-		self.assertTrue(n3.node_relation(n5))
-		self.assertTrue(n4.node_relation(n5))
+		self.assertTrue(n5.node_relation(n1).path_nodes_list)
+		self.assertTrue(n5.node_relation(n2).path_nodes_list)
+		self.assertTrue(n5.node_relation(n3).path_nodes_list)
+		self.assertTrue(n5.node_relation(n4).path_nodes_list)
+		self.assertTrue(n1.node_relation(n5).path_nodes_list)
+		self.assertTrue(n2.node_relation(n5).path_nodes_list)
+		self.assertTrue(n3.node_relation(n5).path_nodes_list)
+		self.assertTrue(n4.node_relation(n5).path_nodes_list)
 
 	def test_non_adjacent_node_relations_with_two(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
@@ -183,16 +183,16 @@ class NodeModelTestCase(unittest.TestCase):
 		n6 = Node(baptism_name='Andrew',dob=date(1960,7,5))
 		self.link_new_member(n3,n5,type='wife')
 		self.link_new_member(n3,n5,n6,type='child')
-		self.assertTrue(n6.node_relation(n1))
-		self.assertTrue(n6.node_relation(n2))
-		self.assertTrue(n6.node_relation(n3))
-		self.assertTrue(n6.node_relation(n4))
-		self.assertTrue(n6.node_relation(n5))
-		self.assertTrue(n1.node_relation(n6))
-		self.assertTrue(n2.node_relation(n6))
-		self.assertTrue(n3.node_relation(n6))
-		self.assertTrue(n4.node_relation(n6))
-		self.assertTrue(n5.node_relation(n6))
+		self.assertTrue(n6.node_relation(n1).path_nodes_list)
+		self.assertTrue(n6.node_relation(n2).path_nodes_list)
+		self.assertTrue(n6.node_relation(n3).path_nodes_list)
+		self.assertTrue(n6.node_relation(n4).path_nodes_list)
+		self.assertTrue(n6.node_relation(n5).path_nodes_list)
+		self.assertTrue(n1.node_relation(n6).path_nodes_list)
+		self.assertTrue(n2.node_relation(n6).path_nodes_list)
+		self.assertTrue(n3.node_relation(n6).path_nodes_list)
+		self.assertTrue(n4.node_relation(n6).path_nodes_list)
+		self.assertTrue(n5.node_relation(n6).path_nodes_list)
 
 	def test_valid_undirgraph_edge_count(self):
 		n1 = Node.query.get(1)
