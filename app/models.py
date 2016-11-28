@@ -94,17 +94,26 @@ class Node(db.Model, UserMixin):
 					e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[label][1])
 					db.session.add_all([e1,e2])
 					db.session.commit()
-					result_dict=GlobalGraph().update(edge_list=[e1,e2])
+					if label < self.directed_types[label][1]:
+						result_dict=GlobalGraph().update(edge_dict={1: e1, 2: e2})
+					else:
+						result_dict=GlobalGraph().update(edge_dict={2: e1, 1: e2})
 				elif e1_present and not e2_present:
 					e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[label][1])
 					db.session.add(e2)
 					db.session.commit()
-					result_dict=GlobalGraph().update(edge_list=[e2])
+					if label < self.directed_types[label][1]:
+						result_dict=GlobalGraph().update(edge_dict={1: e2})
+					else:
+						result_dict=GlobalGraph().update(edge_dict={2: e2})
 				elif not e1_present and e2_present:
 					e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
 					db.session.add(e1)
 					db.session.commit()
-					result_dict=GlobalGraph().update(edge_list=[e1])
+					if label < self.directed_types[label][1]:
+						result_dict=GlobalGraph().update(edge_dict={1: e1})
+					else:
+						result_dict=GlobalGraph().update(edge_dict={2: e1})
 				else:
 					return None
 			elif label in self.undirected_types:
@@ -112,7 +121,7 @@ class Node(db.Model, UserMixin):
 				e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=label)
 				db.session.add_all([e1,e2])
 				db.session.commit()
-				result_dict=GlobalGraph().update(edge_list=[e1,e2])
+				result_dict=GlobalGraph().update(edge_dict={1: e1,2: e2})
 			else:
 				return None
 			return result_dict
@@ -213,15 +222,15 @@ class Node(db.Model, UserMixin):
 
 class GlobalGraph:
 
-	def update(self, edge_list):
+	def update(self, edge_dict):
 		G = self._load()
-		for edge in edge_list:
-			source = edge.ascendant.id
-			target = edge.descendant.id
-			length = edge.edge_label
-			G.add_edge(source, target, weight=length)
+		for key in edge_dict:
+			source = edge_dict[key].ascendant.id
+			target = edge_dict[key].descendant.id
+			length = edge_dict[key].edge_label
+			G.add_edge(source, target, key=key, weight=length)
 		self._save(G)
-		return {'input':edge_list,'output':G}
+		return {'input':edge_dict,'output':G}
 
 	@property
 	def current(self):
