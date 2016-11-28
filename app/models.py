@@ -49,6 +49,14 @@ class Node(db.Model, UserMixin):
 
 	directed_types = { 3:['parent',4], 4:['child',3]}
 	undirected_types = { 1:['partner'], 2:['sibling',3]}
+	relation_dict = {
+		1:'partner',
+		2:'sibling',
+		3:'parent',
+		4:'child',
+		5:'nibling',
+		6:'uncle-aunt'
+	}
 
 	def generate_login_token(self, email, remember_me=False, next_url=None, expiration=300):
 		s = Serializer(current_app.config['SECRET_KEY'], expiration)
@@ -110,15 +118,42 @@ class Node(db.Model, UserMixin):
 		else:
 			return None
 
-	def node_relation(self, target_node):
-		G = self.graph_output
-		try:
-			self.path_nodes_list = nx.dijkstra_path(G, source=self, target=target_node, weight='label')
-		except nx.NetworkXNoPath as e:
-			# No relation between self and target_node
-			self.path_nodes_list = None
-			self.computed_relation_name = None
+	def get_relation_to(self, target):
+		weight_list=[]
+		relation_list=[]
+		computed_path_list = self._node_path_list_to(target)
+		computed_path_lengths = self._node_path_lengths(target)
+		self.path = computed_path_list
+		if self.path:
+			for node in self.path:
+				if node in computed_path_lengths:
+					weight_list.append(computed_path_lengths[node])
+			for weight in weight_list:
+				if weight in self.relation_dict:
+					relation_list.append(self.relation_dict[weight])
+			self.relation_type = (relation_list, weight_list, computed_path_lengths, computed_path_list)
 		return self
+
+	def _dijkstra_paths_and_lengths_to(self, target):
+		G = self.graph_output
+		_length, _path = nx.single_source_dijkstra(G, self, target=target, weight='label')
+		return (_length, _path)
+
+	def _node_path_list_to(self, target):
+		try:
+			path_list = self._dijkstra_paths_and_lengths_to(target)[1]
+			return path_list[target]
+		except KeyError:
+			# print("node %s not reachable from %s" % (source, target))
+			return None
+
+	def _node_path_lengths(self, target):
+		try:
+			lengths = self._dijkstra_paths_and_lengths_to(target)[0]
+			return lengths
+		except KeyError:
+			# print("node %s not reachable from %s" % (source, target))
+			return None
 
 	def _create_graph(self, gtype=nx.Graph):
 		_graph_output = gtype()
