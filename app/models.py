@@ -3,6 +3,7 @@ from datetime import date
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
 from flask_login import UserMixin
+from flask_script import Command
 from . import login_manager
 import networkx as nx
 import os
@@ -165,7 +166,7 @@ class Node(db.Model, UserMixin):
 			_graph_output.add_edges_from([(n1,n2,{'label':label})])
 		return (self, _graph_output)
 
-	# This function should be password protected or hidden
+	# This function should be protected
 	def _change_edge_label(self, node, edge_label):
 		if self.baptism_name != node.baptism_name:
 			if self.edge_ascends(node):
@@ -231,3 +232,63 @@ class GlobalGraph:
 		else:
 			G = nx.MultiDiGraph()
 		return G
+
+class Seed(Command):
+	"""Create fake seed data and store in database"""
+	# This function should be protected
+	@staticmethod
+	def run():
+		if current_app.config['DEBUG'] or current_app.config['TESTING']:
+			n1 = Node(baptism_name='Chris', email='chris@family.com', dob=date(1900,11,1))
+			n2 = Node(baptism_name='Christine', email='christine@family.com', dob=date(1910,12,2))
+			n3 = Node(baptism_name='Charlie', email='charlie@family.com', dob=date(1925,10,3))
+			n4 = Node(baptism_name='Carol', email='carol@family.com', dob=date(1930,8,4))
+			links = {
+				1: [n1,n2,1],
+				2: [n1,n3,3],
+				3: [n1,n4,3],
+				4: [n2,n3,3],
+				5: [n2,n4,3],
+				6: [n3,n4,2]
+			}
+			db.session.add_all([n1,n2,n3,n4])
+			result = Node.seed_node_family(links)
+			return result
+		return None
+
+	@staticmethod
+	def link_new_member(*args, **kwargs):
+		if current_app.config['DEBUG']  or current_app.config['TESTING']:
+			if kwargs['type']=='daughter':
+				links = {
+					1:[args[0],args[4],3],
+					2:[args[1],args[4],3],
+					3:[args[2],args[4],2],
+					4:[args[3],args[4],2]
+				}
+				db.session.add(args[4])
+				Node.seed_node_family(links)
+			elif kwargs['type']=='wife':
+				link = {
+					1:[args[0],args[1],1]
+				}
+				db.session.add(args[1])
+				Node.seed_node_family(link)
+			elif kwargs['type']=='child':
+				links = {
+					1:[args[0],args[2],3],
+					2:[args[1],args[2],3]
+				}
+				db.session.add_all([args[1],args[2]])
+				Node.seed_node_family(links)
+
+	@staticmethod
+	def count_edge_labels(**kwargs):
+		data = kwargs['data']
+		counts={}
+		for index,edge in enumerate(data):
+			if counts.get(data[index][2]['label']):
+				counts[data[index][2]['label']]=counts[data[index][2]['label']]+1
+			else:
+				counts[data[index][2]['label']]=1
+		return counts

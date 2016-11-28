@@ -1,10 +1,9 @@
 import unittest
 from app import create_app, db
-from app.models import Node, GlobalEdge
+from app.models import Node, GlobalEdge, Seed
 from datetime import date
 import time
 import networkx as nx
-from manage import Forge
 
 class NodeModelTestCase(unittest.TestCase):
 	def setUp(self):
@@ -12,7 +11,7 @@ class NodeModelTestCase(unittest.TestCase):
 		self.app_context = self.app.app_context()
 		self.app_context.push()
 		db.create_all()
-		Forge.seed()
+		Seed.run()
 
 	def tearDown(self):
 		db.session.remove()
@@ -41,13 +40,13 @@ class NodeModelTestCase(unittest.TestCase):
 	def test_valid_edge_addition(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		Forge.link_new_member(n1,n2,n3,n4,n5,type='daughter')
+		Seed.link_new_member(n1,n2,n3,n4,n5,type='daughter')
 		self.assertTrue(GlobalEdge.query.count() == 20)
 
 	def test_valid_label_change(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		Forge.link_new_member(n1,n2,n3,n4,n5,type='daughter')
+		Seed.link_new_member(n1,n2,n3,n4,n5,type='daughter')
 		self.assertTrue(n5._change_edge_label(n1,1))
 		self.assertTrue(n5._change_edge_label(n2,1))
 		self.assertTrue(n5._change_edge_label(n3,0))
@@ -153,7 +152,7 @@ class NodeModelTestCase(unittest.TestCase):
 	def test_non_adjacent_node_relations_with_one(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		Forge.link_new_member(n3,n5,type='wife')
+		Seed.link_new_member(n3,n5,type='wife')
 		self.assertIsNotNone(n5.get_relation_to(n1).path)
 		self.assertIsNotNone(n5.get_relation_to(n2).path)
 		self.assertIsNotNone(n5.get_relation_to(n3).path)
@@ -167,8 +166,8 @@ class NodeModelTestCase(unittest.TestCase):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		n6 = Node(baptism_name='Andrew',dob=date(1960,7,5))
-		Forge.link_new_member(n3,n5,type='wife')
-		Forge.link_new_member(n3,n5,n6,type='child')
+		Seed.link_new_member(n3,n5,type='wife')
+		Seed.link_new_member(n3,n5,n6,type='child')
 		self.assertIsNotNone(n6.get_relation_to(n1).path)
 		self.assertIsNotNone(n6.get_relation_to(n2).path)
 		self.assertIsNotNone(n6.get_relation_to(n3).path)
@@ -183,7 +182,7 @@ class NodeModelTestCase(unittest.TestCase):
 	def test_valid_undirgraph_edge_count(self):
 		n1 = Node.query.get(1)
 		data = n1.graph_output.edges(data=True)
-		c1 = Forge.count_edge_labels(data=data)
+		c1 = Seed.count_edge_labels(data=data)
 		self.assertTrue(c1[1]==1)
 		self.assertTrue(c1[2]==1)
 		self.assertTrue(c1[3]==2)
@@ -193,9 +192,9 @@ class NodeModelTestCase(unittest.TestCase):
 		n1 = Node.query.get(1)
 		n3 = Node.query.get(3)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		Forge.link_new_member(n3,n5,type='wife')
+		Seed.link_new_member(n3,n5,type='wife')
 		data = n1.graph_output.edges(data=True)
-		c2 = Forge.count_edge_labels(data=data)
+		c2 = Seed.count_edge_labels(data=data)
 		self.assertTrue(c2[1]==2)
 		self.assertTrue(c2[2]==1)
 		self.assertTrue(c2[3]==2)
@@ -206,10 +205,10 @@ class NodeModelTestCase(unittest.TestCase):
 		n3 = Node.query.get(3)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		n6 = Node(baptism_name='Andrew',dob=date(1960,7,5))
-		Forge.link_new_member(n3,n5,type='wife')
-		Forge.link_new_member(n3,n5,n6,type='child')
+		Seed.link_new_member(n3,n5,type='wife')
+		Seed.link_new_member(n3,n5,n6,type='child')
 		data = n1.graph_output.edges(data=True)
-		c2 = Forge.count_edge_labels(data=data)
+		c2 = Seed.count_edge_labels(data=data)
 		self.assertTrue(c2[1]==2)
 		self.assertTrue(c2[2]==1)
 		self.assertTrue(c2[3]==2)
