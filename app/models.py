@@ -87,20 +87,20 @@ class Node(db.Model, UserMixin):
 
 		if self.baptism_name != node.baptism_name:
 			if label in self.directed_types:
-				dir1 = GlobalEdge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
-				dir2 = GlobalEdge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
-				if not dir1 and not dir2:
+				e1_present = GlobalEdge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
+				e2_present = GlobalEdge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
+				if not e1_present and not e2_present:
 					e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
 					e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[label][1])
 					db.session.add_all([e1,e2])
 					db.session.commit()
 					result_dict=GlobalGraph().update(edge_list=[e1,e2])
-				elif dir1 and not dir2:
+				elif e1_present and not e2_present:
 					e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[label][1])
 					db.session.add(e2)
 					db.session.commit()
 					result_dict=GlobalGraph().update(edge_list=[e2])
-				elif not dir1 and dir2:
+				elif not e1_present and e2_present:
 					e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
 					db.session.add(e1)
 					db.session.commit()
