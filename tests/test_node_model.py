@@ -4,6 +4,7 @@ from app.models import Node, GlobalEdge
 from datetime import date
 import time
 import networkx as nx
+from manage import Forge
 
 class NodeModelTestCase(unittest.TestCase):
 	def setUp(self):
@@ -11,21 +12,7 @@ class NodeModelTestCase(unittest.TestCase):
 		self.app_context = self.app.app_context()
 		self.app_context.push()
 		db.create_all()
-
-		n1 = Node(baptism_name='Chris', email='chris@family.com', dob=date(1900,11,1))
-		n2 = Node(baptism_name='Christine', email='christine@family.com', dob=date(1910,12,2))
-		n3 = Node(baptism_name='Charlie', email='charlie@family.com', dob=date(1925,10,3))
-		n4 = Node(baptism_name='Carol', email='carol@family.com', dob=date(1930,8,4))
-		links = {
-			1: [n1,n2,1],
-			2: [n1,n3,3],
-			3: [n1,n4,3],
-			4: [n2,n3,3],
-			5: [n2,n4,3],
-			6: [n3,n4,2]
-		}
-		db.session.add_all([n1,n2,n3,n4])
-		Node.seed_node_family(links)
+		Forge.seed()
 
 	def tearDown(self):
 		db.session.remove()
@@ -54,13 +41,13 @@ class NodeModelTestCase(unittest.TestCase):
 	def test_valid_edge_addition(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		self.link_new_member(n1,n2,n3,n4,n5,type='daughter')
+		Forge.link_new_member(n1,n2,n3,n4,n5,type='daughter')
 		self.assertTrue(GlobalEdge.query.count() == 20)
 
 	def test_valid_label_change(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		self.link_new_member(n1,n2,n3,n4,n5,type='daughter')
+		Forge.link_new_member(n1,n2,n3,n4,n5,type='daughter')
 		self.assertTrue(n5._change_edge_label(n1,1))
 		self.assertTrue(n5._change_edge_label(n2,1))
 		self.assertTrue(n5._change_edge_label(n3,0))
@@ -166,7 +153,7 @@ class NodeModelTestCase(unittest.TestCase):
 	def test_non_adjacent_node_relations_with_one(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		self.link_new_member(n3,n5,type='wife')
+		Forge.link_new_member(n3,n5,type='wife')
 		self.assertIsNotNone(n5.get_relation_to(n1).path)
 		self.assertIsNotNone(n5.get_relation_to(n2).path)
 		self.assertIsNotNone(n5.get_relation_to(n3).path)
@@ -180,8 +167,8 @@ class NodeModelTestCase(unittest.TestCase):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		n6 = Node(baptism_name='Andrew',dob=date(1960,7,5))
-		self.link_new_member(n3,n5,type='wife')
-		self.link_new_member(n3,n5,n6,type='child')
+		Forge.link_new_member(n3,n5,type='wife')
+		Forge.link_new_member(n3,n5,n6,type='child')
 		self.assertIsNotNone(n6.get_relation_to(n1).path)
 		self.assertIsNotNone(n6.get_relation_to(n2).path)
 		self.assertIsNotNone(n6.get_relation_to(n3).path)
@@ -196,7 +183,7 @@ class NodeModelTestCase(unittest.TestCase):
 	def test_valid_undirgraph_edge_count(self):
 		n1 = Node.query.get(1)
 		data = n1.graph_output.edges(data=True)
-		c1 = self.count_edge_labels(data=data)
+		c1 = Forge.count_edge_labels(data=data)
 		self.assertTrue(c1[1]==1)
 		self.assertTrue(c1[2]==1)
 		self.assertTrue(c1[3]==2)
@@ -206,9 +193,9 @@ class NodeModelTestCase(unittest.TestCase):
 		n1 = Node.query.get(1)
 		n3 = Node.query.get(3)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		self.link_new_member(n3,n5,type='wife')
+		Forge.link_new_member(n3,n5,type='wife')
 		data = n1.graph_output.edges(data=True)
-		c2 = self.count_edge_labels(data=data)
+		c2 = Forge.count_edge_labels(data=data)
 		self.assertTrue(c2[1]==2)
 		self.assertTrue(c2[2]==1)
 		self.assertTrue(c2[3]==2)
@@ -219,47 +206,11 @@ class NodeModelTestCase(unittest.TestCase):
 		n3 = Node.query.get(3)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		n6 = Node(baptism_name='Andrew',dob=date(1960,7,5))
-		self.link_new_member(n3,n5,type='wife')
-		self.link_new_member(n3,n5,n6,type='child')
+		Forge.link_new_member(n3,n5,type='wife')
+		Forge.link_new_member(n3,n5,n6,type='child')
 		data = n1.graph_output.edges(data=True)
-		c2 = self.count_edge_labels(data=data)
+		c2 = Forge.count_edge_labels(data=data)
 		self.assertTrue(c2[1]==2)
 		self.assertTrue(c2[2]==1)
 		self.assertTrue(c2[3]==2)
 		self.assertTrue(c2[4]==4)
-
-	@staticmethod
-	def link_new_member(*args, **kwargs):
-		if kwargs['type']=='daughter':
-			links = {
-				1:[args[0],args[4],3],
-				2:[args[1],args[4],3],
-				3:[args[2],args[4],2],
-				4:[args[3],args[4],2]
-			}
-			db.session.add(args[4])
-			Node.seed_node_family(links)
-		elif kwargs['type']=='wife':
-			link = {
-				1:[args[0],args[1],1]
-			}
-			db.session.add(args[1])
-			Node.seed_node_family(link)
-		elif kwargs['type']=='child':
-			links = {
-				1:[args[0],args[2],3],
-				2:[args[1],args[2],3]
-			}
-			db.session.add_all([args[1],args[2]])
-			Node.seed_node_family(links)
-
-	@staticmethod
-	def count_edge_labels(**kwargs):
-		data = kwargs['data']
-		counts={}
-		for index,edge in enumerate(data):
-			if counts.get(data[index][2]['label']):
-				counts[data[index][2]['label']]=counts[data[index][2]['label']]+1
-			else:
-				counts[data[index][2]['label']]=1
-		return counts
