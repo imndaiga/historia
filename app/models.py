@@ -223,6 +223,10 @@ class GlobalGraph:
 		self._save(G)
 		return {'input':edge_list,'output':G}
 
+	@property
+	def current(self):
+		return self._load()
+
 	def _save(self, G):
 		nx.write_gpickle(G, current_app.config['GRAPH_PATH'])
 
