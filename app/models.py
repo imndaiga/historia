@@ -1,5 +1,6 @@
 from . import db
 from datetime import date
+from copy import deepcopy
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
 from flask_login import UserMixin
@@ -59,6 +60,10 @@ class Node(db.Model, UserMixin):
 		6:'uncle-aunt'
 	}
 
+	@property
+	def subgraph(self):
+		return self._create_subgraph()[1]
+
 	def generate_login_token(self, email, remember_me=False, next_url=None, expiration=300):
 		s = Serializer(current_app.config['SECRET_KEY'], expiration)
 		return s.dumps({'login': self.id, 'remember_me': remember_me,
@@ -82,98 +87,57 @@ class Node(db.Model, UserMixin):
 		return self.ascended_by.filter_by(
 			ascendant_id=node.id).first() is not None
 
-	def create_edge(self, node, label):
+	def create_edge(self, node, weight):
 		result_dict = {}
 
 		if self.baptism_name != node.baptism_name:
-			if label in self.directed_types:
+			if weight in self.directed_types:
 				e1_present = GlobalEdge.query.filter_by(ascendant_id=self.id).filter_by(descendant_id=node.id).first()
 				e2_present = GlobalEdge.query.filter_by(ascendant_id=node.id).filter_by(descendant_id=self.id).first()
 				if not e1_present and not e2_present:
-					e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
-					e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[label][1])
+					e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=weight)
+					e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[weight][1])
 					db.session.add_all([e1,e2])
 					db.session.commit()
-					if label < self.directed_types[label][1]:
-						result_dict=GlobalGraph().update(edge_dict={1: e1, 2: e2})
+					if weight < self.directed_types[weight][1]:
+						result_dict=GlobalGraph().update(edge_dict={self.id: e1, node.id: e2})
 					else:
-						result_dict=GlobalGraph().update(edge_dict={2: e1, 1: e2})
+						result_dict=GlobalGraph().update(edge_dict={self.id: e1, node.id: e2})
 				elif e1_present and not e2_present:
-					e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[label][1])
+					e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=self.directed_types[weight][1])
 					db.session.add(e2)
 					db.session.commit()
-					if label < self.directed_types[label][1]:
-						result_dict=GlobalGraph().update(edge_dict={1: e2})
+					if weight < self.directed_types[weight][1]:
+						result_dict=GlobalGraph().update(edge_dict={self.id: e2})
 					else:
-						result_dict=GlobalGraph().update(edge_dict={2: e2})
+						result_dict=GlobalGraph().update(edge_dict={node.id: e2})
 				elif not e1_present and e2_present:
-					e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
+					e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=weight)
 					db.session.add(e1)
 					db.session.commit()
-					if label < self.directed_types[label][1]:
-						result_dict=GlobalGraph().update(edge_dict={1: e1})
+					if weight < self.directed_types[weight][1]:
+						result_dict=GlobalGraph().update(edge_dict={self.id: e1})
 					else:
-						result_dict=GlobalGraph().update(edge_dict={2: e1})
+						result_dict=GlobalGraph().update(edge_dict={node.id: e1})
 				else:
 					return None
-			elif label in self.undirected_types:
-				e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=label)
-				e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=label)
+			elif weight in self.undirected_types:
+				e1 = GlobalEdge(ascendant=self, descendant=node, edge_label=weight)
+				e2 = GlobalEdge(ascendant=node, descendant=self, edge_label=weight)
 				db.session.add_all([e1,e2])
 				db.session.commit()
-				result_dict=GlobalGraph().update(edge_dict={1: e1,2: e2})
+				result_dict=GlobalGraph().update(edge_dict={self.id: e1, node.id: e2})
 			else:
 				return None
 			return result_dict
 		else:
 			return None
 
-	def get_relation_to(self, target):
-		weight_list=[]
-		relation_list=[]
-		computed_path_list = self._node_path_list_to(target)
-		computed_path_lengths = self._node_path_lengths(target)
-		self.path = computed_path_list
-		if self.path:
-			for node in self.path:
-				if node in computed_path_lengths:
-					weight_list.append(computed_path_lengths[node])
-			for weight in weight_list:
-				if weight in self.relation_dict:
-					relation_list.append(self.relation_dict[weight])
-			self.relation_type = (relation_list, weight_list, computed_path_lengths, computed_path_list)
-		return self
-
-	def _dijkstra_paths_and_lengths_to(self, target):
-		G = self.graph_output
-		_length, _path = nx.single_source_dijkstra(G, self, target=target, weight='label')
-		return (_length, _path)
-
-	def _node_path_list_to(self, target):
-		try:
-			path_list = self._dijkstra_paths_and_lengths_to(target)[1]
-			return path_list[target]
-		except KeyError:
-			# print("node %s not reachable from %s" % (source, target))
-			return None
-
-	def _node_path_lengths(self, target):
-		try:
-			lengths = self._dijkstra_paths_and_lengths_to(target)[0]
-			return lengths
-		except KeyError:
-			# print("node %s not reachable from %s" % (source, target))
-			return None
-
-	def _create_graph(self, gtype=nx.Graph):
-		_graph_output = gtype()
-		db_paths = db.session.query(GlobalEdge).filter(GlobalEdge.descendant!=self).all()
-		for edge in db_paths:
-			n1 = edge.descendant
-			n2 = edge.ascendant
-			label = edge.edge_label
-			_graph_output.add_edges_from([(n1,n2,{'label':label})])
-		return (self, _graph_output)
+	def _create_subgraph(self, gtype=nx.Graph):
+		subgraph = gtype()
+		weighted_edge_list = self._resolve_edge_list_from_mdg(GlobalGraph().current)
+		subgraph.add_weighted_edges_from(weighted_edge_list)
+		return (self, subgraph)
 
 	# This function should be protected
 	def _change_edge_label(self, node, edge_label):
@@ -190,9 +154,82 @@ class Node(db.Model, UserMixin):
 			return n
 		return None
 
-	@property
-	def graph_output(self):
-		return self._create_graph()[1]
+	def _resolve_relation(self, target):
+		relation_list = []
+		weighted_edge_list = self._span_mdg(GlobalGraph().current, mutate=True).get(target.id)
+		if weighted_edge_list:
+			for edge_tuple in weighted_edge_list:
+				(node_id, weight) = edge_tuple
+				for relation in self.relation_dict:
+					if weight == relation:
+						relation_list.append(self.relation_dict[relation])
+			return relation_list
+		else:
+			return None
+
+	def _resolve_edge_list_from_mdg(self, input_MDG):
+		edges = []
+		path_inputs = self._span_mdg(input_MDG)
+		for node_id in path_inputs:
+			set_node_id = None
+			if len(path_inputs[node_id]) == 1:
+				(_, weight_to_selfid) = path_inputs[node_id][0]
+				edges.append((self.id, node_id, weight_to_selfid))
+			elif len(path_inputs[node_id]) > 1:
+				for path_tuples in path_inputs[node_id]:
+					if set_node_id is None:
+						(set_node_id, weight_to_selfid) = path_tuples
+					else:
+						(new_node_id, sum_weight) = path_tuples
+						new_weight = sum_weight - weight_to_selfid
+						edges.append((set_node_id, new_node_id, new_weight))
+						(set_node_id, weight_to_selfid) = path_tuples
+		return edges
+
+	def _span_mdg(self, input_MDG, mutate=False):
+		ret_dict = {}
+		for u_id, nbrs in input_MDG.adjacency_iter():
+			for v_id, keydict in nbrs.items():
+				if u_id == self.id:
+					ret_dict[v_id] = list([(u_id, input_MDG[u_id][v_id][u_id]['weight'])])
+				elif u_id != self.id and v_id != self.id:
+					if u_id not in ret_dict:
+						_selfid_to_uid_path = self._evaluate_path_in_mdg(input_MDG, u_id)
+						if _selfid_to_uid_path is not None:
+							if mutate:
+								mutated_paths = self._mutate_to_sequential_paths(_selfid_to_uid_path)
+								ret_dict[u_id] = mutated_paths
+							else:
+								ret_dict[u_id] = _selfid_to_uid_path
+		return ret_dict
+
+	def _mutate_to_sequential_paths(self, list_of_edge_tuples):
+		ret_list = []
+		prev_node_id = -99
+		for half_edge in list_of_edge_tuples:
+			if prev_node_id == -99:
+				(prev_node_id, _) = half_edge
+				ret_list.append(half_edge)
+			else:
+				(new_node_id, _) = half_edge
+				(weights, _) = nx.single_source_dijkstra(GlobalGraph().current, new_node_id, prev_node_id, weight='weight')
+				target_weight = weights.get(prev_node_id)
+				mut_half_edge = (new_node_id, target_weight)
+				ret_list.append(mut_half_edge)
+				(prev_node_id, _) = half_edge
+		return ret_list
+
+	def _evaluate_path_in_mdg(self, input_MDG, target_id):
+		ret_list = []
+		(weights, paths) = nx.single_source_dijkstra(input_MDG, self.id, target_id, weight='weight')
+		target_path = paths.get(target_id)
+		if target_path is not None:
+			for node_id in target_path:
+				if node_id != self.id:
+					ret_list.append((node_id,weights.get(node_id)))
+			return ret_list
+		else:
+			return None
 
 	@staticmethod
 	def node_from_token(token):
@@ -209,7 +246,7 @@ class Node(db.Model, UserMixin):
 	@staticmethod
 	def seed_node_family(links):
 		for link in links:
-			result=links[link][0].create_edge(links[link][1], label=links[link][2])
+			result=links[link][0].create_edge(links[link][1], weight=links[link][2])
 		db.session.commit()
 		return result
 
@@ -299,9 +336,9 @@ class Seed(Command):
 	def count_edge_labels(**kwargs):
 		data = kwargs['data']
 		counts={}
-		for index,edge in enumerate(data):
-			if counts.get(data[index][2]['label']):
-				counts[data[index][2]['label']]=counts[data[index][2]['label']]+1
+		for edge in data:
+			if counts.get(edge[2]['weight']):
+				counts[edge[2]['weight']]=counts[edge[2]['weight']]+1
 			else:
-				counts[data[index][2]['label']]=1
+				counts[edge[2]['weight']]=1
 		return counts

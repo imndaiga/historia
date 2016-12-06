@@ -4,6 +4,7 @@ from app.models import Node, GlobalEdge, Seed
 from datetime import date
 import time
 import networkx as nx
+import os
 
 class NodeModelTestCase(unittest.TestCase):
 	def setUp(self):
@@ -11,6 +12,8 @@ class NodeModelTestCase(unittest.TestCase):
 		self.app_context = self.app.app_context()
 		self.app_context.push()
 		db.create_all()
+		if 'graph-test.gpickle' in self.app.config['GRAPH_PATH'] and os.path.exists(self.app.config['GRAPH_PATH']):
+			os.remove(self.app.config['GRAPH_PATH'])
 		Seed.run()
 
 	def tearDown(self):
@@ -110,106 +113,107 @@ class NodeModelTestCase(unittest.TestCase):
 		time.sleep(2)
 		self.assertFalse(n1.confirm_login(token))
 
-	def test_valid_node_undirgraph_argument(self):
+	def test_subgraph_count(self):
 		n1 = Node.query.get(1)
-		self.assertIsInstance(n1.graph_output.nodes(), list)
-		self.assertIsInstance(n1.graph_output.edges(), list)
+		self.assertTrue(n1.subgraph.number_of_edges()==3)
+		self.assertTrue(n1.subgraph.number_of_nodes()==4)
 
-	def test_basic_undirgraph_count(self):
-		n1 = Node.query.get(1)
-		self.assertTrue(n1.graph_output.number_of_edges()==6)
-		self.assertTrue(n1.graph_output.number_of_nodes()==4)
-
-	def test_pre_existing_node_relations(self):
+	def test_subgraph_basic_relations(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
-		self.assertIsInstance(n1.get_relation_to(n2).path, list)
-		self.assertIsInstance(n1.get_relation_to(n3).path, list)
-		self.assertIsInstance(n1.get_relation_to(n4).path, list)
-		self.assertIsInstance(n2.get_relation_to(n1).path, list)
-		self.assertIsInstance(n2.get_relation_to(n3).path, list)
-		self.assertIsInstance(n2.get_relation_to(n4).path, list)
-		self.assertIsInstance(n3.get_relation_to(n1).path, list)
-		self.assertIsInstance(n3.get_relation_to(n2).path, list)
-		self.assertIsInstance(n3.get_relation_to(n4).path, list)
-		self.assertIsInstance(n4.get_relation_to(n1).path, list)
-		self.assertIsInstance(n4.get_relation_to(n2).path, list)
-		self.assertIsInstance(n4.get_relation_to(n3).path, list)
+		self.assertTrue(n1._resolve_relation(target=n2) == ['partner'])
+		self.assertTrue(n1._resolve_relation(target=n3) == ['parent'])
+		self.assertTrue(n1._resolve_relation(target=n4) == ['parent'])
+		self.assertTrue(n2._resolve_relation(target=n1) == ['partner'])
+		self.assertTrue(n2._resolve_relation(target=n3) == ['parent'])
+		self.assertTrue(n2._resolve_relation(target=n4) == ['parent'])
+		self.assertTrue(n3._resolve_relation(target=n1) == ['child'])
+		self.assertTrue(n3._resolve_relation(target=n2) == ['child'])
+		self.assertTrue(n3._resolve_relation(target=n4) == ['sibling'])
+		self.assertTrue(n4._resolve_relation(target=n1) == ['child'])
+		self.assertTrue(n4._resolve_relation(target=n2) == ['child'])
+		self.assertTrue(n4._resolve_relation(target=n3) == ['sibling'])
 
-	def test_error_ungraphed_node(self):
+	def test_subgraph_null_relations(self):
 		(n1,n2,n3,n4) = Node.query.slice(0,4)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		db.session.add(n5)
 		db.session.commit()
-		self.assertIsNone(n5.get_relation_to(n1).path)
-		self.assertIsNone(n5.get_relation_to(n2).path)
-		self.assertIsNone(n5.get_relation_to(n3).path)
-		self.assertIsNone(n5.get_relation_to(n4).path)
-		self.assertIsNone(n1.get_relation_to(n5).path)
-		self.assertIsNone(n2.get_relation_to(n5).path)
-		self.assertIsNone(n3.get_relation_to(n5).path)
-		self.assertIsNone(n4.get_relation_to(n5).path)
+		with self.assertRaises(KeyError):
+			n5._resolve_relation(target=n1)
+			n5._resolve_relation(target=n2)
+			n5._resolve_relation(target=n3)
+			n5._resolve_relation(target=n4)
+			n1._resolve_relation(target=n5)
+			n2._resolve_relation(target=n5)
+			n3._resolve_relation(target=n5)
+			n4._resolve_relation(target=n5)
 
-	def test_non_adjacent_node_relations_with_one(self):
-		(n1,n2,n3,n4) = Node.query.slice(0,4)
-		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		Seed.link_new_member(n3,n5,type='wife')
-		self.assertIsNotNone(n5.get_relation_to(n1).path)
-		self.assertIsNotNone(n5.get_relation_to(n2).path)
-		self.assertIsNotNone(n5.get_relation_to(n3).path)
-		self.assertIsNotNone(n5.get_relation_to(n4).path)
-		self.assertIsNotNone(n1.get_relation_to(n5).path)
-		self.assertIsNotNone(n2.get_relation_to(n5).path)
-		self.assertIsNotNone(n3.get_relation_to(n5).path)
-		self.assertIsNotNone(n4.get_relation_to(n5).path)
-
-	def test_non_adjacent_node_relations_with_two(self):
-		(n1,n2,n3,n4) = Node.query.slice(0,4)
-		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
-		n6 = Node(baptism_name='Andrew',dob=date(1960,7,5))
-		Seed.link_new_member(n3,n5,type='wife')
-		Seed.link_new_member(n3,n5,n6,type='child')
-		self.assertIsNotNone(n6.get_relation_to(n1).path)
-		self.assertIsNotNone(n6.get_relation_to(n2).path)
-		self.assertIsNotNone(n6.get_relation_to(n3).path)
-		self.assertIsNotNone(n6.get_relation_to(n4).path)
-		self.assertIsNotNone(n6.get_relation_to(n5).path)
-		self.assertIsNotNone(n1.get_relation_to(n6).path)
-		self.assertIsNotNone(n2.get_relation_to(n6).path)
-		self.assertIsNotNone(n3.get_relation_to(n6).path)
-		self.assertIsNotNone(n4.get_relation_to(n6).path)
-		self.assertIsNotNone(n5.get_relation_to(n6).path)
-
-	def test_valid_undirgraph_edge_count(self):
+	def test_subgraph_edge_count_parent(self):
 		n1 = Node.query.get(1)
-		data = n1.graph_output.edges(data=True)
+		data = n1.subgraph.edges(data=True)
 		c1 = Seed.count_edge_labels(data=data)
-		self.assertTrue(c1[1]==1)
-		self.assertTrue(c1[2]==1)
-		self.assertTrue(c1[3]==2)
-		self.assertTrue(c1[4]==2)
+		self.assertTrue(c1.get(1)==1)
+		self.assertIsNone(c1.get(2))
+		self.assertTrue(c1.get(3)==2)
+		self.assertIsNone(c1.get(4))
 
-	def test_valid_undirgraph_edge_count_with_one(self):
+	def test_subgraph_edge_count_child(self):
+		n3 = Node.query.get(3)
+		data = n3.subgraph.edges(data=True)
+		c2 = Seed.count_edge_labels(data=data)
+		self.assertIsNone(c2.get(1))
+		self.assertTrue(c2.get(2)==1)
+		self.assertIsNone(c2.get(3))
+		self.assertTrue(c2.get(4)==2)
+
+	def test_subgraph_edge_count_parent_in_law(self):
 		n1 = Node.query.get(1)
 		n3 = Node.query.get(3)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		Seed.link_new_member(n3,n5,type='wife')
-		data = n1.graph_output.edges(data=True)
-		c2 = Seed.count_edge_labels(data=data)
-		self.assertTrue(c2[1]==2)
-		self.assertTrue(c2[2]==1)
-		self.assertTrue(c2[3]==2)
-		self.assertTrue(c2[4]==2)
+		data = n1.subgraph.edges(data=True)
+		c3 = Seed.count_edge_labels(data=data)
+		self.assertTrue(c3.get(1)==2)
+		self.assertIsNone(c3.get(2))
+		self.assertTrue(c3.get(3)==2)
+		self.assertIsNone(c3.get(4))
 
-	def test_valid_undirgraph_edge_count_with_two(self):
+	def test_subgraph_edge_count_child_in_law(self):
+		n1 = Node.query.get(1)
+		n3 = Node.query.get(3)
+		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
+		Seed.link_new_member(n3,n5,type='wife')
+		data = n5.subgraph.edges(data=True)
+		c4 = Seed.count_edge_labels(data=data)
+		self.assertTrue(c4.get(1)==1)
+		self.assertTrue(c4.get(2)==1)
+		self.assertIsNone(c4.get(3))
+		self.assertTrue(c4.get(4)==2)
+
+	def test_subgraph_edge_count_grandchild(self):
 		n1 = Node.query.get(1)
 		n3 = Node.query.get(3)
 		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
 		n6 = Node(baptism_name='Andrew',dob=date(1960,7,5))
 		Seed.link_new_member(n3,n5,type='wife')
 		Seed.link_new_member(n3,n5,n6,type='child')
-		data = n1.graph_output.edges(data=True)
-		c2 = Seed.count_edge_labels(data=data)
-		self.assertTrue(c2[1]==2)
-		self.assertTrue(c2[2]==1)
-		self.assertTrue(c2[3]==2)
-		self.assertTrue(c2[4]==4)
+		data = n6.subgraph.edges(data=True)
+		c5 = Seed.count_edge_labels(data=data)
+		self.assertIsNone(c5.get(1))
+		self.assertTrue(c5.get(2)==1)
+		self.assertIsNone(c5.get(3))
+		self.assertTrue(c5.get(4)==4)
+
+	def test_subgraph_edge_count_grandparent(self):
+		n1 = Node.query.get(1)
+		n3 = Node.query.get(3)
+		n5 = Node(baptism_name='Coraline',dob=date(1940,7,5))
+		n6 = Node(baptism_name='Andrew',dob=date(1960,7,5))
+		Seed.link_new_member(n3,n5,type='wife')
+		Seed.link_new_member(n3,n5,n6,type='child')
+		data = n1.subgraph.edges(data=True)
+		c6 = Seed.count_edge_labels(data=data)
+		self.assertTrue(c6.get(1)==2)
+		self.assertIsNone(c6.get(2))
+		self.assertTrue(c6.get(3)==3)
+		self.assertIsNone(c6.get(4))
