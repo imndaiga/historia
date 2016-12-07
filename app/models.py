@@ -276,14 +276,6 @@ class Node(db.Model, UserMixin):
         else:
             return {'sig': False, 'node': None}
 
-    @staticmethod
-    def seed_node_family(links):
-        for link in links:
-            result = links[link][0].create_edge(
-                links[link][1], weight=links[link][2])
-        db.session.commit()
-        return result
-
     @login_manager.user_loader
     def load_user(user_id):
         return Node.query.get(int(user_id))
@@ -322,8 +314,8 @@ class GlobalGraph:
 class Seed(Command):
     """Create fake seed data and store in database"""
     # This function should be protected
-    @staticmethod
-    def run():
+    @classmethod
+    def run(cls):
         if current_app.config['DEBUG'] or current_app.config['TESTING']:
             n1 = Node(baptism_name='Chris', email='chris@family.com',
                       dob=date(1900, 11, 1))
@@ -342,12 +334,11 @@ class Seed(Command):
                 6: [n3, n4, 2]
             }
             db.session.add_all([n1, n2, n3, n4])
-            result = Node.seed_node_family(links)
-            return result
+            cls.connect_links(links)
         return None
 
-    @staticmethod
-    def link_new_member(*args, **kwargs):
+    @classmethod
+    def link_new_member(cls, *args, **kwargs):
         if current_app.config['DEBUG'] or current_app.config['TESTING']:
             if kwargs['type'] == 'daughter':
                 links = {
@@ -357,20 +348,28 @@ class Seed(Command):
                     4: [args[3], args[4], 2]
                 }
                 db.session.add(args[4])
-                Node.seed_node_family(links)
+                cls.connect_links(links)
             elif kwargs['type'] == 'wife':
                 link = {
                     1: [args[0], args[1], 1]
                 }
                 db.session.add(args[1])
-                Node.seed_node_family(link)
+                cls.connect_links(link)
             elif kwargs['type'] == 'child':
                 links = {
                     1: [args[0], args[2], 3],
                     2: [args[1], args[2], 3]
                 }
                 db.session.add_all([args[1], args[2]])
-                Node.seed_node_family(links)
+                cls.connect_links(links)
+
+    @staticmethod
+    def connect_links(links):
+        for link in links:
+            ret_item = links[link][0].create_edge(
+                links[link][1], weight=links[link][2])
+        db.session.commit()
+        return ret_item
 
     @staticmethod
     def count_edge_labels(**kwargs):
