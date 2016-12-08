@@ -7,6 +7,7 @@ from flask_script import Command
 from . import login_manager
 import networkx as nx
 import os
+from sqlalchemy import or_, and_
 
 
 class GlobalEdge(db.Model):
@@ -97,59 +98,19 @@ class Node(db.Model, UserMixin):
         result_dict = {}
 
         if self.baptism_name != node.baptism_name:
-            if weight in self.directed_types:
-                e1_present = GlobalEdge.query.filter_by(
-                    ascendant_id=self.id).filter_by(
-                    descendant_id=node.id).first()
-                e2_present = GlobalEdge.query.filter_by(
-                    ascendant_id=node.id).filter_by(
-                    descendant_id=self.id).first()
-                if not e1_present and not e2_present:
-                    e1 = GlobalEdge(
-                        ascendant=self, descendant=node, edge_label=weight)
-                    e2 = GlobalEdge(ascendant=node, descendant=self,
-                                    edge_label=self.directed_types[weight][1])
-                    db.session.add_all([e1, e2])
-                    db.session.commit()
-                    if weight < self.directed_types[weight][1]:
-                        result_dict = GlobalGraph().update(
-                            edge_dict={self.id: e1, node.id: e2})
-                    else:
-                        result_dict = GlobalGraph().update(
-                            edge_dict={self.id: e1, node.id: e2})
-                elif e1_present and not e2_present:
-                    e2 = GlobalEdge(ascendant=node, descendant=self,
-                                    edge_label=self.directed_types[weight][1])
-                    db.session.add(e2)
-                    db.session.commit()
-                    if weight < self.directed_types[weight][1]:
-                        result_dict = GlobalGraph().update(
-                            edge_dict={self.id: e2})
-                    else:
-                        result_dict = GlobalGraph().update(
-                            edge_dict={node.id: e2})
-                elif not e1_present and e2_present:
-                    e1 = GlobalEdge(
-                        ascendant=self, descendant=node, edge_label=weight)
+            if weight in self.undirected_types or \
+               weight in self.directed_types:
+                edge_in_db = GlobalEdge.query.filter(
+                    and_(GlobalEdge.ascendant == self,
+                         GlobalEdge.descendant == node,
+                         GlobalEdge.edge_label == weight)).first()
+                if edge_in_db is None:
+                    e1 = GlobalEdge(ascendant=self, descendant=node,
+                                    edge_label=weight)
                     db.session.add(e1)
                     db.session.commit()
-                    if weight < self.directed_types[weight][1]:
-                        result_dict = GlobalGraph().update(
-                            edge_dict={self.id: e1})
-                    else:
-                        result_dict = GlobalGraph().update(
-                            edge_dict={node.id: e1})
-                else:
-                    return None
-            elif weight in self.undirected_types:
-                e1 = GlobalEdge(ascendant=self, descendant=node,
-                                edge_label=weight)
-                e2 = GlobalEdge(ascendant=node, descendant=self,
-                                edge_label=weight)
-                db.session.add_all([e1, e2])
-                db.session.commit()
-                result_dict = GlobalGraph().update(
-                    edge_dict={self.id: e1, node.id: e2})
+                    result_dict = GlobalGraph().update(
+                        edge_dict={self.id: e1})
             else:
                 return None
             return result_dict
@@ -314,6 +275,7 @@ class GlobalGraph:
 class Seed(Command):
     """Create fake seed data and store in database"""
     # This function should be protected
+
     @classmethod
     def run(cls):
         if current_app.config['DEBUG'] or current_app.config['TESTING']:
@@ -325,51 +287,119 @@ class Seed(Command):
                       email='charlie@family.com', dob=date(1925, 10, 3))
             n4 = Node(baptism_name='Carol',
                       email='carol@family.com', dob=date(1930, 8, 4))
-            links = {
-                1: [n1, n2, 1],
-                2: [n1, n3, 3],
-                3: [n1, n4, 3],
-                4: [n2, n3, 3],
-                5: [n2, n4, 3],
-                6: [n3, n4, 2]
-            }
-            db.session.add_all([n1, n2, n3, n4])
-            cls.connect_links(links)
-        return None
+            result = cls.relate(parents=[n1, n2], children=[n3, n4])
+        return result
 
     @classmethod
-    def link_new_member(cls, *args, **kwargs):
+    def relate(cls, partners=None, parents=None, children=None):
         if current_app.config['DEBUG'] or current_app.config['TESTING']:
-            if kwargs['type'] == 'daughter':
-                links = {
-                    1: [args[0], args[4], 3],
-                    2: [args[1], args[4], 3],
-                    3: [args[2], args[4], 2],
-                    4: [args[3], args[4], 2]
-                }
-                db.session.add(args[4])
-                cls.connect_links(links)
-            elif kwargs['type'] == 'wife':
-                link = {
-                    1: [args[0], args[1], 1]
-                }
-                db.session.add(args[1])
-                cls.connect_links(link)
-            elif kwargs['type'] == 'child':
-                links = {
-                    1: [args[0], args[2], 3],
-                    2: [args[1], args[2], 3]
-                }
-                db.session.add_all([args[1], args[2]])
-                cls.connect_links(links)
+            if partners and not parents and not children:
+                cls._commit_nodes_to_db(partners=partners)
+                links = cls._links_constructor(partners=partners)
+            elif parents and children and not partners:
+                cls._commit_nodes_to_db(parents=parents, children=children)
+                links = cls._links_constructor(parents=parents,
+                                               children=children)
+            else:
+                raise Exception('Expects: (**partners)/(**parents,**children)')
+        result = cls.connect_links(links)
+        return result
 
     @staticmethod
     def connect_links(links):
+        ret_list = []
         for link in links:
-            ret_item = links[link][0].create_edge(
-                links[link][1], weight=links[link][2])
+            asc = links[link][0]
+            descedants = links[link][1:-1]
+            weight = links[link][-1]
+            for des in descedants:
+                created_item = asc.create_edge(des, weight=weight)
+                ret_list.append(created_item)
+        return ret_list
+
+    @staticmethod
+    def _commit_nodes_to_db(**kwargs):
+        for node_type in kwargs:
+            for node in kwargs[node_type]:
+                node_in_db = Node.query.filter_by(id=node.id).first()
+                if node_in_db is None:
+                    db.session.add(node)
         db.session.commit()
-        return ret_item
+
+    @staticmethod
+    def _post_process_links(preprocessed):
+        ret_dict = {}
+        _inverse = {}
+
+        if 2 in preprocessed and \
+           1 in preprocessed and \
+           0 not in preprocessed:
+
+            for i, parent_node in enumerate(preprocessed[1]):
+                index = i + 1
+                ret_dict[index] = [[parent_node], preprocessed[2], [3]]
+                next_index = index + 1
+            index = next_index
+            for child_node in preprocessed[2]:
+                ret_dict[index] = [[child_node], preprocessed[1], [4]]
+                index += 1
+                next_index = index
+            index = next_index
+
+            if len(preprocessed[1]) > 1:
+                # ensure self-loop links are not constructed
+                for current_index, partner_node in enumerate(preprocessed[1]):
+                    _inverse['self'] = preprocessed[1].copy()
+                    _inverse['self'].pop(current_index)
+                    ret_dict[index] = [[partner_node], _inverse['self'], [1]]
+                    _inverse.clear()
+                    index += 1
+                    next_index = index
+                index = next_index
+            if len(preprocessed[2]) > 1:
+                # ensure self-loop links are not constructed
+                for current_index, sibling_node in enumerate(preprocessed[2]):
+                    _inverse['self'] = preprocessed[2].copy()
+                    _inverse['self'].pop(current_index)
+                    ret_dict[index] = [[sibling_node], _inverse['self'], [2]]
+                    _inverse.clear()
+                    index += 1
+        elif 0 in preprocessed and \
+                2 not in preprocessed and \
+                1 not in preprocessed:
+
+            if len(preprocessed[0]) > 1:
+                # ensure self-loop links are not constructed
+                index = 1
+                for current_index, partner_node in enumerate(preprocessed[0]):
+                    _inverse['self'] = preprocessed[0].copy()
+                    _inverse['self'].pop(current_index)
+                    ret_dict[index] = [[partner_node], _inverse['self'], [1]]
+                    _inverse.clear()
+                    index += 1
+
+        for nested_list in ret_dict:
+            flattened_list = [val
+                              for sublist in ret_dict[nested_list]
+                              for val in sublist]
+            ret_dict[nested_list] = flattened_list
+            flattened_list = []
+
+        return ret_dict
+
+    @classmethod
+    def _links_constructor(cls, **kwargs):
+        _process_dict = {}
+        for node_type in kwargs:
+            if node_type == 'parents':
+                _process_dict[1] = kwargs[node_type]
+            elif node_type == 'partners':
+                _process_dict[0] = kwargs[node_type]
+            elif node_type == 'children':
+                _process_dict[2] = kwargs[node_type]
+
+        constructed_link_dict = cls._post_process_links(_process_dict)
+        return constructed_link_dict
 
     @staticmethod
     def count_edge_labels(**kwargs):
