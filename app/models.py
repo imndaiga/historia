@@ -7,7 +7,8 @@ from flask_script import Command
 from . import login_manager
 import networkx as nx
 import os
-from sqlalchemy import or_, and_
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 
 
 class GlobalEdge(db.Model):
@@ -24,9 +25,20 @@ class GlobalEdge(db.Model):
                               primary_key=True)
     edge_label = db.Column(db.Integer, default=0)
 
+    @classmethod
+    def safe(cls, ascendant, descendant, edge_label):
+        if ascendant != descendant:
+            if edge_label in Node.directed_types or \
+               edge_label in Node.undirected_types:
+                return cls(ascendant=ascendant,
+                           descendant=descendant,
+                           edge_label=edge_label)
+        return None
+
     def __repr__(self):
         return '<GlobalEdge %s-%s:%s>' % (self.ascendant_id,
-                                          self.descendant_id, self.edge_label)
+                                          self.descendant_id,
+                                          self.edge_label)
 
 
 class Node(db.Model, UserMixin):
@@ -94,33 +106,10 @@ class Node(db.Model, UserMixin):
         return self.ascended_by.filter_by(
             ascendant_id=node.id).first() is not None
 
-    def create_edge(self, node, weight):
-        result_dict = {}
-
-        if self.baptism_name != node.baptism_name:
-            if weight in self.undirected_types or \
-               weight in self.directed_types:
-                edge_in_db = GlobalEdge.query.filter(
-                    and_(GlobalEdge.ascendant == self,
-                         GlobalEdge.descendant == node,
-                         GlobalEdge.edge_label == weight)).first()
-                if edge_in_db is None:
-                    e1 = GlobalEdge(ascendant=self, descendant=node,
-                                    edge_label=weight)
-                    db.session.add(e1)
-                    db.session.commit()
-                    result_dict = GlobalGraph().update(
-                        edge_dict={self.id: e1})
-            else:
-                return None
-            return result_dict
-        else:
-            return None
-
     def _create_subgraph(self, gtype=nx.Graph):
         subgraph = gtype()
         weighted_edge_list = self._resolve_edge_list_from_mdg(
-            GlobalGraph().current)
+            GlobalGraph(current_app).current)
         subgraph.add_weighted_edges_from(weighted_edge_list)
         return (self, subgraph)
 
@@ -143,7 +132,7 @@ class Node(db.Model, UserMixin):
     def _resolve_relation(self, target):
         relation_list = []
         weighted_edge_list = self._span_mdg(
-            GlobalGraph().current, mutate=True).get(target.id)
+            GlobalGraph(current_app).current, mutate=True).get(target.id)
         if weighted_edge_list:
             for edge_tuple in weighted_edge_list:
                 (node_id, weight) = edge_tuple
@@ -203,7 +192,7 @@ class Node(db.Model, UserMixin):
             else:
                 (new_node_id, _) = half_edge
                 (weights, _) = nx.single_source_dijkstra(
-                    GlobalGraph().current,
+                    GlobalGraph(current_app).current,
                     new_node_id, prev_node_id, weight='weight')
                 target_weight = weights.get(prev_node_id)
                 mut_half_edge = (new_node_id, target_weight)
@@ -224,6 +213,9 @@ class Node(db.Model, UserMixin):
         else:
             return None
 
+    def auto(node, baptism_name):
+        return node
+
     @staticmethod
     def node_from_token(token):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -237,36 +229,51 @@ class Node(db.Model, UserMixin):
         else:
             return {'sig': False, 'node': None}
 
-    @login_manager.user_loader
-    def load_user(user_id):
-        return Node.query.get(int(user_id))
-
     def __repr__(self):
-        return 'Node: <%s>' % self.baptism_name
+        return 'Node: <%s:%s>' % (self.id, self.baptism_name)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Node.query.get(int(user_id))
 
 
 class GlobalGraph:
 
-    def update(self, edge_dict):
-        G = self._load()
-        for key in edge_dict:
-            source = edge_dict[key].ascendant.id
-            target = edge_dict[key].descendant.id
-            length = edge_dict[key].edge_label
-            G.add_edge(source, target, key=key, weight=length)
-        self._save(G)
-        return {'input': edge_dict, 'output': G}
+    def __init__(self, app):
+        self.gpickle_path = app.config['GRAPH_PATH']
+        self.authorised = False
+        if app.config['TESTING'] is True or app.config['DEBUG'] is True:
+            self.authorised = True
+
+    def update(self):
+        G = self.current
+        relation_links = GlobalEdge.query.all()
+        for link in relation_links:
+            source = link.ascendant_id
+            target = link.descendant_id
+            weight = link.edge_label
+            key = link.ascendant_id
+            if not G.has_edge(source, target, key=key):
+                G.add_edge(source, target, key=key, weight=weight)
+        self.save(G)
+
+    def clear(self):
+        if self.authorised:
+            G = self.current
+            G.clear()
+            self.save(G)
 
     @property
     def current(self):
         return self._load()
 
-    def _save(self, G):
-        nx.write_gpickle(G, current_app.config['GRAPH_PATH'])
+    def save(self, G):
+        nx.write_gpickle(G, self.gpickle_path)
 
     def _load(self):
-        if os.path.exists(current_app.config['GRAPH_PATH']):
-            G = nx.read_gpickle(current_app.config['GRAPH_PATH'])
+        if os.path.exists(self.gpickle_path):
+            G = nx.read_gpickle(self.gpickle_path)
         else:
             G = nx.MultiDiGraph()
         return G
@@ -279,52 +286,86 @@ class Seed(Command):
     @classmethod
     def run(cls):
         if current_app.config['DEBUG'] or current_app.config['TESTING']:
-            n1 = Node(baptism_name='Chris', email='chris@family.com',
-                      dob=date(1900, 11, 1))
-            n2 = Node(baptism_name='Christine',
-                      email='christine@family.com', dob=date(1910, 12, 2))
-            n3 = Node(baptism_name='Charlie',
-                      email='charlie@family.com', dob=date(1925, 10, 3))
-            n4 = Node(baptism_name='Carol',
-                      email='carol@family.com', dob=date(1930, 8, 4))
-            result = cls.relate(parents=[n1, n2], children=[n3, n4])
+            a1 = Node(baptism_name='Chris', email='chris@test.com')
+            a2 = Node(baptism_name='Christine', email='christine@test.com')
+            a3 = Node(baptism_name='Charlie', email='charles@test.com')
+            a4 = Node(baptism_name='Carol', email='carol@test.com')
+            result = cls.relate(parents=[a1, a2], children=[a3, a4])
         return result
 
     @classmethod
     def relate(cls, partners=None, parents=None, children=None):
+        result_dict = {}
         if current_app.config['DEBUG'] or current_app.config['TESTING']:
             if partners and not parents and not children:
-                cls._commit_nodes_to_db(partners=partners)
+                result_dict['nodes'] = cls._commit_nodes_to_db(
+                    partners=partners)
                 links = cls._links_constructor(partners=partners)
             elif parents and children and not partners:
-                cls._commit_nodes_to_db(parents=parents, children=children)
+                result_dict['nodes'] = cls._commit_nodes_to_db(
+                    parents=parents,
+                    children=children)
                 links = cls._links_constructor(parents=parents,
                                                children=children)
             else:
                 raise Exception('Expects: (**partners)/(**parents,**children)')
-        result = cls.connect_links(links)
-        return result
+        result_dict['links'] = cls.connect_links(links)
+        db.session.commit()
+        return result_dict
 
-    @staticmethod
-    def connect_links(links):
-        ret_list = []
+    @classmethod
+    def connect_links(cls, links):
+        _processed_list = []
         for link in links:
             asc = links[link][0]
             descedants = links[link][1:-1]
             weight = links[link][-1]
             for des in descedants:
-                created_item = asc.create_edge(des, weight=weight)
-                ret_list.append(created_item)
-        return ret_list
+                (created_edge, created_status) = cls._get_or_create_one(
+                    session=db.session,
+                    model=GlobalEdge,
+                    create_method='safe',
+                    ascendant=asc,
+                    descendant=des,
+                    edge_label=weight)
+                if created_status is True:
+                    _processed_list.append(created_edge)
+        return _processed_list
 
-    @staticmethod
-    def _commit_nodes_to_db(**kwargs):
+    @classmethod
+    def _commit_nodes_to_db(cls, **kwargs):
+        _processed_list = []
         for node_type in kwargs:
             for node in kwargs[node_type]:
-                node_in_db = Node.query.filter_by(id=node.id).first()
-                if node_in_db is None:
-                    db.session.add(node)
-        db.session.commit()
+                (created_node, created_status) = cls._get_or_create_one(
+                    session=db.session,
+                    model=Node,
+                    create_method='auto',
+                    create_method_kwargs={'node': node},
+                    baptism_name=node.baptism_name)
+                if created_status is True:
+                    _processed_list.append(created_node)
+        return _processed_list
+
+    @staticmethod
+    def _get_or_create_one(session, model, create_method='',
+                           create_method_kwargs=None, **kwargs):
+        try:
+            return session.query(model).filter_by(**kwargs).one(), False
+        except NoResultFound:
+            kwargs.update(create_method_kwargs or {})
+            created = getattr(model, create_method, model)(**kwargs)
+            if created is not None:
+                try:
+                    session.add(created)
+                    session.flush()
+                    return created, True
+                except IntegrityError:
+                    session.rollback()
+                    return session.query(model).filter_by(**kwargs).one(),
+                    False
+            else:
+                return None, False
 
     @staticmethod
     def _post_process_links(preprocessed):
