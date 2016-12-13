@@ -287,38 +287,49 @@ class Seed(Command):
     """Create fake seed data and store in database"""
     # This function should be protected
 
-    @classmethod
-    def run(cls):
-        if current_app.config['DEBUG'] or current_app.config['TESTING']:
+    def __init__(self, app, auto=False):
+        self.app = app
+        self.auto = auto
+        self.graph = GlobalGraph(app)
+        if self.app.config['DEBUG'] or self.app.config['TESTING']:
+            self.authorised = True
+
+    def run(self):
+        if self.authorised is True:
             a1 = Node(baptism_name='Chris', email='chris@test.com')
             a2 = Node(baptism_name='Christine', email='christine@test.com')
             a3 = Node(baptism_name='Charlie', email='charles@test.com')
             a4 = Node(baptism_name='Carol', email='carol@test.com')
-            result = cls.relate(parents=[a1, a2], children=[a3, a4])
+            result = self.relate(parents=[a1, a2], children=[a3, a4])
+        self._graph_update(self.auto)
         return result
 
-    @classmethod
-    def relate(cls, partners=None, parents=None, children=None):
+    def relate(self, partners=None, parents=None, children=None):
         result_dict = {}
-        if current_app.config['DEBUG'] or current_app.config['TESTING']:
+        if self.authorised is True:
             if partners and not parents and not children:
-                result_dict['nodes'] = cls._commit_nodes_to_db(
+                result_dict['nodes'] = self._commit_nodes_to_db(
                     partners=partners)
-                links = cls._links_constructor(partners=partners)
+                links = self._links_constructor(partners=partners)
             elif parents and children and not partners:
-                result_dict['nodes'] = cls._commit_nodes_to_db(
+                result_dict['nodes'] = self._commit_nodes_to_db(
                     parents=parents,
                     children=children)
-                links = cls._links_constructor(parents=parents,
-                                               children=children)
+                links = self._links_constructor(parents=parents,
+                                                children=children)
             else:
                 raise Exception('Expects: (**partners)/(**parents,**children)')
-        result_dict['links'] = cls.connect_links(links)
+        result_dict['links'] = self._connect_links(links)
         db.session.commit()
+        self._graph_update(self.auto)
         return result_dict
 
+    def _graph_update(self, auto_flag):
+        if auto_flag is True:
+            self.graph.update()
+
     @classmethod
-    def connect_links(cls, links):
+    def _connect_links(cls, links):
         _processed_list = []
         for link in links:
             asc = links[link][0]

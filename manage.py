@@ -26,13 +26,13 @@ def test():
 
 def make_shell_context():
     return dict(db=db, Node=Node, GlobalEdge=GlobalEdge,
-                GlobalGraph=GlobalGraph, app=app,
-                send_email=send_email, Seed=Seed)
+                GlobalGraph=GlobalGraph(app), app=app,
+                send_email=send_email, Seed=Seed(app))
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
-manager.add_command('forge', Seed())
+manager.add_command('forge', Seed(app))
 
 if __name__ == '__main__':
     with app.app_context():
