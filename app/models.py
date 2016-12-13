@@ -15,9 +15,8 @@ class GlobalEdge(db.Model):
     """self-referential association table that connects Nodes"""
     __tablename__ = 'edges'
 
-    def __init__(self, edge_label, **kwargs):
+    def __init__(self, **kwargs):
         super(GlobalEdge, self).__init__(**kwargs)
-        self.edge_label = edge_label
 
     ascendant_id = db.Column(db.Integer, db.ForeignKey('nodes.id'),
                              primary_key=True)
@@ -68,7 +67,7 @@ class Node(db.Model, UserMixin):
 
     @property
     def subgraph(self):
-        return self._create_subgraph()[1]
+        return GlobalGraph(current_app).get_subgraph(source=self)
 
     def generate_login_token(self, email, remember_me=False,
                              next_url=None, expiration=300):
@@ -95,13 +94,6 @@ class Node(db.Model, UserMixin):
         return self.ascended_by.filter_by(
             ascendant_id=node.id).first() is not None
 
-    def _create_subgraph(self, gtype=nx.Graph):
-        subgraph = gtype()
-        weighted_edge_list = self._resolve_edge_list_from_mdg(
-            GlobalGraph(current_app).current)
-        subgraph.add_weighted_edges_from(weighted_edge_list)
-        return (self, subgraph)
-
     # This function should be protected
     def _change_edge_label(self, node, edge_label):
         if self.baptism_name != node.baptism_name:
@@ -117,90 +109,6 @@ class Node(db.Model, UserMixin):
             db.session.add(n)
             return n
         return None
-
-    def _resolve_relation(self, target):
-        relation_list = []
-        weighted_edge_list = self._span_mdg(
-            GlobalGraph(current_app).current, mutate=True).get(target.id)
-        if weighted_edge_list:
-            for edge_tuple in weighted_edge_list:
-                (node_id, weight) = edge_tuple
-                for relation in Relations['all_types']:
-                    if weight == relation:
-                        relation_list.append(Relations['all_types'][relation])
-            return relation_list
-        else:
-            return None
-
-    def _resolve_edge_list_from_mdg(self, input_MDG):
-        edges = []
-        path_inputs = self._span_mdg(input_MDG)
-        for node_id in path_inputs:
-            set_node_id = None
-            if len(path_inputs[node_id]) == 1:
-                (_, weight_to_selfid) = path_inputs[node_id][0]
-                edges.append((self.id, node_id, weight_to_selfid))
-            elif len(path_inputs[node_id]) > 1:
-                for path_tuples in path_inputs[node_id]:
-                    if set_node_id is None:
-                        (set_node_id, weight_to_selfid) = path_tuples
-                    else:
-                        (new_node_id, sum_weight) = path_tuples
-                        new_weight = sum_weight - weight_to_selfid
-                        edges.append((set_node_id, new_node_id, new_weight))
-                        (set_node_id, weight_to_selfid) = path_tuples
-        return edges
-
-    def _span_mdg(self, input_MDG, mutate=False):
-        ret_dict = {}
-        for u_id, nbrs in input_MDG.adjacency_iter():
-            for v_id, keydict in nbrs.items():
-                if u_id == self.id:
-                    ret_dict[v_id] = list(
-                        [(u_id, input_MDG[u_id][v_id][u_id]['weight'])])
-                elif u_id != self.id and v_id != self.id:
-                    if u_id not in ret_dict:
-                        _selfid_to_uid_path = self._evaluate_path_in_mdg(
-                            input_MDG, u_id)
-                        if _selfid_to_uid_path is not None:
-                            if mutate:
-                                mut_paths = self._mutate_to_sequential_paths(
-                                    _selfid_to_uid_path)
-                                ret_dict[u_id] = mut_paths
-                            else:
-                                ret_dict[u_id] = _selfid_to_uid_path
-        return ret_dict
-
-    def _mutate_to_sequential_paths(self, list_of_edge_tuples):
-        ret_list = []
-        prev_node_id = -99
-        for half_edge in list_of_edge_tuples:
-            if prev_node_id == -99:
-                (prev_node_id, _) = half_edge
-                ret_list.append(half_edge)
-            else:
-                (new_node_id, _) = half_edge
-                (weights, _) = nx.single_source_dijkstra(
-                    GlobalGraph(current_app).current,
-                    new_node_id, prev_node_id, weight='weight')
-                target_weight = weights.get(prev_node_id)
-                mut_half_edge = (new_node_id, target_weight)
-                ret_list.append(mut_half_edge)
-                (prev_node_id, _) = half_edge
-        return ret_list
-
-    def _evaluate_path_in_mdg(self, input_MDG, target_id):
-        ret_list = []
-        (weights, paths) = nx.single_source_dijkstra(
-            input_MDG, self.id, target_id, weight='weight')
-        target_path = paths.get(target_id)
-        if target_path is not None:
-            for node_id in target_path:
-                if node_id != self.id:
-                    ret_list.append((node_id, weights.get(node_id)))
-            return ret_list
-        else:
-            return None
 
     def auto(node, baptism_name):
         return node
@@ -263,6 +171,102 @@ class GlobalGraph:
             G = self.current
             G.clear()
             self.save(G)
+
+    def get_subgraph(self, source, gtype=nx.Graph):
+        subgraph = gtype()
+        weighted_edge_list = self._resolve_edge_list_from_mdg(
+            source=source,
+            MDG=self.current)
+        subgraph.add_weighted_edges_from(weighted_edge_list)
+        return subgraph
+
+    def _relations_list(self, source, target):
+        relation_list = []
+        weighted_edge_list = self._span_mdg(
+            MDG=self.current, source=source, mutate=True).get(target.id)
+        if weighted_edge_list:
+            for edge_tuple in weighted_edge_list:
+                (node_id, weight) = edge_tuple
+                for relation in Relations['all_types']:
+                    if weight == relation:
+                        relation_list.append(Relations['all_types'][relation])
+            return relation_list
+        else:
+            return None
+
+    def _resolve_edge_list_from_mdg(self, source, MDG):
+        edges = []
+        path_inputs = self._span_mdg(MDG=MDG, source=source)
+        for node_id in path_inputs:
+            set_node_id = None
+            if len(path_inputs[node_id]) == 1:
+                (_, weight_to_selfid) = path_inputs[node_id][0]
+                edges.append((source.id, node_id, weight_to_selfid))
+            elif len(path_inputs[node_id]) > 1:
+                for path_tuples in path_inputs[node_id]:
+                    if set_node_id is None:
+                        (set_node_id, weight_to_selfid) = path_tuples
+                    else:
+                        (new_node_id, sum_weight) = path_tuples
+                        new_weight = sum_weight - weight_to_selfid
+                        edges.append((set_node_id, new_node_id, new_weight))
+                        (set_node_id, weight_to_selfid) = path_tuples
+        return edges
+
+    def _span_mdg(self, MDG, source, mutate=False):
+        ret_dict = {}
+        for u_id, nbrs in MDG.adjacency_iter():
+            for v_id, keydict in nbrs.items():
+                if u_id == source.id:
+                    ret_dict[v_id] = list(
+                        [(u_id, MDG[u_id][v_id][u_id]['weight'])])
+                elif u_id != source.id and v_id != source.id:
+                    if u_id not in ret_dict:
+                        _selfid_to_uid_path = self._evaluate_path_in_mdg(
+                            MDG=MDG,
+                            source_id=source.id,
+                            target_id=u_id)
+                        if _selfid_to_uid_path is not None:
+                            if mutate:
+                                mut_paths = self._mutate_to_sequential_paths(
+                                    _selfid_to_uid_path)
+                                ret_dict[u_id] = mut_paths
+                            else:
+                                ret_dict[u_id] = _selfid_to_uid_path
+        return ret_dict
+
+    @staticmethod
+    def _mutate_to_sequential_paths(list_of_edge_tuples):
+        ret_list = []
+        prev_node_id = -99
+        for half_edge in list_of_edge_tuples:
+            if prev_node_id == -99:
+                (prev_node_id, _) = half_edge
+                ret_list.append(half_edge)
+            else:
+                (new_node_id, _) = half_edge
+                (weights, _) = nx.single_source_dijkstra(
+                    GlobalGraph(current_app).current,
+                    new_node_id, prev_node_id, weight='weight')
+                target_weight = weights.get(prev_node_id)
+                mut_half_edge = (new_node_id, target_weight)
+                ret_list.append(mut_half_edge)
+                (prev_node_id, _) = half_edge
+        return ret_list
+
+    @staticmethod
+    def _evaluate_path_in_mdg(MDG, source_id, target_id):
+        ret_list = []
+        (weights, paths) = nx.single_source_dijkstra(
+            MDG, source_id, target_id, weight='weight')
+        target_path = paths.get(target_id)
+        if target_path is not None:
+            for node_id in target_path:
+                if node_id != source_id:
+                    ret_list.append((node_id, weights.get(node_id)))
+            return ret_list
+        else:
+            return None
 
     @property
     def current(self):
