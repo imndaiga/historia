@@ -2,7 +2,9 @@
 
 from app import create_app, db
 from app.email import send_email
-from app.models import Node, GlobalEdge, GlobalGraph, Seed
+from app.graph import GlobalGraph
+from app.models import Node, GlobalEdge
+from app.seed import Seed
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
 import os
