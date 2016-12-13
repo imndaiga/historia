@@ -28,8 +28,8 @@ class GlobalEdge(db.Model):
     @classmethod
     def safe(cls, ascendant, descendant, edge_label):
         if ascendant != descendant:
-            if edge_label in Node.directed_types or \
-               edge_label in Node.undirected_types:
+            if edge_label in Relations['directed_types'] or \
+               edge_label in Relations['undirected_types']:
                 return cls(ascendant=ascendant,
                            descendant=descendant,
                            edge_label=edge_label)
@@ -65,17 +65,6 @@ class Node(db.Model, UserMixin):
                                       'descendant', lazy='joined'),
                                   lazy='dynamic',
                                   cascade='all, delete-orphan')
-
-    directed_types = {3: ['parent', 4], 4: ['child', 3]}
-    undirected_types = {1: ['partner'], 2: ['sibling', 3]}
-    relation_dict = {
-        1: 'partner',
-        2: 'sibling',
-        3: 'parent',
-        4: 'child',
-        5: 'nibling',
-        6: 'uncle-aunt'
-    }
 
     @property
     def subgraph(self):
@@ -136,9 +125,9 @@ class Node(db.Model, UserMixin):
         if weighted_edge_list:
             for edge_tuple in weighted_edge_list:
                 (node_id, weight) = edge_tuple
-                for relation in self.relation_dict:
+                for relation in Relations['all_types']:
                     if weight == relation:
-                        relation_list.append(self.relation_dict[relation])
+                        relation_list.append(Relations['all_types'][relation])
             return relation_list
         else:
             return None
@@ -236,6 +225,17 @@ class Node(db.Model, UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     return Node.query.get(int(user_id))
+
+
+Relations = {
+    'directed_types': {
+        3: ['parent', 4], 4: ['child', 3]},
+    'undirected_types': {
+        1: ['partner'], 2: ['sibling', 3]},
+    'all_types': {
+        1: 'partner', 2: 'sibling', 3: 'parent',
+        4: 'child', 5: 'nibling', 6: 'uncle-aunt'}
+}
 
 
 class GlobalGraph:
