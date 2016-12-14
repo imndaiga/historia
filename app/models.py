@@ -17,35 +17,35 @@ Relations = {
 }
 
 
-class GlobalEdge(db.Model):
+class Link(db.Model):
     """self-referential association table that connects Nodes"""
-    __tablename__ = 'edges'
+    __tablename__ = 'links'
 
-    ascendant_id = db.Column(db.Integer, db.ForeignKey('nodes.id'),
+    ascendant_id = db.Column(db.Integer, db.ForeignKey('persons.id'),
                              primary_key=True)
-    descendant_id = db.Column(db.Integer, db.ForeignKey('nodes.id'),
+    descendant_id = db.Column(db.Integer, db.ForeignKey('persons.id'),
                               primary_key=True)
-    edge_label = db.Column(db.Integer, default=0)
+    link_label = db.Column(db.Integer, default=0)
 
     @classmethod
-    def safe(cls, ascendant, descendant, edge_label):
+    def safe(cls, ascendant, descendant, link_label):
         if ascendant != descendant:
-            if edge_label in Relations['directed_types'] or \
-               edge_label in Relations['undirected_types']:
+            if link_label in Relations['directed_types'] or \
+               link_label in Relations['undirected_types']:
                 return cls(ascendant=ascendant,
                            descendant=descendant,
-                           edge_label=edge_label)
+                           link_label=link_label)
         return None
 
     def __repr__(self):
-        return '<GlobalEdge %s-%s:%s>' % (self.ascendant_id,
-                                          self.descendant_id,
-                                          self.edge_label)
+        return '<Link %s-%s:%s>' % (self.ascendant_id,
+                                    self.descendant_id,
+                                    self.link_label)
 
 
-class Node(db.Model, UserMixin):
+class Person(db.Model, UserMixin):
     """all miminani subscribed Nodes"""
-    __tablename__ = 'nodes'
+    __tablename__ = 'persons'
 
     id = db.Column(db.Integer, primary_key=True)
     baptism_name = db.Column(db.String(64))
@@ -55,14 +55,14 @@ class Node(db.Model, UserMixin):
     dob = db.Column(db.DateTime, default=date(9999, 1, 1))
     email = db.Column(db.String(64), unique=True)
     confirmed = db.Column(db.Boolean, default=False)
-    descended_by = db.relationship('GlobalEdge',
-                                   foreign_keys=[GlobalEdge.ascendant_id],
+    descended_by = db.relationship('Link',
+                                   foreign_keys=[Link.ascendant_id],
                                    backref=db.backref(
                                        'ascendant', lazy='joined'),
                                    lazy='dynamic',
                                    cascade='all, delete-orphan')
-    ascended_by = db.relationship('GlobalEdge',
-                                  foreign_keys=[GlobalEdge.descendant_id],
+    ascended_by = db.relationship('Link',
+                                  foreign_keys=[Link.descendant_id],
                                   backref=db.backref(
                                       'descendant', lazy='joined'),
                                   lazy='dynamic',
@@ -85,50 +85,52 @@ class Node(db.Model, UserMixin):
         return {'remember_me': data.get('remember_me'),
                 'next_url': data.get('next_url')}
 
-    def edge_ascends(self, node):
+    def link_ascends(self, person):
         return self.descended_by.filter_by(
-            descendant_id=node.id).first() is not None
+            descendant_id=person.id).first() is not None
 
-    def edge_descends(self, node):
+    def link_descends(self, person):
         return self.ascended_by.filter_by(
-            ascendant_id=node.id).first() is not None
+            ascendant_id=person.id).first() is not None
 
     # This function should be protected
-    def _change_edge_label(self, node, edge_label):
-        if self.baptism_name != node.baptism_name:
-            if self.edge_ascends(node):
-                n = GlobalEdge.query.filter_by(descendant_id=node.id).first()
-            elif self.edge_descends(node):
-                n = GlobalEdge.query.filter_by(ascendant_id=node.id).first()
+    def _change_link_label(self, person, link_label):
+        if self.baptism_name != person.baptism_name:
+            if self.link_ascends(person):
+                retrieved_link = Link.query.filter_by(
+                    descendant_id=person.id).first()
+            elif self.link_descends(person):
+                retrieved_link = Link.query.filter_by(
+                    ascendant_id=person.id).first()
             else:
-                # Self and Node are not related, no edge_label change can be
+                # Self and Person are not related, no link_label change can be
                 # made
                 return None
-            n.edge_label = edge_label
-            db.session.add(n)
-            return n
+            retrieved_link.link_label = link_label
+            db.session.add(retrieved_link)
+            return retrieved_link
         return None
 
-    def auto(node, baptism_name):
-        return node
+    def auto(person, baptism_name):
+        return person
 
     @staticmethod
-    def node_from_token(token):
+    def person_from_token(token):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             data = s.loads(token)
         except:
-            return {'sig': False, 'node': None}
+            return {'sig': False, 'person': None}
         if data.get('email'):
-            return {'sig': True, 'node': Node.query.filter_by(
+            return {'sig': True, 'person': Person.query.filter_by(
                 email=data.get('email')).first()}
         else:
-            return {'sig': False, 'node': None}
+            return {'sig': False, 'person': None}
 
     def __repr__(self):
-        return 'Node: <%s:%s>' % (self.id, self.baptism_name)
+        return 'Person: <%s:%s>' % (self.id, self.baptism_name)
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Node.query.get(int(user_id))
+    return Person.query.get(int(user_id))

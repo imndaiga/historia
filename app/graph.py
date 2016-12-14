@@ -1,9 +1,9 @@
-from .models import GlobalEdge, Relations
+from .models import Link, Relations
 import networkx as nx
 import os
 
 
-class GlobalGraph:
+class Graph:
 
     def __init__(self, app):
         self.gpickle_path = app.config['GRAPH_PATH']
@@ -13,11 +13,11 @@ class GlobalGraph:
 
     def update(self):
         G = self.current
-        relation_links = GlobalEdge.query.all()
+        relation_links = Link.query.all()
         for link in relation_links:
             source = link.ascendant_id
             target = link.descendant_id
-            weight = link.edge_label
+            weight = link.link_label
             key = link.ascendant_id
             if not G.has_edge(source, target, key=key):
                 G.add_edge(source, target, key=key, weight=weight)

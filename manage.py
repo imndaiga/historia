@@ -2,8 +2,8 @@
 
 from app import create_app, db
 from app.email import send_email
-from app.graph import GlobalGraph
-from app.models import Node, GlobalEdge
+from app.graph import Graph
+from app.models import Person, Link
 from app.seed import Seed
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
@@ -27,8 +27,8 @@ def test():
 
 
 def make_shell_context():
-    return dict(db=db, Node=Node, GlobalEdge=GlobalEdge,
-                GlobalGraph=GlobalGraph(app), app=app,
+    return dict(db=db, Person=Person, Link=Link,
+                Graph=Graph(app), app=app,
                 send_email=send_email, Seed=Seed(app))
 
 

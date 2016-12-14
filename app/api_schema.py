@@ -1,29 +1,29 @@
 from graphene import ObjectType, Schema, List
 from graphene_sqlalchemy import SQLAlchemyObjectType
-from .models import Node as NodeModel
-from .models import GlobalEdge as GlobalEdgeModel
+from .models import Person as PersonModel
+from .models import Link as LinkModel
 
 
-class Node(SQLAlchemyObjectType):
+class Person(SQLAlchemyObjectType):
     class Meta:
-        model = NodeModel
+        model = PersonModel
 
 
-class GlobalEdge(SQLAlchemyObjectType):
+class Link(SQLAlchemyObjectType):
     class Meta:
-        model = GlobalEdgeModel
+        model = LinkModel
 
 
 class Query(ObjectType):
-    all_nodes = List(Node)
-    all_edges = List(GlobalEdge)
+    all_persons = List(Person)
+    all_edges = List(Link)
 
-    def resolve_all_nodes(self, args, context, info):
-        query = Node.get_query(context)
+    def resolve_all_Persons(self, args, context, info):
+        query = Person.get_query(context)
         return query.all()
 
     def resolve_all_edges(self, args, context, info):
-        query = GlobalEdge.get_query(context)
+        query = Link.get_query(context)
         return query.all()
 
 
