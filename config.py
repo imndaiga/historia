@@ -14,6 +14,7 @@ class Config:
     MAIL_USE_SSL = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    SEED_AUTO = os.environ.get('SEED_AUTO')
 
     # App context environment variables
     MIMINANI_MAIL_SUBJECT_PREFIX = '[MIMINANI]'

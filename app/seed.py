@@ -1,28 +1,34 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from flask_script import Command
-from .models import Person, Link
-from .graph import Graph
-from app import db
 
 
 class Seed(Command):
     """Create fake seed data and store in database"""
     # This function should be protected
 
-    def __init__(self, app, auto=False):
-        self.app = app
+    auto = False
+    authorised = False
+
+    def init_app(self, app, auto=False):
+        from app.models import Person, Link
+        from app import db, graph
+        self.Person = Person
+        self.Link = Link
+        self.db = db
+        self.graph = graph
         self.auto = auto
-        self.graph = Graph(app)
-        if self.app.config['DEBUG'] or self.app.config['TESTING']:
+        if app.config['DEBUG'] or app.config['TESTING']:
             self.authorised = True
 
     def run(self):
         if self.authorised is True:
-            a1 = Person(baptism_name='Chris', email='chris@test.com')
-            a2 = Person(baptism_name='Christine', email='christine@test.com')
-            a3 = Person(baptism_name='Charlie', email='charles@test.com')
-            a4 = Person(baptism_name='Carol', email='carol@test.com')
+            a1 = self.Person(baptism_name='Chris', email='chris@test.com')
+            a2 = self.Person(
+                baptism_name='Christine',
+                email='christine@test.com')
+            a3 = self.Person(baptism_name='Charlie', email='charles@test.com')
+            a4 = self.Person(baptism_name='Carol', email='carol@test.com')
             result = self.relate(parents=[a1, a2], children=[a3, a4])
         self._graph_update(self.auto)
         return result
@@ -43,7 +49,7 @@ class Seed(Command):
             else:
                 raise Exception('Expects: (**partners)/(**parents,**children)')
         result_dict['relations'] = self._connect_relations(relations)
-        db.session.commit()
+        self.db.session.commit()
         self._graph_update(self.auto)
         return result_dict
 
@@ -51,17 +57,16 @@ class Seed(Command):
         if auto_flag is True:
             self.graph.update()
 
-    @classmethod
-    def _connect_relations(cls, relations):
+    def _connect_relations(self, relations):
         _processed_list = []
         for relation in relations:
             asc = relations[relation][0]
             descedants = relations[relation][1:-1]
             weight = relations[relation][-1]
             for des in descedants:
-                (created_link, created_status) = cls._get_or_create_one(
-                    session=db.session,
-                    model=Link,
+                (created_link, created_status) = self._get_or_create_one(
+                    session=self.db.session,
+                    model=self.Link,
                     create_method='safe',
                     ascendant=asc,
                     descendant=des,
@@ -70,14 +75,13 @@ class Seed(Command):
                     _processed_list.append(created_link)
         return _processed_list
 
-    @classmethod
-    def _commit_persons_to_db(cls, **kwargs):
+    def _commit_persons_to_db(self, **kwargs):
         _processed_list = []
         for person_type in kwargs:
             for person in kwargs[person_type]:
-                (created_person, created_status) = cls._get_or_create_one(
-                    session=db.session,
-                    model=Person,
+                (created_person, created_status) = self._get_or_create_one(
+                    session=self.db.session,
+                    model=self.Person,
                     create_method='auto',
                     create_method_kwargs={'person': person},
                     baptism_name=person.baptism_name)

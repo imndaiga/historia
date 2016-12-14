@@ -1,20 +1,9 @@
-from . import db
+from . import db, graph
 from datetime import date
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
 from flask_login import UserMixin
 from . import login_manager
-
-
-Relations = {
-    'directed_types': {
-        3: ['parent', 4], 4: ['child', 3]},
-    'undirected_types': {
-        1: ['partner'], 2: ['sibling', 3]},
-    'all_types': {
-        1: 'partner', 2: 'sibling', 3: 'parent',
-        4: 'child', 5: 'nibling', 6: 'uncle-aunt'}
-}
 
 
 class Link(db.Model):
@@ -30,8 +19,8 @@ class Link(db.Model):
     @classmethod
     def safe(cls, ascendant, descendant, link_label):
         if ascendant != descendant:
-            if link_label in Relations['directed_types'] or \
-               link_label in Relations['undirected_types']:
+            if link_label in graph.Relations['directed_types'] or \
+               link_label in graph.Relations['undirected_types']:
                 return cls(ascendant=ascendant,
                            descendant=descendant,
                            link_label=link_label)

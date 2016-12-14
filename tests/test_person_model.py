@@ -1,18 +1,16 @@
 import unittest
-from app import create_app, db
+from app import create_app, db, seed
 from app.models import Person, Link
-from app.seed import Seed
 import time
 
 
-class NodeModelTestCase(unittest.TestCase):
+class PersonModelTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
-        self.seed = Seed(app=self.app)
-        self.seed.run()
+        seed.run()
 
     def tearDown(self):
         db.session.remove()
@@ -49,7 +47,7 @@ class NodeModelTestCase(unittest.TestCase):
         p3 = db.session.query(Person).filter_by(baptism_name='Charlie').first()
         p4 = db.session.query(Person).filter_by(baptism_name='Carol').first()
         a1 = Person(baptism_name='Coraline')
-        self.seed.relate(parents=[p1, p2], children=[p3, p4, a1])
+        seed.relate(parents=[p1, p2], children=[p3, p4, a1])
         self.assertTrue(Link.query.count() == 20)
 
     def test_valid_label_change(self):
@@ -59,7 +57,7 @@ class NodeModelTestCase(unittest.TestCase):
         p3 = db.session.query(Person).filter_by(baptism_name='Charlie').first()
         p4 = db.session.query(Person).filter_by(baptism_name='Carol').first()
         a1 = Person(baptism_name='Coraline')
-        self.seed.relate(parents=[p1, p2], children=[p3, p4, a1])
+        seed.relate(parents=[p1, p2], children=[p3, p4, a1])
         self.assertTrue(a1._change_link_label(p1, 1))
         self.assertTrue(a1._change_link_label(p2, 1))
         self.assertTrue(a1._change_link_label(p3, 0))

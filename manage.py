@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
-from app import create_app, db
+from app import create_app, db, graph, seed
 from app.email import send_email
-from app.graph import Graph
 from app.models import Person, Link
-from app.seed import Seed
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
 import os
@@ -28,13 +26,13 @@ def test():
 
 def make_shell_context():
     return dict(db=db, Person=Person, Link=Link,
-                Graph=Graph(app), app=app,
-                send_email=send_email, Seed=Seed(app))
+                graph=graph, app=app,
+                send_email=send_email, seed=seed)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
-manager.add_command('forge', Seed(app))
+manager.add_command('forge', seed)
 
 if __name__ == '__main__':
     with app.app_context():

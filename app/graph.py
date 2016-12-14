@@ -1,56 +1,87 @@
-from .models import Link, Relations
 import networkx as nx
 import os
 
 
 class Graph:
 
-    def __init__(self, app):
+    gpickle_path = None
+    authorised = False
+
+    Relations = {
+        'directed_types': {
+            3: ['parent', 4], 4: ['child', 3]},
+        'undirected_types': {
+            1: ['partner'], 2: ['sibling', 3]},
+        'all_types': {
+            1: 'partner', 2: 'sibling', 3: 'parent',
+            4: 'child', 5: 'nibling', 6: 'uncle-aunt'}
+    }
+
+    def init_app(self, app):
+        from app.models import Link
+        self.Link = Link
         self.gpickle_path = app.config['GRAPH_PATH']
-        self.authorised = False
         if app.config['TESTING'] is True or app.config['DEBUG'] is True:
             self.authorised = True
 
     def update(self):
-        G = self.current
-        relation_links = Link.query.all()
-        for link in relation_links:
-            source = link.ascendant_id
-            target = link.descendant_id
-            weight = link.link_label
-            key = link.ascendant_id
-            if not G.has_edge(source, target, key=key):
-                G.add_edge(source, target, key=key, weight=weight)
-        self.save(G)
+        try:
+            G = self.current
+        except EnvironmentError:
+            raise Exception
+        else:
+            relation_links = self.Link.query.all()
+            for link in relation_links:
+                source = link.ascendant_id
+                target = link.descendant_id
+                weight = link.link_label
+                key = link.ascendant_id
+                if not G.has_edge(source, target, key=key):
+                    G.add_edge(source, target, key=key, weight=weight)
+            self.save(G)
 
     def clear(self):
         if self.authorised:
-            G = self.current
-            G.clear()
-            self.save(G)
+            try:
+                G = self.current
+            except EnvironmentError:
+                raise Exception
+            else:
+                G.clear()
+                self.save(G)
 
     def get_subgraph(self, source, gtype=nx.Graph):
         subgraph = gtype()
-        weighted_edge_list = self._resolve_edge_list_from_mdg(
-            source=source,
-            MDG=self.current)
-        subgraph.add_weighted_edges_from(weighted_edge_list)
-        return subgraph
+        try:
+            MDG = self.current
+        except EnvironmentError:
+            raise Exception
+        else:
+            weighted_edge_list = self._resolve_edge_list_from_mdg(
+                source=source,
+                MDG=MDG)
+            subgraph.add_weighted_edges_from(weighted_edge_list)
+            return subgraph
 
     def _relations_list(self, source, target):
         relation_list = []
-        weighted_edge_list = self._span_mdg(
-            MDG=self.current, source=source, mutate=True).get(target.id)
-        if weighted_edge_list:
-            for edge_tuple in weighted_edge_list:
-                (node_id, weight) = edge_tuple
-                for relation in Relations['all_types']:
-                    if weight == relation:
-                        relation_list.append(
-                            Relations['all_types'][relation])
-            return relation_list
+        try:
+            MDG = self.current
+        except EnvironmentError:
+            raise Exception
         else:
-            return None
+            weighted_edge_list = self._span_mdg(
+                MDG=MDG, source=source, mutate=True).get(target.id)
+            if weighted_edge_list:
+                for edge_tuple in weighted_edge_list:
+                    (node_id, weight) = edge_tuple
+                    for relation in self.Relations['all_types']:
+                        if weight == relation:
+                            relation_list.append(
+                                self.Relations['all_types'][relation])
+                return relation_list
+            else:
+                return None
 
     def _resolve_edge_list_from_mdg(self, source, MDG):
         edges = []
@@ -134,11 +165,17 @@ class Graph:
         return self._load()
 
     def save(self, G):
-        nx.write_gpickle(G, self.gpickle_path)
+        if self.gpickle_path is not None:
+            nx.write_gpickle(G, self.gpickle_path)
+        else:
+            raise EnvironmentError
 
     def _load(self):
-        if os.path.exists(self.gpickle_path):
-            G = nx.read_gpickle(self.gpickle_path)
+        if self.gpickle_path is not None:
+            if os.path.exists(self.gpickle_path):
+                G = nx.read_gpickle(self.gpickle_path)
+            else:
+                G = nx.MultiDiGraph()
+            return G
         else:
-            G = nx.MultiDiGraph()
-        return G
+            raise EnvironmentError

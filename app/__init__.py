@@ -5,11 +5,16 @@ from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
 from config import config
+from .graph import Graph
+from .seed import Seed
+import os
 
 # extension attribute references here
 db = SQLAlchemy()
 bootstrap = Bootstrap()
 mail = Mail()
+graph = Graph()
+seed = Seed()
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
@@ -26,6 +31,8 @@ def create_app(config_name):
     login_manager.init_app(app)
     bootstrap.init_app(app)
     mail.init_app(app)
+    graph.init_app(app)
+    seed.init_app(app, auto=app.config['SEED_AUTO'] or True)
 
     # register app blueprints here
     from .api_schema import schema
