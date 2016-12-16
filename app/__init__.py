@@ -7,7 +7,6 @@ from flask_mail import Mail
 from config import config
 from .graph import Graph
 from .seed import Seed
-import os
 
 # extension attribute references here
 db = SQLAlchemy()
@@ -26,7 +25,7 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
 
-    # initialise extensions here
+    # initialise extensions and modules here
     db.init_app(app)
     login_manager.init_app(app)
     bootstrap.init_app(app)
