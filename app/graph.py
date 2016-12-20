@@ -22,87 +22,42 @@ class Graph:
         self.Link = Link
         self.gpickle_path = app.config['GRAPH_PATH']
         if app.config['TESTING'] is True or app.config['DEBUG'] is True:
-            self.authorised = True
+            self.testing = True
 
     def update(self):
-        try:
-            G = self.current
-        except EnvironmentError:
-            raise Exception
-        else:
-            relation_links = self.Link.query.all()
-            for link in relation_links:
-                source = link.ascendant_id
-                target = link.descendant_id
-                weight = link.link_label
-                key = link.ascendant_id
-                if not G.has_edge(source, target, key=key):
-                    G.add_edge(source, target, key=key, weight=weight)
-            self.save(G)
+        G = self.current
+        relation_links = self.Link.query.all()
+        for link in relation_links:
+            source = link.ascendant_id
+            target = link.descendant_id
+            weight = link.link_label
+            key = link.ascendant_id
+            if not G.has_edge(source, target, key=key):
+                G.add_edge(source, target, key=key, weight=weight)
+        self.save(G)
 
     def clear(self):
-        if self.authorised:
-            try:
-                G = self.current
-            except EnvironmentError:
-                raise Exception
-            else:
-                G.clear()
-                self.save(G)
+        if self.testing:
+            G = self.current
+            G.clear()
+            self.save(G)
 
     def get_subgraph(self, source, gtype=nx.Graph):
         subgraph = gtype()
-        try:
-            MDG = self.current
-        except EnvironmentError:
-            raise Exception
-        else:
-            weighted_edge_list = self._resolve_edge_list_from_mdg(
-                source=source,
-                MDG=MDG)
-            subgraph.add_weighted_edges_from(weighted_edge_list)
-            return subgraph
+        MDG = self.current
+        weighted_edge_list = self._resolve_edge_list_from_mdg(
+            source=source,
+            MDG=MDG)
+        subgraph.add_weighted_edges_from(weighted_edge_list)
+        return subgraph
 
-    def _relations_list(self, source, target):
-        relation_list = []
-        try:
-            MDG = self.current
-        except EnvironmentError:
-            raise Exception
-        else:
-            weighted_edge_list = self._span_mdg(
-                MDG=MDG, source=source, mutate=True).get(target.id)
-            if weighted_edge_list:
-                for edge_tuple in weighted_edge_list:
-                    (node_id, weight) = edge_tuple
-                    for relation in self.Relations['all_types']:
-                        if weight == relation:
-                            relation_list.append(
-                                self.Relations['all_types'][relation])
-                return relation_list
-            else:
-                return None
-
-    def _resolve_edge_list_from_mdg(self, source, MDG):
-        edges = []
-        path_inputs = self._span_mdg(MDG=MDG, source=source)
-        for node_id in path_inputs:
-            set_node_id = None
-            if len(path_inputs[node_id]) == 1:
-                (_, weight_to_selfid) = path_inputs[node_id][0]
-                edges.append((source.id, node_id, weight_to_selfid))
-            elif len(path_inputs[node_id]) > 1:
-                for path_tuples in path_inputs[node_id]:
-                    if set_node_id is None:
-                        (set_node_id, weight_to_selfid) = path_tuples
-                    else:
-                        (new_node_id, sum_weight) = path_tuples
-                        new_weight = sum_weight - weight_to_selfid
-                        edges.append((set_node_id, new_node_id, new_weight))
-                        (set_node_id, weight_to_selfid) = path_tuples
-        return edges
-
-    def _span_mdg(self, MDG, source, mutate=False):
+    def span_mdg(self, MDG, source, mutate=False):
+        '''
+        Outputs a perspective-based adjacency list i.e. it traverses the
+        provided multi-directed graph (MDG) selecting outbound edge weights
+        from the source node. The mutate flag sequences the outputted
+        path tuples.
+        '''
         ret_dict = {}
         for u_id, nbrs in MDG.adjacency_iter():
             for v_id, keydict in nbrs.items():
@@ -119,17 +74,90 @@ class Graph:
                             if mutate:
                                 mut_paths = self._mutate_to_sequential_paths(
                                     MDG=MDG,
-                                    list_of_edge_tuples=_selfid_to_uid_path)
+                                    path_tuples_list=_selfid_to_uid_path)
                                 ret_dict[u_id] = mut_paths
                             else:
                                 ret_dict[u_id] = _selfid_to_uid_path
         return ret_dict
 
+    @property
+    def current(self):
+        return self._load()
+
+    def save(self, G):
+        if self.gpickle_path is not None:
+            nx.write_gpickle(G, self.gpickle_path)
+        else:
+            raise EnvironmentError
+
+    def _relations_list(self, source, target):
+        '''
+        Outputs a list of outbound relations from the source
+        to the target.
+        '''
+        relation_list = []
+        MDG = self.current
+        weighted_edge_list = self.span_mdg(
+            MDG=MDG,
+            source=source,
+            mutate=True).get(target.id)
+        if weighted_edge_list:
+            for edge_tuple in weighted_edge_list:
+                (node_id, weight) = edge_tuple
+                for relation in self.Relations['all_types']:
+                    if weight == relation:
+                        relation_list.append(
+                            self.Relations['all_types'][relation])
+            return relation_list
+        else:
+            return None
+
+    def _resolve_edge_list_from_mdg(self, MDG, source):
+        '''
+        Outputs a computed ebunch list that can be added to a
+        networkx graph using the nx.Graph.add_edges_from method.
+        '''
+        resolved_edges = []
+        path_tuples_dict = self.span_mdg(MDG=MDG, source=source)
+        for node_key in path_tuples_dict:
+            set_node = None
+            previous_weight = 0
+            path_tuples_list = path_tuples_dict[node_key]
+            if len(path_tuples_list) == 1:
+                _, weight_from_source = path_tuples_list[0]
+                new_path_tuple = (source.id, node_key, weight_from_source)
+                resolved_edges.append(new_path_tuple)
+            elif len(path_tuples_list) > 1:
+                for path_tuple in path_tuples_list:
+                    if set_node is None:
+                        (set_node, previous_weight) = path_tuple
+                    else:
+                        (new_node, path_weight) = path_tuple
+                        new_weight = path_weight - previous_weight
+                        resolved_edges.append((set_node, new_node, new_weight))
+                        (set_node, previous_weight) = path_tuple
+        return resolved_edges
+
     @staticmethod
-    def _mutate_to_sequential_paths(MDG, list_of_edge_tuples):
+    def _mutate_to_sequential_paths(MDG, path_tuples_list):
+        '''
+        Takes a path tuples list and sequences it. The output is a list
+        of 2-value tuples spanning the source_id to target_id path.
+        Considering a path tuples list of length n, where i <= n. The first
+        value of path_tuples_list[i] is a path node and the second is the
+        djikstra graph weight of the previous path node in
+        path_tuples_list[i-1] to the current path node in path_tuples_list[i].
+        e.g.
+            [(path_node_1, dijkstra_weight_of_source_id_to_path_node_1),
+            (path_node_2, dijkstra_weight_of_path_node_1_to_path_node_2),
+            (target_id, dijkstra_weight_of_path_node_2_to_target_id)]
+        Note:
+            A sequential path tuples list can be represented as a traditional
+            path graph.
+        '''
         ret_list = []
         prev_node_id = -99
-        for half_edge in list_of_edge_tuples:
+        for half_edge in path_tuples_list:
             if prev_node_id == -99:
                 (prev_node_id, _) = half_edge
                 ret_list.append(half_edge)
@@ -148,6 +176,20 @@ class Graph:
 
     @staticmethod
     def _evaluate_path_in_mdg(MDG, source_id, target_id):
+        '''
+        Returns a path tuples list i.e. a list of 2-value tuples spanning
+        the source_id to target_id path. Considering a path tuples list of
+        length n, where i <= n. The first value of path_tuples_list[i]
+        is a path node and the second is the djikstra graph weight of
+        the (source_id) to (path node) edge.
+        e.g.
+            [(path_node_1, dijkstra_weight_of_source_id_to_path_node_1),
+            (path_node_2, dijkstra_weight_of_source_id_to_path_node_2),
+            (target_id, dijkstra_weight_of_source_id_to_target_id)]
+        Note:
+            A path tuples list can be visually represented as a star graph
+            with source_id being the central node.
+        '''
         ret_list = []
         (weights, paths) = nx.single_source_dijkstra(
             MDG, source_id, target_id, weight='weight')
@@ -160,22 +202,24 @@ class Graph:
         else:
             return None
 
-    @property
-    def current(self):
-        return self._load()
-
-    def save(self, G):
-        if self.gpickle_path is not None:
-            nx.write_gpickle(G, self.gpickle_path)
-        else:
-            raise EnvironmentError
-
     def _load(self):
         if self.gpickle_path is not None:
             if os.path.exists(self.gpickle_path):
                 G = nx.read_gpickle(self.gpickle_path)
             else:
                 G = nx.MultiDiGraph()
+                self.save(G)
             return G
         else:
             raise EnvironmentError
+
+    @staticmethod
+    def count_subgraph_weights(**kwargs):
+        data = kwargs['data']
+        counts = {}
+        for edge in data:
+            if counts.get(edge[2]['weight']):
+                counts[edge[2]['weight']] = counts[edge[2]['weight']] + 1
+            else:
+                counts[edge[2]['weight']] = 1
+        return counts

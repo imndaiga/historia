@@ -10,7 +10,7 @@ class Seed(Command):
     auto = False
     authorised = False
 
-    def init_app(self, app, auto=False):
+    def init_app(self, app, auto):
         from app.models import Person, Link
         from app import db, graph
         self.Person = Person
@@ -19,10 +19,10 @@ class Seed(Command):
         self.graph = graph
         self.auto = auto
         if app.config['DEBUG'] or app.config['TESTING']:
-            self.authorised = True
+            self.testing = True
 
     def run(self):
-        if self.authorised is True:
+        if self.testing is True:
             a1 = self.Person(baptism_name='Chris', email='chris@test.com')
             a2 = self.Person(
                 baptism_name='Christine',
@@ -35,7 +35,7 @@ class Seed(Command):
 
     def relate(self, partners=None, parents=None, children=None):
         result_dict = {}
-        if self.authorised is True:
+        if self.testing is True:
             if partners and not parents and not children:
                 result_dict['persons'] = self._commit_persons_to_db(
                     partners=partners)
@@ -186,14 +186,3 @@ class Seed(Command):
 
         constructed_relation_dict = cls._post_process_relations(_process_dict)
         return constructed_relation_dict
-
-    @staticmethod
-    def count_subgraph_weights(**kwargs):
-        data = kwargs['data']
-        counts = {}
-        for edge in data:
-            if counts.get(edge[2]['weight']):
-                counts[edge[2]['weight']] = counts[edge[2]['weight']] + 1
-            else:
-                counts[edge[2]['weight']] = 1
-        return counts
