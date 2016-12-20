@@ -1,10 +1,10 @@
 import unittest
 from app import create_app, db, seed
-from app.models import Person, Link
+from app.models import Person
 import time
 
 
-class PersonModelTestCase(unittest.TestCase):
+class ModelsTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
@@ -20,10 +20,7 @@ class PersonModelTestCase(unittest.TestCase):
     def test_person_count(self):
         self.assertTrue(Person.query.count() == 4)
 
-    def test_link_count(self):
-        self.assertTrue(Link.query.count() == 12)
-
-    def test_valid_links(self):
+    def test_links(self):
         p1 = db.session.query(Person).filter_by(baptism_name='Chris').first()
         p2 = db.session.query(Person).filter_by(
             baptism_name='Christine').first()
@@ -40,17 +37,7 @@ class PersonModelTestCase(unittest.TestCase):
         self.assertTrue(p2.link_descends(p3))
         self.assertTrue(p2.link_descends(p4))
 
-    def test_valid_link_addition(self):
-        p1 = db.session.query(Person).filter_by(baptism_name='Chris').first()
-        p2 = db.session.query(Person).filter_by(
-            baptism_name='Christine').first()
-        p3 = db.session.query(Person).filter_by(baptism_name='Charlie').first()
-        p4 = db.session.query(Person).filter_by(baptism_name='Carol').first()
-        a1 = Person(baptism_name='Coraline')
-        seed.relate(parents=[p1, p2], children=[p3, p4, a1])
-        self.assertTrue(Link.query.count() == 20)
-
-    def test_valid_label_change(self):
+    def test_valid_link_label_changes(self):
         p1 = db.session.query(Person).filter_by(baptism_name='Chris').first()
         p2 = db.session.query(Person).filter_by(
             baptism_name='Christine').first()
@@ -67,7 +54,7 @@ class PersonModelTestCase(unittest.TestCase):
         self.assertTrue(p3._change_link_label(a1, 0))
         self.assertTrue(p4._change_link_label(a1, 0))
 
-    def test_invalid_label_change(self):
+    def test_invalid_link_label_changes(self):
         p1 = db.session.query(Person).filter_by(baptism_name='Chris').first()
         p2 = db.session.query(Person).filter_by(
             baptism_name='Christine').first()
@@ -85,7 +72,7 @@ class PersonModelTestCase(unittest.TestCase):
         self.assertFalse(p3._change_link_label(a1, 0))
         self.assertFalse(p4._change_link_label(a1, 0))
 
-    def test_invalid_person_loop(self):
+    def test_invalid_person_self_loop(self):
         p1 = db.session.query(Person).filter_by(baptism_name='Chris').first()
         self.assertFalse(p1._change_link_label(p1, 1))
 
