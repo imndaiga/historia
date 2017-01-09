@@ -11,10 +11,12 @@ class Graph:
         'directed_types': {
             3: ['parent', 4], 4: ['child', 3]},
         'undirected_types': {
-            1: ['partner'], 2: ['sibling', 3]},
+            1: ['partner'], 2: ['sibling']},
         'all_types': {
             1: 'partner', 2: 'sibling', 3: 'parent',
-            4: 'child', 5: 'nibling', 6: 'uncle-aunt'}
+            4: 'child', 5: 'niece-nephew', 6: 'uncle-aunt'},
+        'modifiers': {
+            1: 'great', 2: 'grand', 3: 'in-law'}
     }
 
     def init_app(self, app):
@@ -50,6 +52,12 @@ class Graph:
             MDG=MDG)
         subgraph.add_weighted_edges_from(weighted_edge_list)
         return subgraph
+
+    def get_relation(self, source, target, computed=False):
+        if computed:
+            raise NotImplementedError
+        else:
+            return self._relations_list(source=source, target=target)
 
     def span_mdg(self, MDG, source, mutate=False):
         '''
@@ -90,7 +98,7 @@ class Graph:
         else:
             raise EnvironmentError
 
-    def _relations_list(self, source, target):
+    def _relations_list(self, source, target, readable=True):
         '''
         Outputs a list of outbound relations from the source
         to the target.
@@ -104,10 +112,13 @@ class Graph:
         if weighted_edge_list:
             for edge_tuple in weighted_edge_list:
                 (node_id, weight) = edge_tuple
-                for relation in self.Relations['all_types']:
-                    if weight == relation:
-                        relation_list.append(
-                            self.Relations['all_types'][relation])
+                for relation_key in self.Relations['all_types']:
+                    if weight == relation_key:
+                        if readable is True:
+                            relation_list.append(
+                                self.Relations['all_types'][relation_key])
+                        else:
+                            relation_list.append(relation_key)
             return relation_list
         else:
             return None
