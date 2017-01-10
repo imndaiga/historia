@@ -1,8 +1,8 @@
 from flask import url_for, flash, render_template, redirect, request
 from ..models import Person
 from ..email import send_email
-from .forms import EmailRememberMeForm, ChangeEmailForm
-from flask_login import login_user, logout_user, login_required, current_user
+from .forms import EmailRememberMeForm
+from flask_login import login_user, logout_user, login_required
 from . import auth
 from .. import db
 
