@@ -48,7 +48,7 @@ def login(token):
                 # url_for('main.index'))
                 flash('You are now logged in!')
                 return redirect(login_data['next_url'] or
-                                url_for('auth.welcome'))
+                                url_for('user.dashboard'))
             flash('The magic login link is invalid or has expired.')
             return redirect(url_for('auth.welcome'))
         # Alert admin of possibly malformed tokens
