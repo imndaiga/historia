@@ -10,24 +10,24 @@
 			{{ message }}
 		</div>
 		{% endfor %}
-		<h1>Welcome!</h1>
-		<br>
-		<div class="col-md-1">
+		<div class="col-md-7">
+			<h1>Welcome!</h1>
+			<br>
+			<div style="padding-left: 30px; padding-bottom: 50px;">
+				<p>MIMINANI helps you <strong>finally</strong> create your family tree!
+				<br>All it takes to start is your email address and name.</p>
+				<p><a class="btn btn-primary btn-lg" href="#" role="button">Learn More</a></p>
+			</div>
 		</div>
 		<div class="col-md-5">
-			<p>MIMINANI helps you <strong>finally</strong> create your family tree! All it takes to start is your email address and name.</p>
-			<p><a class="btn btn-primary btn-lg" href="#" role="button">Learn More</a></p>
-		</div>
-		<div class="col-md-2">
-		</div>
-		<div class="col-md-4">
-			<div class="well">
-				<h3>Register/Login here</h3>
+			<div class="well well-lg center-block" style="width: 342px;">
+				<h3>Join Us</h3>
 				<hr>
 				{{ wtf.quick_form(form) }}
 				<hr>
-				<small>(we'll send you a magic login/registration link by email!)</small>
+				<small>We respect your privacy.<br>Please read our privacy policy <a href="#">here</a>.</small>
 			</div>
+		</div>
 		</div>
 	</div>
 </div>
