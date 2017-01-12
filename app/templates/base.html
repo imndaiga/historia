@@ -4,7 +4,8 @@
 
 {% block styles %}
 {{ super() }}
-	<link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
+	<link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
+	<link rel="stylesheet" href="{{url_for('static', filename='font-awesome-4.7.0/css/font-awesome.min.css')}}">
 {% endblock %}
 
 {% block navbar %}
@@ -24,8 +25,8 @@
 		<!-- Collect the nav links, forms, and other content for toggling -->
 		<div class="collapse navbar-collapse" id="base_menu">
 			<ul class="nav navbar-nav navbar-right">
-				<li class="active"><a href="#">About <span class="sr-only">(current)</span></a></li>
-				<li><a href="https://github.com/squarenomad/miminani">Github</a></li>
+				<li class="active"><a href="#"><i class='fa fa-info-circle fa-lg'></i><span class="sr-only">(current)</span></a></li>
+				<li><a href="https://github.com/squarenomad/miminani"><i class='fa fa-github fa-lg'></i></a></li>
 			</ul>
 		</div>
 	</div>
