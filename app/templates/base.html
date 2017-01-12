@@ -25,8 +25,10 @@
 		<!-- Collect the nav links, forms, and other content for toggling -->
 		<div class="collapse navbar-collapse" id="base_menu">
 			<ul class="nav navbar-nav navbar-right">
-				<li class="active"><a href="#"><i class='fa fa-info-circle fa-lg'></i><span class="sr-only">(current)</span></a></li>
-				<li><a href="https://github.com/squarenomad/miminani"><i class='fa fa-github fa-lg'></i></a></li>
+				{% block base_menu_list %}
+					<li class="active"><a href="#"><i class='fa fa-info-circle fa-lg'></i><span class="sr-only">(current)</span></a></li>
+					<li><a href="https://github.com/squarenomad/miminani"><i class='fa fa-github fa-lg'></i></a></li>
+				{% endblock %}
 			</ul>
 		</div>
 	</div>

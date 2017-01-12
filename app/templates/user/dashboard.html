@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 
+{% block base_menu_list %}
+	<li><a href="#"><i class='fa fa-inbox fa-lg'></i></a></li>
+	<li class="active"><a href="#"><i class='fa fa-user-circle fa-lg'></i> {{user|capitalize}}</a></li>
+{% endblock %}
+
 {% block content %}
 	<div class="container">
-		<p>Hello, {{user}}!</p>
 	</div>
 {% endblock %}
