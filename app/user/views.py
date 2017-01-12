@@ -2,10 +2,12 @@ from flask import render_template, flash
 from .forms import AddPersonForm
 from ..models import Person
 from sqlalchemy import and_
+from flask_login import login_required
 from . import user
 
 
 @user.route('/dashboard/<user>', methods=['GET', 'POST'])
+@login_required
 def dashboard(user):
     form = AddPersonForm()
     if form.validate_on_submit():

@@ -2,6 +2,7 @@ from flask import url_for, flash, render_template, redirect, request
 from ..models import Person
 from ..email import send_email
 from .forms import EmailRememberMeForm
+from ..user.forms import AddPersonForm
 from flask_login import login_user, logout_user, login_required
 from . import auth
 from .. import db
@@ -47,8 +48,10 @@ def login(token):
                 # return redirect(login_data['next_url'] or
                 # url_for('main.index'))
                 flash('You are now logged in!')
+                email_addr = sig_data['person'].email
                 return redirect(login_data['next_url'] or
-                                url_for('user.dashboard'))
+                                url_for('user.dashboard',
+                                        user=email_addr.split('@')[0]))
             flash('The magic login link is invalid or has expired.')
             return redirect(url_for('auth.welcome'))
         # Alert admin of possibly malformed tokens
