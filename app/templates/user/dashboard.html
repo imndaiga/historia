@@ -1,12 +1,18 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
+{% block head %}
+ {{ super() }}
+ <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css')}}">
+{% endblock %}
+
 {% block base_menu_list %}
 	<li><a href="#"><i class='fa fa-inbox fa-lg'></i></a></li>
 	<li class="dropdown active">
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 			<i class='fa fa-user-circle fa-lg'></i>
-			 <small>{{user|capitalize}}</small>
+			<small>{{user|capitalize}}</small>
+			<i class='fa fa-angle-down'></i>
 		</a>
 		<ul class="dropdown-menu">
 			<li><a href="#">Profile</a></li>
@@ -16,12 +22,20 @@
 {% endblock %}
 
 {% block content %}
-	<div class="container">
-		<div class="col-md-8">
-		</div>
-		<div class="col-md-4" style="padding-top: 50px">
-			<div class="well">
-				{{ wtf.quick_form(form) }}
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-3 col-md-2 hidden-xs sidebar">
+				<ul class="nav nav-pills flex-column">
+					<li class="nav-item active"><a class="nav-link" href="{{ url_for('user.dashboard', user=user)}}">Dashboard <span class="sr-only">(current)</span></a></li>
+					<li class="nav-item"><a class="nav-link" href="{{ url_for('user.add_person', user=user)}}">Add Person</a></li>
+					<li class="nav-item"><a class="nav-link" href="#">Family Tree</a></li>
+				</ul>
+			</div>
+			<div class="col-xs-9 col-sm-7 col-md-8 col-sm-offset-3 col-md-offset-3 main">
+				{% block main_content %}
+					<h1> Dashboard </h1>
+					<hr>
+				{% endblock %}
 			</div>
 		</div>
 	</div>

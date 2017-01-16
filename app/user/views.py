@@ -12,6 +12,16 @@ from . import user
 def dashboard(user):
     if current_user.baptism_name == user or \
        current_user.email.split('@')[0] == user:
+        return render_template('user/dashboard.html', user=user)
+    flash('Please sign in to access profile.')
+    return render_template('auth/welcome.html', form=EmailRememberMeForm())
+
+
+@user.route('/dashboard/<user>/add_person', methods=['GET', 'POST'])
+@login_required
+def add_person(user):
+    if current_user.baptism_name == user or \
+       current_user.email.split('@')[0] == user:
         form = AddPersonForm()
         if form.validate_on_submit():
             person_exists = Person.query.filter(and_(
@@ -25,6 +35,6 @@ def dashboard(user):
                 flash('Success!')
             else:
                 flash('Person Already Exists')
-        return render_template('user/dashboard.html', user=user, form=form)
+        return render_template('user/add_person.html', user=user, form=form)
     flash('Please sign in to access profile.')
     return render_template('auth/welcome.html', form=EmailRememberMeForm())
