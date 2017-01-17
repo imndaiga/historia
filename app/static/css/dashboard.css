@@ -3,7 +3,7 @@
 */
 
 h1 {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
 }
@@ -52,11 +52,16 @@ small {
 }
 
 /*
-* Dash main content
+* Panel
 */
 
 .dash_main_content {
   max-width: 900px;
+}
+
+.panel_menu {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
 }
 
 /*
