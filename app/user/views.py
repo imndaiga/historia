@@ -12,7 +12,9 @@ from . import user
 def dashboard(user):
     if current_user.baptism_name == user or \
        current_user.email.split('@')[0] == user:
-        return render_template('user/dashboard.html', user=user)
+        return render_template('user/dashboard.html',
+                               user=user,
+                               panel_name='Dashboard')
     flash('Please sign in to access profile.')
     return render_template('auth/welcome.html', form=EmailRememberMeForm())
 
@@ -35,6 +37,9 @@ def add_person(user):
                 flash('Success!')
             else:
                 flash('Person Already Exists')
-        return render_template('user/add_person.html', user=user, form=form)
+        return render_template('user/add_person.html',
+                               user=user,
+                               form=form,
+                               panel_name='Add Person')
     flash('Please sign in to access profile.')
     return render_template('auth/welcome.html', form=EmailRememberMeForm())
