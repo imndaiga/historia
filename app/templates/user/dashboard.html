@@ -17,8 +17,9 @@
 			<i class='fa fa-angle-down'></i>
 		</a>
 		<ul class="dropdown-menu">
-			<li><a href="#">Profile</a></li>
-			<li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+			<li class="disabled"><a href="#">Profile</a></li>
+			<li class="disabled"><a href="#">Settings</a></li>
+			<li><a href="{{ url_for('auth.logout') }}">Sign Out</a></li>
 		</ul>
 	</li>
 {% endblock %}
