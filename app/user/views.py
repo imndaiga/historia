@@ -14,7 +14,7 @@ def dashboard(user):
        current_user.email.split('@')[0] == user:
         return render_template('user/dashboard.html',
                                user=user,
-                               panel_name='Dashboard')
+                               panel_name='Overview')
     flash('Please sign in to access profile.')
     return render_template('auth/welcome.html', form=EmailRememberMeForm())
 
@@ -40,6 +40,6 @@ def add_person(user):
         return render_template('user/add_person.html',
                                user=user,
                                form=form,
-                               panel_name='Add Person')
+                               panel_name='Relationships')
     flash('Please sign in to access profile.')
     return render_template('auth/welcome.html', form=EmailRememberMeForm())
