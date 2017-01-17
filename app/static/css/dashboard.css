@@ -1,4 +1,14 @@
 /*
+* Typography
+*/
+
+h1 {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/*
  * Sidebar
  */
 
@@ -37,11 +47,9 @@
 }
 
 /*
-* Main
+* Dash main content
 */
 
-.main {
-  padding-top: 50px;
-  padding-left: 50px;
-  max-width: 700px;
+.dash_main_content {
+  max-width: 900px;
 }

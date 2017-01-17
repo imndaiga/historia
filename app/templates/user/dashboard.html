@@ -31,12 +31,13 @@
 					<li class="nav-item"><a class="nav-link" href="#">Family Tree</a></li>
 				</ul>
 			</div>
-			<div class="col-xs-9 col-sm-7 col-md-8 col-sm-offset-3 col-md-offset-3 main">
-				{% block main_content %}
-					<h1> Dashboard </h1>
-					<hr>
-				{% endblock %}
-			</div>
+			<main class="col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2">
+			<h1>{{ panel_name }}</h1>
+				<section class="dash_main_content center-block">
+					{% block main_content %}
+					{% endblock %}
+				</section>
+			</main>
 		</div>
 	</div>
 {% endblock %}
