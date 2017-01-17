@@ -98,3 +98,6 @@ ENV/
 
 # Gpickle stuff
 *.gpickle
+
+# Sublime stuff
+*sublime*
