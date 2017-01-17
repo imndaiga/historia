@@ -7,7 +7,7 @@ from flask_login import login_required, current_user
 from . import user
 
 
-@user.route('/dashboard/<user>', methods=['GET', 'POST'])
+@user.route('/<user>/dashboard/overview', methods=['GET', 'POST'])
 @login_required
 def dashboard(user):
     if current_user.baptism_name == user or \
@@ -19,9 +19,9 @@ def dashboard(user):
     return render_template('auth/welcome.html', form=EmailRememberMeForm())
 
 
-@user.route('/dashboard/<user>/add_person', methods=['GET', 'POST'])
+@user.route('/<user>/dashboard/relationships', methods=['GET', 'POST'])
 @login_required
-def add_person(user):
+def relationships(user):
     if current_user.baptism_name == user or \
        current_user.email.split('@')[0] == user:
         form = AddPersonForm()
@@ -37,7 +37,7 @@ def add_person(user):
                 flash('Success!')
             else:
                 flash('Person Already Exists')
-        return render_template('user/add_person.html',
+        return render_template('user/relationships.html',
                                user=user,
                                form=form,
                                panel_name='Relationships')
