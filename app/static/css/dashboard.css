@@ -8,6 +8,10 @@ h1 {
   border-bottom: 1px solid #eee;
 }
 
+small {
+  padding-left: 5px;
+}
+
 /*
  * Sidebar
  */
