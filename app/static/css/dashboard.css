@@ -58,3 +58,11 @@ small {
 .dash_main_content {
   max-width: 900px;
 }
+
+/*
+* Alert messages
+*/
+
+.alert {
+  margin-top: 5px;
+}

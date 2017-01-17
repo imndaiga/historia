@@ -36,6 +36,12 @@
 				</ul>
 			</div>
 			<main class="col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2">
+			{% for message in get_flashed_messages() %}
+			<div class="alert alert-warning">
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+				{{ message }}
+			</div>
+			{% endfor %}
 			<h1>{{ panel_name }}</h1>
 				<section class="dash_main_content center-block">
 					{% block main_content %}
