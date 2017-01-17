@@ -5,7 +5,10 @@
 h1 {
   margin-bottom: 10px;
   padding-bottom: 10px;
+  padding-top: 10px;
   border-bottom: 1px solid #eee;
+  background-color: #F8F8F8;
+  text-indent: 50px;
 }
 
 small {
