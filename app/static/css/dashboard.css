@@ -71,6 +71,7 @@
 }
 
 .sub_menu_panel {
+  padding-bottom: 10px;
   margin-bottom: 20px;
   border-bottom: 1px solid #eee;
 }

@@ -1,12 +1,16 @@
 {% extends "/user/dashboard.html" %}
 
 {% block panel_menu %}
-	<div class="sub_menu_panel">
-		<ul class="nav nav-pills nav-justified" style="margin-bottom: 10px">
-			<li class="disabled"><a href="#"><i class="fa fa-users fa-lg"></i></a></li>
-			<li class="active"><a href="#"><i class="fa fa-user-plus fa-lg"></i></a></li>
-			<li class="disabled"><a href="#"><i class="fa fa-pencil-square fa-lg"></i></a></li>
-		</ul>
+	<div class="sub_menu_panel btn-group btn-group-justified">
+		<div class="col-md-4 col-sm-4 col-xs-4">
+			<button class="btn btn-info btn-lg btn-block disabled"><i class="fa fa-users fa-lg"></i></button>
+		</div>
+		<div class="col-md-4 col-sm-4 col-xs-4">
+			<button class="btn btn-primary btn-block btn-lg"><i class="fa fa-user-plus fa-lg"></i></button>
+		</div>
+		<div class="col-md-4 col-sm-4 col-xs-4">
+			<button class="btn btn-warning btn-lg btn-block disabled"><i class="fa fa-pencil-square fa-lg"></i></button>
+		</div>
 	</div>
 {% endblock %}
 
