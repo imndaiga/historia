@@ -13,7 +13,7 @@
 	<li class="dropdown active">
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 			<i class='fa fa-user-circle fa-lg'></i>
-			<small>{{user|capitalize}}</small>
+			<small class="nav_caption">{{user|capitalize}}</small>
 			<i class='fa fa-angle-down'></i>
 		</a>
 		<ul class="dropdown-menu">
@@ -28,28 +28,26 @@
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-sm-3 col-md-2 hidden-xs sidebar">
-				<ul class="nav nav-pills flex-column">
-					<li class="nav-item disabled"><a class="nav-link" href="{{ url_for('user.dashboard', user=user)}}"><h5>Overview</h5><span class="sr-only">(current)</span></a></li>
-					<li class="nav-item active"><a class="nav-link" href="{{ url_for('user.relationships', user=user)}}"><h5>Relationships</h5></a></li>
-					<li class="nav-item disabled"><a class="nav-link" href="#"><h5>Visualisation</h5></a></li>
-					<li class="nav-item disabled"><a class="nav-link" href="#"><h5>Share</h5></a></li>
+				<ul class="nav nav_sidebar">
+					<li class="nav-item disabled"><a href="{{ url_for('user.dashboard', user=user)}}"><h5>Overview</h5><span class="sr-only">(current)</span></a></li>
+					<li class="active"><a href="{{ url_for('user.relationships', user=user)}}"><h5>Relationships</h5></a></li>
+					<li class="disabled"><a href="#"><h5>Visualisation</h5></a></li>
+					<li class="disabled"><a href="#"><h5>Share</h5></a></li>
 				</ul>
 			</div>
-			<main class="col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2">
+			<div class="col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2 main">
+				<h1 class="panel_header">{{ panel_name }}</h1>
 				{% for message in get_flashed_messages() %}
 				<div class="alert alert-warning">
 					<button type="button" class="close" data-dismiss="alert">&times;</button>
 					{{ message }}
 				</div>
 				{% endfor %}
-				<h1>{{ panel_name }}</h1>
 				{% block panel_menu %}
 				{% endblock %}
-				<section class="dash_main_content center-block">
-					{% block main_content %}
-					{% endblock %}
-				</section>
-			</main>
+				{% block main_content %}
+				{% endblock %}
+			</div>
 		</div>
 	</div>
 {% endblock %}
