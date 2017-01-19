@@ -27,6 +27,8 @@ class Config:
     RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY')
     RECAPTCHA_DATA_ATTRS = {'size': 'normal'}
 
+    BOOTSTRAP_SERVE_LOCAL = True
+
     @staticmethod
     def init_app(app):
         pass
