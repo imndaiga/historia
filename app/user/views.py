@@ -7,39 +7,27 @@ from flask_login import login_required, current_user
 from . import user
 
 
-@user.route('/<user>/dashboard/overview', methods=['GET', 'POST'])
+@user.route('/<user>/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard(user):
     if current_user.baptism_name == user or \
        current_user.email.split('@')[0] == user:
-        return render_template('user/dashboard.html',
-                               user=user,
-                               panel_name='Overview')
-    flash('Please sign in to access profile.')
-    return render_template('auth/welcome.html', form=EmailRememberMeForm())
-
-
-@user.route('/<user>/dashboard/relationships', methods=['GET', 'POST'])
-@login_required
-def relationships(user):
-    if current_user.baptism_name == user or \
-       current_user.email.split('@')[0] == user:
-        form = AddPersonForm()
-        if form.validate_on_submit():
+        addRelationForm = AddPersonForm()
+        if addRelationForm.validate_on_submit():
             person_exists = Person.query.filter(and_(
-                baptism_name=form.baptism_name.data,
-                ethnic_name=form.ethnic_name.data,
-                surname=form.surname.data,
-                sex=form.sex.data,
-                dob=form.date_of_birth.data,
-                email=form.email.data)).first()
+                baptism_name=addRelationForm.baptism_name.data,
+                ethnic_name=addRelationForm.ethnic_name.data,
+                surname=addRelationForm.surname.data,
+                sex=addRelationForm.sex.data,
+                dob=addRelationForm.date_of_birth.data,
+                email=addRelationForm.email.data)).first()
             if person_exists:
                 flash('Success!')
             else:
                 flash('Person Already Exists')
-        return render_template('user/relationships.html',
+        return render_template('user/dashboard.html',
                                user=user,
-                               form=form,
+                               addRelationForm=addRelationForm,
                                panel_name='Relationships')
     flash('Please sign in to access profile.')
     return render_template('auth/welcome.html', form=EmailRememberMeForm())

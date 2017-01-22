@@ -46,7 +46,7 @@
 				</div>
 				{% endfor %}
 				<div>
-					<section data-bind="if: $root.chosenDashboardPanelId() == 'Relationships' ">
+					<section data-bind="visible: $root.chosenDashboardPanelId() == 'Relationships' ">
 						<div class="sub_menu_panel btn-group btn-group-justified" data-bind="foreach: $root.relationshipMenus">
 							<div class="col-md-4 col-sm-4 col-xs-4">
 								<button data-bind="css: { active: label == $root.chosenRelationshipMenuId() },
@@ -56,11 +56,11 @@
 								</button>
 							</div>
 						</div>
-					</section>
-					<section data-bind="if: $root.chosenRelationshipMenuId() == 'Add' ">
-						{% if form %}
-							{{ wtf.quick_form(form) }}
-						{% endif %}
+						<section data-bind="visible: $root.chosenRelationshipMenuId() == 'Add' ">
+							{% if addRelationForm %}
+								{{ wtf.quick_form(addRelationForm) }}
+							{% endif %}
+						</section>
 					</section>
 				</div>
 			</div>
