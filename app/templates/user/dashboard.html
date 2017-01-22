@@ -30,15 +30,15 @@
 			<div class="col-sm-3 col-md-2 hidden-xs sidebar">
 				<ul class="nav nav_sidebar" data-bind="foreach: dashboardPanels">
 					<li data-bind="attr: { class: label == $root.chosenDashboardPanelId() ? 'active' : 'inactive' },
-													click: $root.goToPanel">
-						<a data-bind="attr: { href: url }">
+										   click: $root.goToPanel">
+						<a href="#">
 							<h5><span data-bind="text: label"></span></h5>
 						</a>
 					</li>
 				</ul>
 			</div>
-			<div class="col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2 main">
-				<h1 class="panel_header">{{ panel_name }}</h1>
+			<div class="col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2 main" data-bind="with: dashboardPanels">
+				<h1 class="panel_header"><span data-bind="text: $root.chosenDashboardPanelId()"></span></h1>
 				{% for message in get_flashed_messages() %}
 				<div class="alert alert-warning">
 					<button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -46,20 +46,22 @@
 				</div>
 				{% endfor %}
 				<div>
-					<div class="sub_menu_panel btn-group btn-group-justified" data-bind="foreach: relationshipMenus">
-						<div class="col-md-4 col-sm-4 col-xs-4">
-							<button data-bind="css: { active: label == $root.chosenRelationshipMenuId() },
-											   attr: { class: classes },
-											   click: $root.goToMenu">
-								<i data-bind="attr: { class: icon }"></i>
-							</button>
+					<section data-bind="if: $root.chosenDashboardPanelId() == 'Relationships' ">
+						<div class="sub_menu_panel btn-group btn-group-justified" data-bind="foreach: $root.relationshipMenus">
+							<div class="col-md-4 col-sm-4 col-xs-4">
+								<button data-bind="css: { active: label == $root.chosenRelationshipMenuId() },
+												   attr: { class: classes },
+												   click: $root.goToMenu">
+									<i data-bind="attr: { class: icon }"></i>
+								</button>
+							</div>
 						</div>
-					</div>
-					<div>
+					</section>
+					<section data-bind="if: $root.chosenRelationshipMenuId() == 'Add' ">
 						{% if form %}
 							{{ wtf.quick_form(form) }}
 						{% endif %}
-					</div>
+					</section>
 				</div>
 			</div>
 		</div>

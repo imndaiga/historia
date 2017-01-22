@@ -19,10 +19,10 @@ function DashboardViewModel() {
 		edit: {label: 'Edit', icon: 'fa fa-pencil-square fa-lg', classes: 'btn btn-lg btn-warning btn-block'}
 	}
 	self.allPanelItems = {
-		overview: {label: 'Overview', url: "{{ url_for('user.dashboard', user=user) }}"},
-		relationship: {label: 'Relationships', url: "{{ url_for('user.relationships', user=user) }}"},
-		visualisation: {label: 'Visualisation', url: "#"},
-		share: {label: 'Share', url: "#"}
+		overview: {label: 'Overview'},
+		relationship: {label: 'Relationships'},
+		visualisation: {label: 'Visualisation'},
+		share: {label: 'Share'}
 	}
 	self.chosenRelationshipMenuId = ko.observable();
 	self.chosenDashboardPanelId = ko.observable();
@@ -43,12 +43,20 @@ function DashboardViewModel() {
 
 	// Behaviours
 	self.goToMenu = function(menu_item) {
-		self.chosenRelationshipMenuId(menu_item.label)
+		self.chosenRelationshipMenuId(menu_item.label);
 	};
 
 	self.goToPanel = function(panel) {
-		self.chosenDashboardPanelId(panel.label)
+		self.resetPanels()
+		self.chosenDashboardPanelId(panel.label);
 	};
+
+	self.resetPanels = function() {
+		self.chosenRelationshipMenuId(null);
+	};
+
+	// Show Overview panel by default
+	self.goToPanel(new PanelItem(self.allPanelItems.overview));
 
 };
 
