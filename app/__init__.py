@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_graphql import GraphQLView
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
@@ -34,12 +33,6 @@ def create_app(config_name):
     seed.init_app(app, auto=app.config['SEED_AUTO'] or True)
 
     # register app blueprints here
-    from .api_schema import schema
-    graphiql = app.config['MIMINANI_GRAPHIQL']
-    app.add_url_rule('/graphiql',
-                     view_func=GraphQLView.as_view('graphql',
-                                                   schema=schema,
-                                                   graphiql=graphiql))
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
