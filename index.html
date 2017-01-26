@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MIMINANI</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+  <link rel="stylesheet" href="static/css/styles.css">
+</head>
+<body>
+  <div id="app">
+
+    <app-navbar header="MIMINANI" :menus="menu_items"></app-navbar>
+    <app-sidebar :panels="panel_list"></app-sidebar>
+    <app-panel></app-panel>
+
+  </div>
+
+  <template id="app-navbar">
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#base_menu" aria_expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">{{header}}</a>
+        </div>
+        <div class="collapse navbar-collapse" id="base_menu">
+          <ul class="nav navbar-nav navbar-right">
+            <li :class="item.class" v-for="item in menus">
+              <a href="item.link" class="dropdown-toggle" data-toggle="dropdown" v-if="item.class.includes('dropdown')">
+                <i :class="item.icon"></i>
+                <small class="nav-menu-caption">{{item.caption}}</small>
+                <i class='fa fa-angle-down fa-lg'></i>
+              </a>
+              <a v-else :href="item.link">
+                <i :class="item.icon"></i>
+                <small class="hidden-md hidden-sm hidden-lg nav-menu-caption">
+                  {{item.caption}}
+                </small>
+              </a>
+              <ul class="dropdown-menu" v-if="item.dropdown.length > 0">
+                <li v-for="submenu in item.dropdown" :class="submenu.class">
+                  <a href="submenu.link">{{submenu.caption}}</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </template>
+
+  <template id="app-sidebar">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 hidden-xs sidebar">
+          <ul class="nav nav-sidebar">
+            <li v-for="panel in panels">
+              <a href="#"><h4>{{panel}}</h4></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="app-panel">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
+      <h1 class="panel-header"></h1>
+    </div>
+  </template>
+
+</body>
+<script src="static/js/script.js"></script>
+</html>
