@@ -32,7 +32,7 @@
         </div>
         <div class="collapse navbar-collapse" id="base_menu">
           <ul class="nav navbar-nav navbar-right">
-            <li :class="item.class" v-for="item in menus">
+            <li :class="item.class" v-for="item in menus" :title="item.reference">
               <a href="item.link" class="dropdown-toggle" data-toggle="dropdown" v-if="item.class.includes('dropdown')">
                 <i :class="item.icon"></i>
                 <small class="nav-menu-caption">{{item.caption}}</small>
@@ -75,7 +75,7 @@
       <h1 class="panel-header">{{header}}</h1>
       <div class="btn-group btn-group-justified panel-menu" v-if="panel_list.includes(header)">
         <div :class="menu.length" v-for="menu in menus" v-if="menu.panel == header">
-          <button :class="menu.class" :title="menu.caption">
+          <button :class="menu.class" :title="menu.reference">
             <i :class="menu.icon"></i>
           </button>
         </div>

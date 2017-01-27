@@ -54,21 +54,24 @@ var vm = new Vue({
 				icon: 'fa fa-info-circle fa-lg',
 				link: '#',
 				class: '',
-				dropdown: []
+				dropdown: [],
+				reference: 'Read more about the miminani project'
 			},
 			{
 				caption: 'Github',
 				icon: 'fa fa-github fa-lg',
 				link: 'http://github.com/squarenomad/miminani',
 				class: '',
-				dropdown: []
+				dropdown: [],
+				reference: 'View our open source code'
 			},
 			{
 				caption: 'Messages',
 				icon: 'fa fa-inbox fa-lg',
 				link: '#',
 				class: '',
-				dropdown: []
+				dropdown: [],
+				reference: 'Notifications and alerts'
 			},
 			{
 				caption: 'User',
@@ -91,28 +94,29 @@ var vm = new Vue({
 						link: '#',
 						class: ''
 					}
-				]
+				],
+				reference: 'Manage your profile'
 			}
 		],
-		current_view: 'Overview',
+		current_view: 'Relationships',
 		panel_menus: [
 			{
 				panel: 'Relationships',
-				caption: 'List',
+				reference: 'List all your relationships',
 				icon: 'fa fa-users fa-lg',
 				class: 'btn btn-lg btn-primary btn-block',
 				length: 'col-md-4 col-sm-4 col-xs-4'
 			},
 			{
 				panel: 'Relationships',
-				caption: 'Add',
+				reference: 'Add a relationship',
 				icon: 'fa fa-user-plus fa-lg',
 				class: 'btn btn-lg btn-info btn-block',
 				length: 'col-md-4 col-sm-4 col-xs-4'
 			},
 			{
 				panel: 'Relationships',
-				caption: 'Edit',
+				reference: 'Edit a relationship',
 				icon: 'fa fa-pencil-square fa-lg',
 				class: 'btn btn-lg btn-warning btn-block',
 				length: 'col-md-4 col-sm-4 col-xs-4'
