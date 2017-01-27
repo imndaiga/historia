@@ -13,8 +13,8 @@
   <div id="app">
 
     <app-navbar></app-navbar>
-    <app-sidebar></app-sidebar>
-    <app-panel :header="current_view"></app-panel>
+    <app-sidebar v-on:selected="updateView" :start_panel="current_view"></app-sidebar>
+    <component :is="current_view"></component>
 
   </div>
 
@@ -61,8 +61,8 @@
       <div class="row">
         <div class="col-sm-3 col-md-2 hidden-xs sidebar">
           <ul class="nav nav-sidebar">
-            <li v-for="panel in panels">
-              <a href="#"><h4>{{panel}}</h4></a>
+            <li :class="isPanelCurrent(panel)" v-for="panel in panels">
+              <a v-on:click="selected(panel)" href="#"><h4>{{panel}}</h4></a>
             </li>
           </ul>
         </div>
@@ -81,6 +81,22 @@
         </div>
       </div>
     </div>
+  </template>
+
+  <template id="relationships-panel">
+    <app-panel header='Relationships'></app-panel>
+  </template>
+
+  <template id="overview-panel">
+    <app-panel header='Overview'></app-panel>
+  </template>
+
+  <template id="visualisation-panel">
+    <app-panel header='Visualisation'></app-panel>
+  </template>
+
+  <template id="share-panel">
+    <app-panel header='Share'></app-panel>
   </template>
 
 </body>

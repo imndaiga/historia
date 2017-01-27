@@ -105,21 +105,63 @@ Vue.component('app-navbar', {
 
 Vue.component('app-sidebar', {
 	template: "#app-sidebar",
+	props: {
+		start_panel: {
+			type: String,
+			required: true
+		}
+	},
 	data: function() {
 		return {
 			panels: [
 				'Overview',
 				'Relationships',
 				'Visualisation',
-				'Share'
-		],
+				'Share',
+			],
+			current_panel: this.start_panel[0].toUpperCase() + this.start_panel.replace('-panel','').slice(1)
+		}
+	},
+	methods: {
+		selected: function(panel) {
+			this.current_panel = panel
+			this.$emit('selected', panel)
+		},
+		isPanelCurrent: function(panel) {
+			if (this.current_panel == panel) {
+				return 'active'
+			} else {
+				return 'inactive'
+			}
 		}
 	}
 });
 
+Vue.component('relationships-panel', {
+	template: '#relationships-panel'
+})
+
+Vue.component('overview-panel', {
+	template: '#overview-panel'
+})
+
+Vue.component('visualisation-panel', {
+	template: '#visualisation-panel'
+})
+
+Vue.component('share-panel', {
+	template: '#share-panel'
+})
+
 var vm = new Vue({
 	el: '#app',
 	data: {
-		current_view: 'Relationships'
+		current_view: 'overview-panel'
+	},
+	methods: {
+		updateView: function(panel_name) {
+			panel = panel_name.toLowerCase() + '-panel'
+			this.current_view = panel
+		}
 	}
 });
