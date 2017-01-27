@@ -12,9 +12,9 @@
 <body>
   <div id="app">
 
-    <app-navbar title="MIMINANI" :menus="menu_items"></app-navbar>
-    <app-sidebar :panels="panel_list"></app-sidebar>
-    <app-panel :header="current_view" :menus="panel_menus" :panel_list="receivedPanels"></app-panel>
+    <app-navbar></app-navbar>
+    <app-sidebar></app-sidebar>
+    <app-panel :header="current_view"></app-panel>
 
   </div>
 
@@ -73,7 +73,7 @@
   <template id="app-panel">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
       <h1 class="panel-header">{{header}}</h1>
-      <div class="btn-group btn-group-justified panel-menu" v-if="panel_list.includes(header)">
+      <div class="btn-group btn-group-justified panel-menu" v-if="receivedPanels.includes(header)">
         <div :class="menu.length" v-for="menu in menus" v-if="menu.panel == header">
           <button :class="menu.class" :title="menu.reference">
             <i :class="menu.icon"></i>
