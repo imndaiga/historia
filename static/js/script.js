@@ -1,11 +1,24 @@
 Vue.component('app-panel', {
-	template: '#app-panel'
+	template: '#app-panel',
+	props: {
+		header: {
+			type: String,
+			required: true
+		},
+		menus: {
+			type: Array
+		},
+		panel_list: {
+			type: Array,
+			required: true
+		}
+	}
 });
 
 Vue.component('app-navbar', {
 	template: '#app-navbar',
 	props: {
-		header: {
+		title: {
 			type: String,
 			required: true
 		},
@@ -80,6 +93,39 @@ var vm = new Vue({
 					}
 				]
 			}
+		],
+		current_view: 'Overview',
+		panel_menus: [
+			{
+				panel: 'Relationships',
+				caption: 'List',
+				icon: 'fa fa-users fa-lg',
+				class: 'btn btn-lg btn-primary btn-block',
+				length: 'col-md-4 col-sm-4 col-xs-4'
+			},
+			{
+				panel: 'Relationships',
+				caption: 'Add',
+				icon: 'fa fa-user-plus fa-lg',
+				class: 'btn btn-lg btn-info btn-block',
+				length: 'col-md-4 col-sm-4 col-xs-4'
+			},
+			{
+				panel: 'Relationships',
+				caption: 'Edit',
+				icon: 'fa fa-pencil-square fa-lg',
+				class: 'btn btn-lg btn-warning btn-block',
+				length: 'col-md-4 col-sm-4 col-xs-4'
+			}
 		]
+	},
+	computed: {
+		receivedPanels: function() {
+			for (i = 0; i < this.panel_menus.length; i++) {
+				var items = [];
+				items.push(this.panel_menus[i].panel)
+				return items
+			}
+		}
 	}
 });
