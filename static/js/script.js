@@ -14,6 +14,16 @@ Vue.component('base-app-panel', {
 
 Vue.component('app-navbar', {
 	template: '#app-navbar',
+	props: {
+		menu_state: {
+			type: Object,
+			required: true
+		},
+		open_submenu: {
+			type: String,
+			required: true
+		}
+	},
 	data: function() {
 		return {
 			title: 'MIMINANI',
@@ -68,6 +78,15 @@ Vue.component('app-navbar', {
 				}
 		],
 		}
+	},
+	methods: {
+		maindropdown: function() {
+			this.$emit('maindropdown')
+		},
+		subdropdown: function(menu) {
+			this.$emit('subdropdown', menu)
+			return false
+		}
 	}
 });
 
@@ -87,16 +106,16 @@ Vue.component('app-sidebar', {
 				'Visualisation',
 				'Share',
 			],
-			current_panel: this.start_panel[0].toUpperCase() + this.start_panel.replace('-panel','').slice(1)
+			active_panel: this.start_panel[0].toUpperCase() + this.start_panel.replace('-panel','').slice(1)
 		}
 	},
 	methods: {
 		selected: function(panel) {
-			this.current_panel = panel
+			this.active_panel = panel
 			this.$emit('selected', panel)
 		},
 		isPanelCurrent: function(panel) {
-			if (this.current_panel == panel) {
+			if (this.active_panel == panel) {
 				return 'active'
 			} else {
 				return 'inactive'
@@ -167,12 +186,24 @@ Vue.component('share-panel', {
 var vm = new Vue({
 	el: '#app',
 	data: {
-		current_view: 'overview-panel'
+		current_view: 'overview-panel',
+		dropdown_state: false,
+		open_submenu: '',
 	},
 	methods: {
 		updateView: function(panel_name) {
 			panel = panel_name.toLowerCase() + '-panel'
 			this.current_view = panel
+		},
+		toggleMenu: function() {
+			this.dropdown_state = !this.dropdown_state
+		},
+		toggleSubMenu: function(menu_name) {
+			if (this.open_submenu == menu_name) {
+				this.open_submenu = ''
+			} else {
+				this.open_submenu = menu_name
+			}
 		}
 	}
 });
