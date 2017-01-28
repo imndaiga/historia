@@ -186,25 +186,25 @@ var vm = new Vue({
 	el: '#app',
 	data: {
 		current_view: 'overview-panel',
-		dropdown_state: false,
-		open_submenu: '',
+		open_main_dropdown: false,
+		open_sub_dropdown_name: '',
 	},
 	methods: {
 		updateView: function(panel_name) {
 			panel = panel_name.toLowerCase() + '-panel'
 			this.current_view = panel
-			this.dropdown_state = false
-			this.open_submenu = ''
+			this.open_main_dropdown = false
+			this.open_sub_dropdown_name = ''
 		},
 		toggleMenu: function() {
-			this.dropdown_state = !this.dropdown_state
-			this.open_submenu = ''
+			this.open_main_dropdown = !this.open_main_dropdown
+			this.open_sub_dropdown_name = ''
 		},
 		toggleSubMenu: function(menu_name) {
-			if (this.open_submenu == menu_name) {
-				this.open_submenu = ''
+			if (this.open_sub_dropdown_name == menu_name) {
+				this.open_sub_dropdown_name = ''
 			} else {
-				this.open_submenu = menu_name
+				this.open_sub_dropdown_name = menu_name
 			}
 		}
 	}

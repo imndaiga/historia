@@ -12,7 +12,7 @@
 <body>
   <div id="app">
 
-    <app-navbar v-on:subdropdown="toggleSubMenu" :open_submenu="open_submenu" v-on:maindropdown="toggleMenu" :menu_state="{in : dropdown_state}"></app-navbar>
+    <app-navbar v-on:subdropdown="toggleSubMenu" :open_submenu="open_sub_dropdown_name" v-on:maindropdown="toggleMenu" :menu_state="{in : open_main_dropdown}"></app-navbar>
     <app-sidebar v-on:selected="updateView" :start_panel="current_view"></app-sidebar>
     <component :is="current_view"></component>
 
