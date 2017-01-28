@@ -85,7 +85,6 @@ Vue.component('app-navbar', {
 		},
 		subdropdown: function(menu) {
 			this.$emit('subdropdown', menu)
-			return false
 		}
 	}
 });
@@ -194,9 +193,12 @@ var vm = new Vue({
 		updateView: function(panel_name) {
 			panel = panel_name.toLowerCase() + '-panel'
 			this.current_view = panel
+			this.dropdown_state = false
+			this.open_submenu = ''
 		},
 		toggleMenu: function() {
 			this.dropdown_state = !this.dropdown_state
+			this.open_submenu = ''
 		},
 		toggleSubMenu: function(menu_name) {
 			if (this.open_submenu == menu_name) {
