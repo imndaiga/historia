@@ -70,11 +70,11 @@
     </div>
   </template>
 
-  <template id="app-panel">
+  <template id="base-app-panel">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
       <h1 class="panel-header">{{header}}</h1>
-      <div class="btn-group btn-group-justified panel-menu" v-if="receivedPanels.includes(header)">
-        <div :class="menu.length" v-for="menu in menus" v-if="menu.panel == header">
+      <div class="btn-group btn-group-justified panel-menu" v-if="menus.length > 0">
+        <div :class="menu.length" v-for="menu in menus">
           <button :class="menu.class" :title="menu.reference">
             <i :class="menu.icon"></i>
           </button>
@@ -84,19 +84,19 @@
   </template>
 
   <template id="relationships-panel">
-    <app-panel header='Relationships'></app-panel>
+    <base-app-panel :header=header :menus=menus></base-app-panel>
   </template>
 
   <template id="overview-panel">
-    <app-panel header='Overview'></app-panel>
+    <base-app-panel :header=header :menus=menus></base-app-panel>
   </template>
 
   <template id="visualisation-panel">
-    <app-panel header='Visualisation'></app-panel>
+    <base-app-panel :header=header :menus=menus></base-app-panel>
   </template>
 
   <template id="share-panel">
-    <app-panel header='Share'></app-panel>
+    <base-app-panel :header=header :menus=menus></base-app-panel>
   </template>
 
 </body>

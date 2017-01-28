@@ -1,45 +1,13 @@
-Vue.component('app-panel', {
-	template: '#app-panel',
+Vue.component('base-app-panel', {
+	template: '#base-app-panel',
 	props: {
 		header: {
 			type: String,
 			required: true
-		}
-	},
-	data: function() {
-		return {
-			menus: [
-				{
-					panel: 'Relationships',
-					reference: 'List all your relationships',
-					icon: 'fa fa-users fa-lg',
-					class: 'btn btn-lg btn-primary btn-block',
-					length: 'col-md-4 col-sm-4 col-xs-4'
-				},
-				{
-					panel: 'Relationships',
-					reference: 'Add a relationship',
-					icon: 'fa fa-user-plus fa-lg',
-					class: 'btn btn-lg btn-info btn-block',
-					length: 'col-md-4 col-sm-4 col-xs-4'
-				},
-				{
-					panel: 'Relationships',
-					reference: 'Edit a relationship',
-					icon: 'fa fa-pencil-square fa-lg',
-					class: 'btn btn-lg btn-warning btn-block',
-					length: 'col-md-4 col-sm-4 col-xs-4'
-				}
-			]
-		}
-	},
-	computed: {
-		receivedPanels: function() {
-			for (i = 0; i < this.menus.length; i++) {
-				var items = [];
-				items.push(this.menus[i].panel)
-				return items
-			}
+		},
+		menus: {
+			type: Array,
+			required: true
 		}
 	}
 });
@@ -138,19 +106,62 @@ Vue.component('app-sidebar', {
 });
 
 Vue.component('relationships-panel', {
-	template: '#relationships-panel'
+	template: '#relationships-panel',
+	data: function() {
+		return {
+			menus: [
+				{
+					reference: 'List all your relationships',
+					icon: 'fa fa-users fa-lg',
+					class: 'btn btn-lg btn-primary btn-block',
+					length: 'col-md-4 col-sm-4 col-xs-4'
+				},
+				{
+					reference: 'Add a relationship',
+					icon: 'fa fa-user-plus fa-lg',
+					class: 'btn btn-lg btn-info btn-block',
+					length: 'col-md-4 col-sm-4 col-xs-4'
+				},
+				{
+					reference: 'Edit a relationship',
+					icon: 'fa fa-pencil-square fa-lg',
+					class: 'btn btn-lg btn-warning btn-block',
+					length: 'col-md-4 col-sm-4 col-xs-4'
+				}
+			],
+			header: 'Relationships'
+		}
+	}
 })
 
 Vue.component('overview-panel', {
-	template: '#overview-panel'
+	template: '#overview-panel',
+	data: function() {
+		return {
+			menus: [],
+			header: 'Overview'
+		}
+	}
 })
 
 Vue.component('visualisation-panel', {
-	template: '#visualisation-panel'
+	template: '#visualisation-panel',
+	data: function() {
+		return {
+			menus: [],
+			header: 'Visualisation'
+		}
+	}
 })
 
 Vue.component('share-panel', {
-	template: '#share-panel'
+	template: '#share-panel',
+	data: function() {
+		return {
+			menus: [],
+			header: 'Share'
+		}
+	}
 })
 
 var vm = new Vue({
