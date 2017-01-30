@@ -8,6 +8,16 @@ Vue.component('panel-navbar', {
 		menus: {
 			type: Array,
 			required: true
+		},
+	},
+	data: function() {
+		return {
+			open_panel_menu: false
+		}
+	},
+	methods: {
+		togglePanelMenu: function() {
+			this.open_panel_menu = !this.open_panel_menu
 		}
 	}
 });

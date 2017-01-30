@@ -73,7 +73,21 @@
 
   <template id="panel-navbar">
     <div>
-      <h1 class="panel-header">{{header}}</h1>
+      <div class="row center-block hidden-xs panel-header">
+        <h1>{{header}}</h1>
+      </div>
+      <div class="dropdown" :class="{open : open_panel_menu}">
+        <button class="btn btn-default btn-lg btn-group-justified hidden-sm hidden-md hidden-lg button-header" v-on:click="togglePanelMenu">
+          <h3>{{header}}</h3>
+          <i class="fa fa-angle-down"></i>
+        </button>
+        <ul class="dropdown-menu hidden-sm hidden-md hidden-lg panel-dropdown">
+          <li><a class="text-center" href="#">Relationships</a></li>
+          <li><a class="text-center" href="#">Overview</a></li>
+          <li><a class="text-center" href="#">Visualisation</a></li>
+          <li><a class="text-center"href="#">Share</a></li>
+        </ul>
+      </div>
       <div class="btn-group btn-group-justified panel-menu" v-if="menus.length > 0">
         <div :class="menu.length" v-for="menu in menus">
           <button :class="menu.class" :title="menu.reference">
