@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html lan="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MIMINANI</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/vee-validate/2.0.0-beta.21/vee-validate.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
   <link rel="stylesheet" href="static/css/styles.css">
 </head>
+
 <body>
   <div id="app">
-
     <app-navbar v-on:subdropdown="toggleSubMenu" :open_submenu="open_sub_dropdown_name" v-on:maindropdown="toggleMenu" :menu_state="{in : open_main_dropdown}"></app-navbar>
     <app-sidebar v-on:selected="updateView" :start_panel="current_view"></app-sidebar>
     <component :is="current_view"></component>
-
   </div>
 
   <template id="app-navbar">
@@ -70,8 +71,8 @@
     </div>
   </template>
 
-  <template id="base-app-panel">
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
+  <template id="panel-navbar">
+    <div>
       <h1 class="panel-header">{{header}}</h1>
       <div class="btn-group btn-group-justified panel-menu" v-if="menus.length > 0">
         <div :class="menu.length" v-for="menu in menus">
@@ -84,21 +85,39 @@
   </template>
 
   <template id="relationships-panel">
-    <base-app-panel :header=header :menus=menus></base-app-panel>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
+      <panel-navbar :header=header :menus=menus></panel-navbar>
+      <div class="form" v-for="form in forms" v-if="form.inputs.length > 0">
+        <div v-for="input in form.inputs" :class="['form-group', {'has-error': errors.has(input.name) }]">
+          <label class="control-label">{{input.name}}</label>
+          <input :name=input.name :data-vv-name=input.name v-validate=input.validate class="form-control" type="text" :placeholder=input.placeholder>
+          <p class="text-danger" v-show=errors.has(input.name)>{{ errors.first(input.name) }}</p>
+        </div>
+        <button class="btn btn-default btn-lg btn-block">{{form.submit}}</button>
+      </div>
+    </div>
   </template>
 
   <template id="overview-panel">
-    <base-app-panel :header=header :menus=menus></base-app-panel>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
+      <panel-navbar :header=header :menus=menus :forms=forms></panel-navbar>
+    </div>
   </template>
 
   <template id="visualisation-panel">
-    <base-app-panel :header=header :menus=menus></base-app-panel>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
+      <panel-navbar :header=header :menus=menus :forms=forms></panel-navbar>
+    </div>
   </template>
 
   <template id="share-panel">
-    <base-app-panel :header=header :menus=menus></base-app-panel>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
+      <panel-navbar :header=header :menus=menus :forms=forms></panel-navbar>
+    </div>
   </template>
 
 </body>
+
 <script src="static/js/script.js"></script>
+
 </html>
