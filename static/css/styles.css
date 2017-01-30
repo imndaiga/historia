@@ -2,10 +2,12 @@
 * General
 */
 
-.nav-menu-caption {
-  padding-left: 10px;
-  margin-right: 5px;
-  small;
+.form-control {
+  margin-bottom: 15px;
+}
+
+.alert {
+  margin-top: 5px;
 }
 
 /*
@@ -76,9 +78,11 @@
 }
 
 /*
-* Alert messages
+* Navbar specific
 */
 
-.alert {
-  margin-top: 5px;
+.nav-menu-caption {
+  padding-left: 10px;
+  margin-right: 5px;
+  small;
 }
