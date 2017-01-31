@@ -1,0 +1,22 @@
+{
+  "name": "miminani_client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Official miminani client",
+  "main": "index.html",
+  "dependencies": {
+    "bootstrap-css-only": "^3.3.7",
+    "font-awesome": "^4.7.0",
+    "vee-validate": "^2.0.0-beta.21",
+    "vue": "^2.1.10"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "miminani"
+  ],
+  "author": "squarenomad",
+  "license": "MIT"
+}
