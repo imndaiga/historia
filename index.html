@@ -15,7 +15,7 @@
 <body>
   <div id="app">
     <app-navbar v-on:subdropdown="toggleSubMenu" :open_submenu="open_sub_dropdown_name" v-on:maindropdown="toggleMenu" :menu_state="{in : open_main_dropdown}"></app-navbar>
-    <app-sidebar v-on:selected="updateView" :start_panel="current_view" :panels="allPanelNames"></app-sidebar>
+    <app-sidebar :current_panel="current_view" :panels="allPanelNames"></app-sidebar>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
       <panel-navbar :current_panel="current_view" :button_menus="currentPanelMenus" :dropdown_menu="allPanelNames"></panel-navbar>
       <form-pane :forms=currentPanelForms></form-pane>
@@ -65,7 +65,7 @@
       <div class="row">
         <div class="col-sm-3 col-md-2 hidden-xs sidebar">
           <ul class="nav nav-sidebar">
-            <li :class="isPanelCurrent(panel)" v-for="panel in panels">
+            <li :class="{active: panel == current_panel}" v-for="panel in panels">
               <a v-on:click="selected(panel)" href="#"><h4>{{panel}}</h4></a>
             </li>
           </ul>
@@ -85,7 +85,7 @@
           <i class="fa fa-angle-down"></i>
         </button>
         <ul class="dropdown-menu hidden-sm hidden-md hidden-lg panel-dropdown">
-          <li v-for="menu in dropdown_menu"><a class="text-center" href="#">{{menu}}</a></li>
+          <li v-for="menu in dropdown_menu" :class="{active: menu == current_panel}"><a v-on:click="selected(menu)" class="text-center" href="#">{{menu}}</a></li>
         </ul>
       </div>
       <div class="btn-group btn-group-justified panel-menu" v-if="button_menus.length > 0">

@@ -22,6 +22,10 @@ Vue.component('panel-navbar', {
 	methods: {
 		togglePanelMenu: function() {
 			this.open_panel_menu = !this.open_panel_menu
+		},
+		selected: function(panel) {
+			this.open_panel_menu = false
+			bus.$emit('selected', panel)
 		}
 	}
 })
@@ -106,7 +110,7 @@ Vue.component('app-navbar', {
 Vue.component('app-sidebar', {
 	template: "#app-sidebar",
 	props: {
-		start_panel: {
+		current_panel: {
 			type: String,
 			required: true
 		},
@@ -115,22 +119,9 @@ Vue.component('app-sidebar', {
 			required: true
 		}
 	},
-	data: function() {
-		return {
-			active_panel: this.start_panel
-		}
-	},
 	methods: {
 		selected: function(panel) {
-			this.active_panel = panel
-			this.$emit('selected', panel)
-		},
-		isPanelCurrent: function(panel) {
-			if (this.active_panel == panel) {
-				return 'active'
-			} else {
-				return 'inactive'
-			}
+			bus.$emit('selected', panel)
 		}
 	}
 })
@@ -155,6 +146,8 @@ Vue.component('form-pane', {
 })
 
 Vue.use(VeeValidate);
+
+var bus = new Vue()
 
 var vm = new Vue({
 	el: '#app',
@@ -216,11 +209,6 @@ var vm = new Vue({
 		]
 	},
 	methods: {
-		updateView: function(panel_name) {
-			this.current_view = panel_name
-			this.open_main_dropdown = false
-			this.open_sub_dropdown_name = ''
-		},
 		toggleMenu: function() {
 			this.open_main_dropdown = !this.open_main_dropdown
 			this.open_sub_dropdown_name = ''
@@ -255,5 +243,12 @@ var vm = new Vue({
 				}
 			}
 		}
+	},
+	created: function() {
+		bus.$on('selected', function(panel) {
+			this.current_view = panel
+			this.open_main_dropdown = false
+			this.open_sub_dropdown_name = ''
+		}.bind(this))
 	}
 })
