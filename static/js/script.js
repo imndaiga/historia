@@ -142,6 +142,15 @@ Vue.component('form-pane', {
 			type: Array,
 			required: true
 		}
+	},
+	methods: {
+		validateAll: function() {
+			this.$validator.validateAll().then(function(result) {
+				alert('Form Submitted')
+			}).catch(function(failure) {
+				alert('Please correct form details')
+			})
+		}
 	}
 })
 
@@ -183,10 +192,10 @@ var vm = new Vue({
 					{
 						parent_menu: 'Add Relationships',
 						inputs: [
-							{ placeholder: 'JohnOlooDoe@gmail.com', validate: "email" , name: 'Email'},
-							{ placeholder: 'John', validate: "alpha" , name: 'First Name'},
-							{ placeholder: 'Oloo', validate: "alpha" , name: 'Ethnic Name'},
-							{ placeholder: 'Doe', validate: "alpha" , name: 'Last Name'}
+							{ placeholder: 'JohnOlooDoe@gmail.com', validate: "email" , name: 'Email', type: 'email'},
+							{ placeholder: 'John', validate: "required|alpha" , name: 'First Name', type: 'alpha'},
+							{ placeholder: 'Oloo', validate: "required|alpha" , name: 'Ethnic Name', type: 'alpha'},
+							{ placeholder: 'Doe', validate: "required|alpha" , name: 'Last Name', type: 'alpha'}
 						],
 						submit: 'Add'
 					}

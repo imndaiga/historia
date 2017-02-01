@@ -100,13 +100,13 @@
 
   <template id="form-pane">
     <div>
-        <form v-for="form in forms" v-if="form.inputs.length > 0">
+        <form v-for="form in forms" v-if="form.inputs.length > 0" v-on:submit.prevent="validateAll">
           <div v-for="input in form.inputs" :class="['form-group', {'has-error': errors.has(input.name) }]">
             <label class="control-label">{{input.name}}</label>
             <input :name=input.name :data-vv-name=input.name v-validate=input.validate class="form-control" type="text" :placeholder=input.placeholder>
             <p class="text-danger" v-show=errors.has(input.name)>{{ errors.first(input.name) }}</p>
           </div>
-          <button class="btn btn-default btn-lg btn-block">{{form.submit}}</button>
+          <button type="submit" class="btn btn-default btn-lg btn-block">{{form.submit}}</button>
         </form>
     </div>
   </template>
