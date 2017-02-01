@@ -14,7 +14,7 @@
 
 <body>
   <div id="app">
-    <app-navbar v-on:subdropdown="toggleSubMenu" :open_submenu="open_sub_dropdown_name" v-on:maindropdown="toggleMenu" :menu_state="{in : open_main_dropdown}"></app-navbar>
+    <app-navbar v-on:subdropdown="toggleSubMenu" :open_submenu="open_sub_dropdown_name" v-on:maindropdown="toggleMenu" :nav_state="{in : open_main_dropdown}" :title="title" :nav_menus="nav_menus"></app-navbar>
     <app-sidebar :current_panel="current_view" :panels="allPanelNames"></app-sidebar>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
       <panel-navbar :current_panel_view="current_panel_view" :current_panel="current_view" :button_menus="currentPanelMenus" :dropdown_menu="allPanelNames"></panel-navbar>
@@ -34,9 +34,9 @@
           </button>
           <a class="navbar-brand" href="#">{{title}}</a>
         </div>
-        <div class="collapse navbar-collapse" :class="menu_state">
+        <div class="collapse navbar-collapse" :class="nav_state">
           <ul class="nav navbar-nav navbar-right">
-            <li :class="[item.class, {'open': item.caption == open_submenu}]" v-for="item in menus" :title="item.reference">
+            <li :class="[item.class, {'open': item.caption == open_submenu}]" v-for="item in nav_menus" :title="item.reference">
               <a :href="item.link" class="dropdown-toggle" v-on:click="subdropdown(item.caption)" v-if="item.class.includes('dropdown')">
                 <i :class="item.icon"></i>
                 <small class="nav-menu-caption">{{item.caption}}</small>
