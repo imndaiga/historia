@@ -12,6 +12,10 @@ Vue.component('panel-navbar', {
 		dropdown_menu: {
 			type: Array,
 			required: true
+		},
+		current_panel_view: {
+			type: String,
+			required: true
 		}
 	},
 	data: function() {
@@ -23,9 +27,13 @@ Vue.component('panel-navbar', {
 		togglePanelMenu: function() {
 			this.open_panel_menu = !this.open_panel_menu
 		},
-		selected: function(panel) {
+		panelSelected: function(panel) {
 			this.open_panel_menu = false
-			bus.$emit('selected', panel)
+			bus.$emit('panel-selected', panel)
+		},
+		panelViewSelected: function(panel_view) {
+			this.open_panel_menu = false
+			bus.$emit('panel-view-selected', panel_view)
 		}
 	}
 })
@@ -120,8 +128,8 @@ Vue.component('app-sidebar', {
 		}
 	},
 	methods: {
-		selected: function(panel) {
-			bus.$emit('selected', panel)
+		panelSelected: function(panel) {
+			bus.$emit('panel-selected', panel)
 		}
 	}
 })
@@ -129,8 +137,8 @@ Vue.component('app-sidebar', {
 Vue.component('form-pane', {
 	template: '#form-pane',
 	props: {
-		forms : {
-			type: Array,
+		form : {
+			type: Object,
 			required: true
 		}
 	},
@@ -153,6 +161,7 @@ var vm = new Vue({
 	el: '#app',
 	data: {
 		current_view: 'Relationships',
+		current_panel_view: 'Add Relationships',
 		open_main_dropdown: false,
 		open_sub_dropdown_name: '',
 		panels: [
@@ -181,9 +190,10 @@ var vm = new Vue({
 						length: 'col-md-4 col-sm-4 col-xs-4'
 					}
 				],
-				forms: [
+				views: [
 					{
-						parent_menu: 'Add Relationships',
+						type: 'Form',
+						name: 'Add Relationships',
 						inputs: [
 							{ placeholder: 'JohnOlooDoe@gmail.com', validate: "email" , name: 'Email', type: 'email'},
 							{ placeholder: 'John', validate: "required|alpha" , name: 'First Name', type: 'alpha'},
@@ -196,15 +206,15 @@ var vm = new Vue({
 			},{
 				name: 'Overview',
 				menus: [],
-				forms: []
+				views: []
 			},{
 				name: 'Visualisation',
 				menus: [],
-				forms: []
+				views: []
 			},{
 				name: 'Share',
 				menus: [],
-				forms: []
+				views: []
 			}
 		]
 	},
@@ -218,6 +228,32 @@ var vm = new Vue({
 				this.open_sub_dropdown_name = ''
 			} else {
 				this.open_sub_dropdown_name = menu_name
+			}
+		},
+		navigateAllowed: function(current_view, current_panel_view) {
+			for (i=0; i<this.panels.length; i++) {
+				if (this.panels[i].name == current_view) {
+					for (j=0; j<this.panels[i].views.length; j++) {
+						if (this.panels[i].views[j].name == current_panel_view) {
+							return true
+						} else {
+							return false
+						}
+					}
+				}
+			}
+		},
+		getPanelViewForm: function(current_panel_view) {
+			for (i=0; i < this.panels.length; i++) {
+				if (this.panels[i].name == this.current_view) {
+					for (j=0; j<this.panels[i].views.length; j++) {
+						if (this.panels[i].views[j].name == current_panel_view) {
+							return this.panels[i].views[j]
+						} else {
+							return null
+						}
+					}
+				}
 			}
 		}
 	},
@@ -236,19 +272,28 @@ var vm = new Vue({
 				}
 			}
 		},
-		currentPanelForms: function() {
+		panelForms: function() {
 			for (i=0; i < this.panels.length; i++) {
 				if (this.panels[i].name == this.current_view) {
-					return this.panels[i].forms
+					for (j=0; j<this.panels[i].views.length; j++) {
+						if (this.panels[i].views[j].type == 'Form') {
+							return this.panels[i].views[j]
+						} else {
+							return null
+						}
+					}
 				}
 			}
 		}
 	},
 	created: function() {
-		bus.$on('selected', function(panel) {
+		bus.$on('panel-selected', function(panel) {
 			this.current_view = panel
 			this.open_main_dropdown = false
 			this.open_sub_dropdown_name = ''
+		}.bind(this)),
+		bus.$on('panel-view-selected', function(panel_view) {
+			this.current_panel_view = panel_view
 		}.bind(this))
 	}
 })

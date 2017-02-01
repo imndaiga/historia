@@ -17,8 +17,8 @@
     <app-navbar v-on:subdropdown="toggleSubMenu" :open_submenu="open_sub_dropdown_name" v-on:maindropdown="toggleMenu" :menu_state="{in : open_main_dropdown}"></app-navbar>
     <app-sidebar :current_panel="current_view" :panels="allPanelNames"></app-sidebar>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
-      <panel-navbar :current_panel="current_view" :button_menus="currentPanelMenus" :dropdown_menu="allPanelNames"></panel-navbar>
-      <form-pane :forms=currentPanelForms></form-pane>
+      <panel-navbar :current_panel_view="current_panel_view" :current_panel="current_view" :button_menus="currentPanelMenus" :dropdown_menu="allPanelNames"></panel-navbar>
+      <form-pane v-if="navigateAllowed(current_view, current_panel_view)" :form=getPanelViewForm(current_panel_view)></form-pane>
     </div>
   </div>
 
@@ -36,7 +36,7 @@
         </div>
         <div class="collapse navbar-collapse" :class="menu_state">
           <ul class="nav navbar-nav navbar-right">
-            <li :class="[item.class, {open: item.caption == open_submenu}]" v-for="item in menus" :title="item.reference">
+            <li :class="[item.class, {'open': item.caption == open_submenu}]" v-for="item in menus" :title="item.reference">
               <a :href="item.link" class="dropdown-toggle" v-on:click="subdropdown(item.caption)" v-if="item.class.includes('dropdown')">
                 <i :class="item.icon"></i>
                 <small class="nav-menu-caption">{{item.caption}}</small>
@@ -66,7 +66,7 @@
         <div class="col-sm-3 col-md-2 hidden-xs sidebar">
           <ul class="nav nav-sidebar">
             <li :class="{active: panel == current_panel}" v-for="panel in panels">
-              <a v-on:click="selected(panel)" href="#"><h4>{{panel}}</h4></a>
+              <a v-on:click="panelSelected(panel)" href="#"><h4>{{panel}}</h4></a>
             </li>
           </ul>
         </div>
@@ -85,13 +85,13 @@
           <i class="fa fa-angle-down"></i>
         </button>
         <ul class="dropdown-menu hidden-sm hidden-md hidden-lg panel-dropdown">
-          <li v-for="menu in dropdown_menu" :class="{active: menu == current_panel}"><a v-on:click="selected(menu)" class="text-center" href="#">{{menu}}</a></li>
+          <li v-for="menu in dropdown_menu" :class="{'active': menu == current_panel}"><a v-on:click="panelSelected(menu)" class="text-center" href="#">{{menu}}</a></li>
         </ul>
       </div>
       <div class="btn-group btn-group-justified panel-menu" v-if="button_menus.length > 0">
-        <div :class="menu.length" v-for="menu in button_menus">
-          <button :class="menu.class" :title="menu.reference">
-            <i :class="menu.icon"></i>
+        <div :class="panel_menu.length" v-for="panel_menu in button_menus">
+          <button :class="[panel_menu.class, {'active': panel_menu.name == current_panel_view}]" :title="panel_menu.reference" v-on:click="panelViewSelected(panel_menu.name)">
+            <i :class="panel_menu.icon"></i>
           </button>
         </div>
       </div>
@@ -100,7 +100,7 @@
 
   <template id="form-pane">
     <div>
-        <form v-for="form in forms" v-if="form.inputs.length > 0" v-on:submit.prevent="validateAll">
+        <form v-on:submit.prevent="validateAll">
           <div v-for="input in form.inputs" :class="['form-group', {'has-error': errors.has(input.name) }]">
             <label class="control-label">{{input.name}}</label>
             <input :name=input.name :data-vv-name=input.name v-validate=input.validate class="form-control" type="text" :placeholder=input.placeholder>
