@@ -107,6 +107,16 @@ Vue.component('form-pane', {
 	}
 })
 
+Vue.component('table-pane', {
+	template: '#table-pane',
+	props: {
+		list: {
+			type: Object,
+			required: true
+		}
+	}
+})
+
 Vue.use(VeeValidate);
 
 var bus = new Vue()
@@ -115,11 +125,15 @@ var vm = new Vue({
 	el: '#app',
 	data: {
 		current_view: 'Relationships',
-		current_panel_view: 'Add Relationships',
+		current_panel_view: 'List Relationships',
 		open_main_dropdown: false,
 		open_sub_dropdown_name: '',
 		panels: [
 			{
+				name: 'Overview',
+				menus: [],
+				views: []
+			},{
 				name: 'Relationships',
 				menus: [
 					{
@@ -155,12 +169,17 @@ var vm = new Vue({
 							{ placeholder: 'Doe', validate: "required|alpha" , name: 'Last Name', type: 'alpha'}
 						],
 						submit: 'Add'
+					},
+					{
+						type: 'Table',
+						name: 'List Relationships',
+						data: [
+							{first_name: 'John', baptism_name: 'Charles', ethnic_name: 'Mwaura', last_name: 'Ndungu', relation_name: 'Father'},
+							{first_name: 'Jane', baptism_name: 'Christine', ethnic_name: 'Moraa', last_name: 'Ndungu', relation_name: 'Mother'},
+							{first_name: 'Jack', baptism_name: 'Christian', ethnic_name: 'Mutuku', last_name: 'Ndungu', relation_name: 'Brother'},
+						]
 					}
 				]
-			},{
-				name: 'Overview',
-				menus: [],
-				views: []
 			},{
 				name: 'Visualisation',
 				menus: [],
@@ -235,27 +254,27 @@ var vm = new Vue({
 				this.open_sub_dropdown_name = menu_name
 			}
 		},
-		navigateAllowed: function(current_view, current_panel_view) {
-			for (i=0; i<this.panels.length; i++) {
-				if (this.panels[i].name == current_view) {
-					for (j=0; j<this.panels[i].views.length; j++) {
-						if (this.panels[i].views[j].name == current_panel_view) {
-							return true
-						} else {
-							return false
+		navigateAllowed: function(current_view, current_panel_view, view_type_list) {
+			if (view_type_list.indexOf(current_panel_view) != -1) {
+				for (i=0; i<this.panels.length; i++) {
+					if (this.panels[i].name == current_view) {
+						for (j=0; j<this.panels[i].views.length; j++) {
+							if (this.panels[i].views[j].name == current_panel_view) {
+								return true
+							}
 						}
+						return false
 					}
 				}
 			}
+			return false
 		},
-		getPanelViewForm: function(current_panel_view) {
+		getPanelView: function(current_panel_view) {
 			for (i=0; i < this.panels.length; i++) {
 				if (this.panels[i].name == this.current_view) {
 					for (j=0; j<this.panels[i].views.length; j++) {
 						if (this.panels[i].views[j].name == current_panel_view) {
 							return this.panels[i].views[j]
-						} else {
-							return null
 						}
 					}
 				}
@@ -277,18 +296,31 @@ var vm = new Vue({
 				}
 			}
 		},
-		panelForms: function() {
+		formViews: function() {
+			view_type_list = []
 			for (i=0; i < this.panels.length; i++) {
 				if (this.panels[i].name == this.current_view) {
 					for (j=0; j<this.panels[i].views.length; j++) {
 						if (this.panels[i].views[j].type == 'Form') {
-							return this.panels[i].views[j]
-						} else {
-							return null
+							view_type_list.push(this.panels[i].views[j].name)
 						}
 					}
 				}
 			}
+			return view_type_list
+		},
+		tableViews: function() {
+			view_type_list = []
+			for (i=0; i < this.panels.length; i++) {
+				if (this.panels[i].name == this.current_view) {
+					for (j=0; j<this.panels[i].views.length; j++) {
+						if (this.panels[i].views[j].type == 'Table') {
+							view_type_list.push(this.panels[i].views[j].name)
+						}
+					}
+				}
+			}
+			return view_type_list
 		}
 	},
 	created: function() {

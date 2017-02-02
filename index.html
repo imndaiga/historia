@@ -18,7 +18,8 @@
     <app-sidebar :current_panel="current_view" :panels="allPanelNames"></app-sidebar>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
       <panel-navbar :current_panel_view="current_panel_view" :current_panel="current_view" :button_menus="currentPanelMenus" :dropdown_menu="allPanelNames"></panel-navbar>
-      <form-pane v-if="navigateAllowed(current_view, current_panel_view)" :form=getPanelViewForm(current_panel_view)></form-pane>
+      <form-pane v-if="navigateAllowed(current_view, current_panel_view, formViews)" :form=getPanelView(current_panel_view)></form-pane>
+      <table-pane v-if="navigateAllowed(current_view, current_panel_view, tableViews)" :list=getPanelView(current_panel_view)></table-pane>
     </div>
   </div>
 
@@ -109,6 +110,29 @@
           <button type="submit" class="btn btn-default btn-lg btn-block">{{form.submit}}</button>
         </form>
     </div>
+  </template>
+
+  <template id="table-pane">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Baptism Name</th>
+          <th>Ethnic Name</th>
+          <th>Last Name</th>
+          <th>Relation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="relation in list.data">
+          <td>{{ relation.first_name }}</td>
+          <td>{{ relation.baptism_name }}</td>
+          <td>{{ relation.ethnic_name }}</td>
+          <td>{{ relation.last_name }}</td>
+          <td>{{ relation.relation_name }}</td>
+        </tr>
+      </tbody>
+    </table>
   </template>
 
 </body>
