@@ -113,6 +113,10 @@ Vue.component('table-pane', {
 		list: {
 			type: Object,
 			required: true
+		},
+		table_headers: {
+			type: Array,
+			required: true
 		}
 	}
 })
@@ -279,6 +283,28 @@ var vm = new Vue({
 					}
 				}
 			}
+		},
+		getTableHeaders: function(current_panel_view) {
+			headers = []
+			for (i=0; i < this.panels.length; i++) {
+				if (this.panels[i].name == this.current_view) {
+					for (j=0; j<this.panels[i].views.length; j++) {
+						if (this.panels[i].views[j].name == current_panel_view) {
+							if (this.panels[i].views[j].type == 'Table') {
+								for (k=0; k<this.panels[i].views[j].data.length; k++) {
+									row_headers = Object.keys(this.panels[i].views[j].data[k])
+									for (l=0; l<row_headers.length; l++) {
+										if (headers.indexOf(row_headers[l]) == -1) {
+											headers.push(row_headers[l])
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			return headers
 		}
 	},
 	computed: {
