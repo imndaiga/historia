@@ -114,24 +114,26 @@
   </template>
 
   <template id="table-pane">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th v-for="header in table_headers">{{header}}</th>
-          <th v-once>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="relation in list.data">
-          <td>{{ relation.first_name }}</td>
-          <td>{{ relation.baptism_name }}</td>
-          <td>{{ relation.ethnic_name }}</td>
-          <td>{{ relation.last_name }}</td>
-          <td>{{ relation.relation_name }}</td>
-          <td><button v-on:click="openRelation(relation.id)" class="btn btn-primary btn-xs"><i class="fa fa-pencil-square-o"></i>  Edit</button></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th v-for="header in table_headers">{{header}}</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="relation in list.data">
+            <td>{{ relation.first_name }}</td>
+            <td>{{ relation.baptism_name }}</td>
+            <td>{{ relation.ethnic_name }}</td>
+            <td>{{ relation.last_name }}</td>
+            <td>{{ relation.relation_name }}</td>
+            <td><button v-on:click="openRelation(relation.id)" class="btn btn-primary btn-xs"><i class="fa fa-pencil-square-o"></i>  Edit</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </template>
 
   <template id="modal-window">
