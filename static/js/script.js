@@ -358,5 +358,33 @@ var vm = new Vue({
 		bus.$on('panel-view-selected', function(panel_view) {
 			this.current_panel_view = panel_view
 		}.bind(this))
+	},
+	filters: {
+		capitalize : function(value) {
+			if (!value) return ''
+			if (typeof value == "object") {
+				cap_array = []
+				for (i=0; i<value.length; i++) {
+					new_value = value[i].charAt(0).toUpperCase() + value[i].slice(1)
+					cap_array.push(new_value)
+				}
+			return cap_array
+			}
+			value = value.toString()
+			return value.charAt(0).toUpperCase() + value.slice(1)
+		},
+		spacereplace: function(value) {
+			if (!value) return ''
+			if (typeof value == "object") {
+				spaced_array = []
+				for (i=0; i<value.length; i++) {
+					new_value = value[i].toString().replace('_',' ')
+					spaced_array.push(new_value)
+				}
+			return spaced_array
+			}
+			value = value.toString()
+			return value.charAt(0).toUpperCase() + value.slice(1)
+		}
 	}
 })

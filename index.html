@@ -19,7 +19,7 @@
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
       <panel-navbar :current_panel_view="current_panel_view" :current_panel="current_view" :button_menus="currentPanelMenus" :dropdown_menu="allPanelNames"></panel-navbar>
       <form-pane v-if="navigateAllowed(current_view, current_panel_view, formViews)" :form="getPanelView(current_panel_view)"></form-pane>
-      <table-pane v-if="navigateAllowed(current_view, current_panel_view, tableViews)" :list="getPanelView(current_panel_view)" :table_headers="getTableHeaders(current_panel_view)"></table-pane>
+      <table-pane v-if="navigateAllowed(current_view, current_panel_view, tableViews)" :list="getPanelView(current_panel_view)" :table_headers="getTableHeaders(current_panel_view) | spacereplace |capitalize"></table-pane>
     </div>
   </div>
 
