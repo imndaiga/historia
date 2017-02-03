@@ -19,7 +19,8 @@
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
       <panel-navbar :current_panel_view="current_panel_view" :current_panel="current_view" :button_menus="currentPanelMenus" :dropdown_menu="allPanelNames"></panel-navbar>
       <form-pane v-if="navigateAllowed(current_view, current_panel_view, formViews)" :form="getPanelView(current_panel_view)"></form-pane>
-      <table-pane v-if="navigateAllowed(current_view, current_panel_view, tableViews)" :list="getPanelView(current_panel_view)" :table_headers="getTableHeaders(current_panel_view) | spacereplace |capitalize"></table-pane>
+      <table-pane v-if="navigateAllowed(current_view, current_panel_view, tableViews)" :list="getPanelView(current_panel_view)" :table_headers="getTableHeaders(current_panel_view) | spacereplace | capitalize"></table-pane>
+      <modal-window v-if="open_modal_state" :class="{in : open_modal_relationship_id != ''}" :style="{display: 'block'}"></modal-window>
     </div>
   </div>
 
@@ -117,6 +118,7 @@
       <thead>
         <tr>
           <th v-for="header in table_headers">{{header}}</th>
+          <th v-once>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -126,9 +128,29 @@
           <td>{{ relation.ethnic_name }}</td>
           <td>{{ relation.last_name }}</td>
           <td>{{ relation.relation_name }}</td>
+          <td><button v-on:click="openRelation(relation.id)" class="btn btn-primary btn-xs"><i class="fa fa-pencil-square-o"></i>  Edit</button></td>
         </tr>
       </tbody>
     </table>
+  </template>
+
+  <template id="modal-window">
+    <div class="modal modal-mask">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Modal title</h4>
+          </div>
+          <div class="modal-body">
+            ...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </template>
 
 </body>

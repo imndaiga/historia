@@ -118,6 +118,20 @@ Vue.component('table-pane', {
 			type: Array,
 			required: true
 		}
+	},
+	methods: {
+		openRelation: function(relation_id) {
+			bus.$emit('open-relation-modal', relation_id)
+		}
+	}
+})
+
+Vue.component('modal-window', {
+	template: '#modal-window',
+	methods: {
+		closeModal: function() {
+			bus.$emit('close-modal')
+		}
 	}
 })
 
@@ -132,6 +146,8 @@ var vm = new Vue({
 		current_panel_view: 'List Relationships',
 		open_main_dropdown: false,
 		open_sub_dropdown_name: '',
+		open_modal_state: false,
+		open_modal_relationship_id: '',
 		panels: [
 			{
 				name: 'Overview',
@@ -145,21 +161,14 @@ var vm = new Vue({
 						reference: 'List all your relationships',
 						icon: 'fa fa-users fa-lg',
 						class: 'btn btn-lg btn-primary btn-block',
-						length: 'col-md-4 col-sm-4 col-xs-4'
+						length: 'col-md-6 col-sm-6 col-xs-6'
 					},
 					{
 						name: 'Add Relationships',
 						reference: 'Add a relationship',
 						icon: 'fa fa-user-plus fa-lg',
 						class: 'btn btn-lg btn-info btn-block',
-						length: 'col-md-4 col-sm-4 col-xs-4'
-					},
-					{
-						name: 'Edit Relationships',
-						reference: 'Edit a relationship',
-						icon: 'fa fa-pencil-square fa-lg',
-						class: 'btn btn-lg btn-warning btn-block',
-						length: 'col-md-4 col-sm-4 col-xs-4'
+						length: 'col-md-6 col-sm-6 col-xs-6'
 					}
 				],
 				views: [
@@ -178,9 +187,9 @@ var vm = new Vue({
 						type: 'Table',
 						name: 'List Relationships',
 						data: [
-							{first_name: 'John', baptism_name: 'Charles', ethnic_name: 'Mwaura', last_name: 'Ndungu', relation_name: 'Father'},
-							{first_name: 'Jane', baptism_name: 'Christine', ethnic_name: 'Moraa', last_name: 'Ndungu', relation_name: 'Mother'},
-							{first_name: 'Jack', baptism_name: 'Christian', ethnic_name: 'Mutuku', last_name: 'Ndungu', relation_name: 'Brother'},
+							{id:'1', first_name: 'John', baptism_name: 'Charles', ethnic_name: 'Mwaura', last_name: 'Ndungu', relation_name: 'Father'},
+							{id:'2', first_name: 'Jane', baptism_name: 'Christine', ethnic_name: 'Moraa', last_name: 'Ndungu', relation_name: 'Mother'},
+							{id:'3', first_name: 'Jack', baptism_name: 'Christian', ethnic_name: 'Mutuku', last_name: 'Ndungu', relation_name: 'Brother'},
 						]
 					}
 				]
@@ -294,7 +303,7 @@ var vm = new Vue({
 								for (k=0; k<this.panels[i].views[j].data.length; k++) {
 									row_headers = Object.keys(this.panels[i].views[j].data[k])
 									for (l=0; l<row_headers.length; l++) {
-										if (headers.indexOf(row_headers[l]) == -1) {
+										if (headers.indexOf(row_headers[l]) == -1 && row_headers[l] != 'id') {
 											headers.push(row_headers[l])
 										}
 									}
@@ -357,6 +366,13 @@ var vm = new Vue({
 		}.bind(this)),
 		bus.$on('panel-view-selected', function(panel_view) {
 			this.current_panel_view = panel_view
+		}.bind(this)),
+		bus.$on('open-relation-modal', function(relationship_id) {
+			this.open_modal_state = true
+			this.open_modal_relationship_id = relationship_id
+		}.bind(this)),
+		bus.$on('close-modal', function() {
+			this.open_modal_state = false
 		}.bind(this))
 	},
 	filters: {
