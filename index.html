@@ -115,7 +115,7 @@
 
   <template id="table-pane">
     <div class="table-responsive">
-      <table class="table table-hover">
+      <table v-if="list.data.length > 0" class="table table-hover">
         <thead>
           <tr>
             <th class="center-content" v-for="header in table_headers">{{header}}</th>
@@ -136,6 +136,7 @@
           </tr>
         </tbody>
       </table>
+      <h3 class="text-center" v-else>No Relationship Data Available</h3>
     </div>
   </template>
 
