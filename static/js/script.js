@@ -413,6 +413,20 @@ var vm = new Vue({
 			this.open_modal_relationship_id = ''
 		}.bind(this)),
 		bus.$on('delete-relation', function(relationship_id) {
+			for (i=0; i < this.panels.length; i++) {
+				if (this.panels[i].name == this.current_view) {
+					for (j=0; j<this.panels[i].views.length; j++) {
+						if (this.panels[i].views[j].type == 'Table') {
+							for (k=0; k<this.panels[i].views[j].data.length; k++) {
+								if (this.panels[i].views[j].data[k].id == relationship_id) {
+									// invoke API DELETE method to remove from database
+									this.panels[i].views[j].data.splice(k,1)
+								}
+							}
+						}
+					}
+				}
+			}
 		}.bind(this))
 	},
 	filters: {
