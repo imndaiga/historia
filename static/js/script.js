@@ -128,6 +128,12 @@ Vue.component('table-pane', {
 
 Vue.component('modal-window', {
 	template: '#modal-window',
+	props: {
+		relationship_data: {
+			type: Object,
+			required: true
+		}
+	},
 	methods: {
 		closeModal: function() {
 			bus.$emit('close-modal')
@@ -356,6 +362,22 @@ var vm = new Vue({
 				}
 			}
 			return view_type_list
+		},
+		relationshipData: function() {
+			for (i=0; i < this.panels.length; i++) {
+				if (this.panels[i].name == this.current_view) {
+					for (j=0; j<this.panels[i].views.length; j++) {
+						if (this.panels[i].views[j].type == 'Table') {
+							for (k=0; k<this.panels[i].views[j].data.length; k++) {
+								if (this.panels[i].views[j].data[k].id == this.open_modal_relationship_id) {
+									return this.panels[i].views[j].data[k]
+								}
+							}
+						}
+					}
+				}
+			}
+			return 
 		}
 	},
 	created: function() {
@@ -373,6 +395,7 @@ var vm = new Vue({
 		}.bind(this)),
 		bus.$on('close-modal', function() {
 			this.open_modal_state = false
+			this.open_modal_relationship_id = ''
 		}.bind(this))
 	},
 	filters: {
