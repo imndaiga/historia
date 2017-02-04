@@ -132,6 +132,10 @@ Vue.component('modal-window', {
 		relationship_data: {
 			type: Object,
 			required: true
+		},
+		form_labels: {
+			type: Array,
+			required: true
 		}
 	},
 	methods: {

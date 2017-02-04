@@ -20,7 +20,7 @@
       <panel-navbar :current_panel_view="current_panel_view" :current_panel="current_view" :button_menus="currentPanelMenus" :dropdown_menu="allPanelNames"></panel-navbar>
       <form-pane v-if="navigateAllowed(current_view, current_panel_view, formViews)" :form="getPanelView(current_panel_view)"></form-pane>
       <table-pane v-if="navigateAllowed(current_view, current_panel_view, tableViews)" :list="getPanelView(current_panel_view)" :table_headers="getTableHeaders(current_panel_view) | spacereplace | capitalize"></table-pane>
-      <modal-window v-if="open_modal_state" :relationship_data="relationshipData"></modal-window>
+      <modal-window v-if="open_modal_state" :relationship_data="relationshipData" :form_labels="getTableHeaders(current_panel_view) | spacereplace | capitalize"></modal-window>
     </div>
   </div>
 
@@ -141,10 +141,15 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title">Modal title</h4>
+            <h4 class="modal-title">{{relationship_data.first_name}} {{relationship_data.last_name}}</h4>
           </div>
           <div class="modal-body">
-            {{relationship_data.first_name}}
+            <form v-on:submit.prevent="validateAll">
+              <div v-for="(input, key, index) in relationship_data" v-if="key != 'id'" class="form-group">
+                <label class="control-label">{{form_labels[index-1]}}</label>
+                <input class="form-control" type="text" :placeholder=input readonly>
+              </div>
+            </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
