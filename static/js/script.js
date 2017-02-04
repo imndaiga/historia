@@ -402,9 +402,11 @@ var vm = new Vue({
 			this.open_sub_dropdown_name = ''
 		}.bind(this)),
 		bus.$on('panel-view-selected', function(panel_view) {
+			this.open_main_dropdown = false
 			this.current_panel_view = panel_view
 		}.bind(this)),
 		bus.$on('open-relation-modal', function(relationship_id) {
+			this.open_main_dropdown = false
 			this.open_modal_state = true
 			this.open_modal_relationship_id = relationship_id
 		}.bind(this)),
