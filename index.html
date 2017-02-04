@@ -130,8 +130,8 @@
             <td class="center-content">{{ relation.last_name }}</td>
             <td class="center-content">{{ relation.relation_name }}</td>
             <td class="center-content">
-              <button v-on:click="openRelation(relation.id)" class="btn btn-primary btn-xs"><i class="fa fa-pencil-square-o"></i>  Edit</button>
-              <button class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> Delete</button>
+              <button type="button" v-on:click="openRelation(relation.id)" class="btn btn-primary btn-xs"><i class="fa fa-pencil-square-o"></i>  Edit</button>
+              <button type="button" class="btn btn-danger btn-xs" v-on:click="deleteRelation(relation.id)"><i class="fa fa-trash"></i> Delete</button>
             </td>
           </tr>
         </tbody>

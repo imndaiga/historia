@@ -122,6 +122,9 @@ Vue.component('table-pane', {
 	methods: {
 		openRelation: function(relation_id) {
 			bus.$emit('open-relation-modal', relation_id)
+		},
+		deleteRelation: function(relation_id) {
+			bus.$emit('delete-relation', relation_id)
 		}
 	}
 })
@@ -409,6 +412,8 @@ var vm = new Vue({
 		bus.$on('close-modal', function() {
 			this.open_modal_state = false
 			this.open_modal_relationship_id = ''
+		}.bind(this)),
+		bus.$on('delete-relation', function(relationship_id) {
 		}.bind(this))
 	},
 	filters: {
