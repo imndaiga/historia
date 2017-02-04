@@ -118,18 +118,21 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th v-for="header in table_headers">{{header}}</th>
-            <th>Actions</th>
+            <th class="center-content" v-for="header in table_headers">{{header}}</th>
+            <th class="center-content">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="relation in list.data">
-            <td>{{ relation.first_name }}</td>
-            <td>{{ relation.baptism_name }}</td>
-            <td>{{ relation.ethnic_name }}</td>
-            <td>{{ relation.last_name }}</td>
-            <td>{{ relation.relation_name }}</td>
-            <td><button v-on:click="openRelation(relation.id)" class="btn btn-primary btn-xs"><i class="fa fa-pencil-square-o"></i>  Edit</button></td>
+            <td class="center-content">{{ relation.first_name }}</td>
+            <td class="center-content">{{ relation.baptism_name }}</td>
+            <td class="center-content">{{ relation.ethnic_name }}</td>
+            <td class="center-content">{{ relation.last_name }}</td>
+            <td class="center-content">{{ relation.relation_name }}</td>
+            <td class="center-content">
+              <button v-on:click="openRelation(relation.id)" class="btn btn-primary btn-xs"><i class="fa fa-pencil-square-o"></i>  Edit</button>
+              <button class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> Delete</button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -150,7 +153,7 @@
                 <div class="input-group">
                   <input class="form-control" type="text" :placeholder=input :readonly="active_form_fields.indexOf(input) == -1">
                   <div class="input-group-btn">
-                    <button class="btn btn-default" v-on:click="activateFormField(input)">
+                    <button type="button" class="btn btn-default" v-on:click="activateFormField(input)">
                       Change
                     </button>
                   </div>

@@ -111,3 +111,11 @@
   background-color: rgba(0, 0, 0, .5);
   display: table;
 }
+
+/*
+* Table
+*/
+
+.center-content {
+  text-align: center;
+}
