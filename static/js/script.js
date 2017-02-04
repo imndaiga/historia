@@ -393,7 +393,6 @@ var vm = new Vue({
 					}
 				}
 			}
-			return 
 		}
 	},
 	created: function() {
