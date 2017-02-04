@@ -138,9 +138,17 @@ Vue.component('modal-window', {
 			required: true
 		}
 	},
+	data: function() {
+		return {
+			active_form_fields : []
+		}
+	},
 	methods: {
 		closeModal: function() {
 			bus.$emit('close-modal')
+		},
+		activateFormField: function(form_field) {
+			this.active_form_fields.push(form_field)
 		}
 	}
 })
@@ -189,7 +197,8 @@ var vm = new Vue({
 							{ placeholder: 'JohnOlooDoe@gmail.com', validate: "email" , name: 'Email', type: 'email'},
 							{ placeholder: 'John', validate: "required|alpha" , name: 'First Name', type: 'alpha'},
 							{ placeholder: 'Oloo', validate: "required|alpha" , name: 'Ethnic Name', type: 'alpha'},
-							{ placeholder: 'Doe', validate: "required|alpha" , name: 'Last Name', type: 'alpha'}
+							{ placeholder: 'Doe', validate: "required|alpha" , name: 'Last Name', type: 'alpha'},
+							{ placeholder: 'Father', validate: "required|alpha" , name: 'Relationship Name', type: 'alpha'}
 						],
 						submit: 'Add'
 					},

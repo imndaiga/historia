@@ -144,10 +144,17 @@
             <h4 class="modal-title">{{relationship_data.first_name}} {{relationship_data.last_name}}</h4>
           </div>
           <div class="modal-body">
-            <form v-on:submit.prevent="validateAll">
+            <form>
               <div v-for="(input, key, index) in relationship_data" v-if="key != 'id'" class="form-group">
                 <label class="control-label">{{form_labels[index-1]}}</label>
-                <input class="form-control" type="text" :placeholder=input readonly>
+                <div class="input-group">
+                  <input class="form-control" type="text" :placeholder=input :readonly="active_form_fields.indexOf(input) == -1">
+                  <div class="input-group-btn">
+                    <button class="btn btn-default" v-on:click="activateFormField(input)">
+                      Change
+                    </button>
+                  </div>
+                </div>
               </div>
             </form>
           </div>
