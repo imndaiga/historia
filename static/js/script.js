@@ -1,43 +1,3 @@
-Vue.component('panel-navbar', {
-	template: '#panel-navbar',
-	props: {
-		current_panel: {
-			type: String,
-			required: true
-		},
-		button_menus: {
-			type: Array,
-			required: true
-		},
-		dropdown_menu: {
-			type: Array,
-			required: true
-		},
-		current_panel_view: {
-			type: String,
-			required: true
-		}
-	},
-	data: function() {
-		return {
-			open_panel_menu: false
-		}
-	},
-	methods: {
-		togglePanelMenu: function() {
-			this.open_panel_menu = !this.open_panel_menu
-		},
-		panelSelected: function(panel) {
-			this.open_panel_menu = false
-			bus.$emit('panel-selected', panel)
-		},
-		panelViewSelected: function(panel_view) {
-			this.open_panel_menu = false
-			bus.$emit('panel-view-selected', panel_view)
-		}
-	}
-})
-
 Vue.component('app-navbar', {
 	template: '#app-navbar',
 	props: {
@@ -88,8 +48,48 @@ Vue.component('app-sidebar', {
 	}
 })
 
-Vue.component('form-pane', {
-	template: '#form-pane',
+Vue.component('panel-subnav', {
+	template: '#panel-subnav',
+	props: {
+		current_panel: {
+			type: String,
+			required: true
+		},
+		subnav_menus: {
+			type: Array,
+			required: true
+		},
+		subnav_dropdown: {
+			type: Array,
+			required: true
+		},
+		current_panel_view: {
+			type: String,
+			required: true
+		}
+	},
+	data: function() {
+		return {
+			open_panel_menu: false
+		}
+	},
+	methods: {
+		togglePanelMenu: function() {
+			this.open_panel_menu = !this.open_panel_menu
+		},
+		panelSelected: function(panel) {
+			this.open_panel_menu = false
+			bus.$emit('panel-selected', panel)
+		},
+		panelViewSelected: function(panel_view) {
+			this.open_panel_menu = false
+			bus.$emit('panel-view-selected', panel_view)
+		}
+	}
+})
+
+Vue.component('panel-form', {
+	template: '#panel-form',
 	props: {
 		form : {
 			type: Object,
@@ -107,8 +107,8 @@ Vue.component('form-pane', {
 	}
 })
 
-Vue.component('table-pane', {
-	template: '#table-pane',
+Vue.component('panel-table', {
+	template: '#panel-table',
 	props: {
 		list: {
 			type: Object,
@@ -163,68 +163,55 @@ var bus = new Vue()
 var vm = new Vue({
 	el: '#app',
 	data: {
-		current_view: 'Relationships',
-		current_panel_view: 'List Relationships',
+		current_panel: 'Relationships',
+		current_panel_view: 'Add_Relationships',
 		open_main_dropdown: false,
 		open_sub_dropdown_name: '',
 		open_modal_state: false,
 		open_modal_relationship_id: '',
-		panels: [
-			{
-				name: 'Overview',
-				menus: [],
-				views: []
-			},{
-				name: 'Relationships',
-				menus: [
+		all_panels : ['Overview', 'Relationships', 'Visualisation', 'Share'],
+		panel_subnavs : {
+			Relationships: {
+				navs: [
 					{
-						name: 'List Relationships',
-						reference: 'List all your relationships',
-						icon: 'fa fa-users fa-lg',
-						class: 'btn btn-lg btn-primary btn-block',
-						length: 'col-md-6 col-sm-6 col-xs-6'
-					},
-					{
-						name: 'Add Relationships',
-						reference: 'Add a relationship',
-						icon: 'fa fa-user-plus fa-lg',
-						class: 'btn btn-lg btn-info btn-block',
-						length: 'col-md-6 col-sm-6 col-xs-6'
-					}
-				],
-				views: [
-					{
-						type: 'Form',
-						name: 'Add Relationships',
-						inputs: [
-							{ placeholder: 'JohnOlooDoe@gmail.com', validate: "email" , name: 'Email', type: 'email'},
-							{ placeholder: 'John', validate: "required|alpha" , name: 'First Name', type: 'alpha'},
-							{ placeholder: 'Oloo', validate: "required|alpha" , name: 'Ethnic Name', type: 'alpha'},
-							{ placeholder: 'Doe', validate: "required|alpha" , name: 'Last Name', type: 'alpha'},
-							{ placeholder: 'Father', validate: "required|alpha" , name: 'Relationship Name', type: 'alpha'}
-						],
-						submit: 'Add'
-					},
-					{
-						type: 'Table',
-						name: 'List Relationships',
-						data: [
-							{id:'1', first_name: 'John', baptism_name: 'Charles', ethnic_name: 'Mwaura', last_name: 'Ndungu', relation_name: 'Father'},
-							{id:'2', first_name: 'Jane', baptism_name: 'Christine', ethnic_name: 'Moraa', last_name: 'Ndungu', relation_name: 'Mother'},
-							{id:'3', first_name: 'Jack', baptism_name: 'Christian', ethnic_name: 'Mutuku', last_name: 'Ndungu', relation_name: 'Brother'},
-						]
+						title: 'List_Relationships',
+						info: 'List all your relationships',
+						fa_icon: 'fa fa-users fa-lg',
+						bs_button: 'btn btn-lg btn-primary btn-block',
+						bs_grid_length: 'col-md-6 col-sm-6 col-xs-6',
+					},{
+						title: 'Add_Relationships',
+						info: 'Add a relationship to your tree',
+						fa_icon: 'fa fa-user-plus fa-lg',
+						bs_button: 'btn btn-lg btn-info btn-block',
+						bs_grid_length: 'col-md-6 col-sm-6 col-xs-6',
 					}
 				]
-			},{
-				name: 'Visualisation',
-				menus: [],
-				views: []
-			},{
-				name: 'Share',
-				menus: [],
-				views: []
 			}
-		],
+		},
+		panel_views : {
+			Relationships: {
+				Add_Relationships: {
+					type: 'Form',
+					data: [
+						{ placeholder: 'JohnOlooDoe@gmail.com', validate: "email" , name: 'Email', type: 'email'},
+						{ placeholder: 'John', validate: "required|alpha" , name: 'First Name', type: 'alpha'},
+						{ placeholder: 'Oloo', validate: "required|alpha" , name: 'Ethnic Name', type: 'alpha'},
+						{ placeholder: 'Doe', validate: "required|alpha" , name: 'Last Name', type: 'alpha'},
+						{ placeholder: 'Father', validate: "required|alpha" , name: 'Relationship Name', type: 'alpha'}
+					]
+				},
+				List_Relationships: {
+					type: 'Table',
+					data: [
+						{id:'1', first_name: 'John', baptism_name: 'Charles', ethnic_name: 'Mwaura', last_name: 'Ndungu', relation_name: 'Father'},
+						{id:'2', first_name: 'Jane', baptism_name: 'Christine', ethnic_name: 'Moraa', last_name: 'Ndungu', relation_name: 'Mother'},
+						{id:'3', first_name: 'Jack', baptism_name: 'Christian', ethnic_name: 'Mutuku', last_name: 'Ndungu', relation_name: 'Brother'}
+					]
+				}
+
+			}
+		},
 		title: 'MIMINANI',
 		nav_menus: [
 			{
@@ -289,115 +276,82 @@ var vm = new Vue({
 				this.open_sub_dropdown_name = menu_name
 			}
 		},
-		navigateAllowed: function(current_view, current_panel_view, view_type_list) {
-			if (view_type_list.indexOf(current_panel_view) != -1) {
-				for (i=0; i<this.panels.length; i++) {
-					if (this.panels[i].name == current_view) {
-						for (j=0; j<this.panels[i].views.length; j++) {
-							if (this.panels[i].views[j].name == current_panel_view) {
+		isNavigationAllowed: function(panel, panel_view, view_type) {
+			for (index in this.all_panels) {
+				iter_panel = this.all_panels[index]
+				if (iter_panel == panel) {
+					for (view in this.panel_views[panel]) {
+						if (view == panel_view) {
+							if (this.panel_views[panel][view].type == view_type) {
 								return true
 							}
 						}
-						return false
 					}
 				}
 			}
 			return false
 		},
-		getPanelView: function(current_panel_view) {
-			for (i=0; i < this.panels.length; i++) {
-				if (this.panels[i].name == this.current_view) {
-					for (j=0; j<this.panels[i].views.length; j++) {
-						if (this.panels[i].views[j].name == current_panel_view) {
-							return this.panels[i].views[j]
+		getPanelViewData: function(panel, panel_view) {
+			for (iter_panel in this.panel_views) {
+				if (iter_panel == panel) {
+					for (view in this.panel_views[panel]) {
+						if (view == panel_view) {
+							return this.panel_views[panel][view]
 						}
 					}
 				}
 			}
+			return null
 		},
-		getTableHeaders: function(current_panel_view) {
-			headers = []
-			for (i=0; i < this.panels.length; i++) {
-				if (this.panels[i].name == this.current_view) {
-					for (j=0; j<this.panels[i].views.length; j++) {
-						if (this.panels[i].views[j].name == current_panel_view) {
-							if (this.panels[i].views[j].type == 'Table') {
-								for (k=0; k<this.panels[i].views[j].data.length; k++) {
-									row_headers = Object.keys(this.panels[i].views[j].data[k])
-									for (l=0; l<row_headers.length; l++) {
-										if (headers.indexOf(row_headers[l]) == -1 && row_headers[l] != 'id') {
-											headers.push(row_headers[l])
-										}
-									}
+		getViewFields: function(panel_view, exceptions=[]) {
+			fields = []
+			for (panel in this.panel_views) {
+				for (view in this.panel_views[panel]) {
+					if (view == panel_view) {
+						for (entry in this.panel_views[panel][view].data) {
+							for (field in this.panel_views[panel][view].data[entry]) {
+								if (fields.indexOf(field) == -1 && exceptions.indexOf(field) == -1) {
+									fields.push(field)
 								}
 							}
 						}
 					}
 				}
 			}
-			return headers
+			return fields
+		},
+		getViewFieldData: function(panel_view) {
+			for (iter_panel in this.panel_views) {
+				for (view in this.panel_views[iter_panel]) {
+					if (view == panel_view) {
+						return this.panel_views[iter_panel][panel_view].data
+					}
+				}
+			}
+		},
+		getModalRelationshipData: function(panel_view) {
+			data = this.getViewFieldData(panel_view)
+			for (relation in data) {
+				if (data[relation].id == this.open_modal_relationship_id) {
+					return data[relation]
+				}
+			}
 		}
 	},
 	computed: {
-		allPanelNames: function() {
-			panel_names_array = []
-			for (i = 0; i < this.panels.length; i++) {
-				panel_names_array.push(this.panels[i].name)
-			}
-			return panel_names_array
-		},
-		currentPanelMenus: function() {
-			for (i = 0; i < this.panels.length; i++) {
-				if (this.panels[i].name == this.current_view) {
-					return this.panels[i].menus
+		currentSubnavs: function() {
+			for (index in this.all_panels) {
+				panel = this.all_panels[index]
+				if (Object.keys(this.panel_subnavs).indexOf(panel) != -1 && panel == this.current_panel) {
+					return this.panel_subnavs[panel].navs
 				}
 			}
-		},
-		formViews: function() {
-			view_type_list = []
-			for (i=0; i < this.panels.length; i++) {
-				if (this.panels[i].name == this.current_view) {
-					for (j=0; j<this.panels[i].views.length; j++) {
-						if (this.panels[i].views[j].type == 'Form') {
-							view_type_list.push(this.panels[i].views[j].name)
-						}
-					}
-				}
-			}
-			return view_type_list
-		},
-		tableViews: function() {
-			view_type_list = []
-			for (i=0; i < this.panels.length; i++) {
-				if (this.panels[i].name == this.current_view) {
-					for (j=0; j<this.panels[i].views.length; j++) {
-						if (this.panels[i].views[j].type == 'Table') {
-							view_type_list.push(this.panels[i].views[j].name)
-						}
-					}
-				}
-			}
-			return view_type_list
-		},
-		relationshipData: function() {
-			for (i=0; i < this.panels.length; i++) {
-				if (this.panels[i].name == this.current_view) {
-					for (j=0; j<this.panels[i].views.length; j++) {
-						if (this.panels[i].views[j].type == 'Table') {
-							for (k=0; k<this.panels[i].views[j].data.length; k++) {
-								if (this.panels[i].views[j].data[k].id == this.open_modal_relationship_id) {
-									return this.panels[i].views[j].data[k]
-								}
-							}
-						}
-					}
-				}
-			}
+			return null
 		}
 	},
 	created: function() {
 		bus.$on('panel-selected', function(panel) {
-			this.current_view = panel
+			this.current_panel = panel
 			this.open_main_dropdown = false
 			this.open_sub_dropdown_name = ''
 		}.bind(this)),
@@ -415,15 +369,12 @@ var vm = new Vue({
 			this.open_modal_relationship_id = ''
 		}.bind(this)),
 		bus.$on('delete-relation', function(relationship_id) {
-			for (i=0; i < this.panels.length; i++) {
-				if (this.panels[i].name == this.current_view) {
-					for (j=0; j<this.panels[i].views.length; j++) {
-						if (this.panels[i].views[j].type == 'Table') {
-							for (k=0; k<this.panels[i].views[j].data.length; k++) {
-								if (this.panels[i].views[j].data[k].id == relationship_id) {
-									// invoke API DELETE method to remove from database
-									this.panels[i].views[j].data.splice(k,1)
-								}
+			for (panel in this.panel_views) {
+				for (view in this.panel_views[panel]) {
+					if (view == 'List_Relationships') {
+						for (i=0; i<this.panel_views[panel][view].data.length; i++) {
+							if (this.panel_views[panel][view].data[i].id == relationship_id) {
+								this.panel_views[panel][view].data.splice(i, 1)
 							}
 						}
 					}

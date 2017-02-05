@@ -15,12 +15,12 @@
 <body>
   <div id="app">
     <app-navbar v-on:subdropdown="toggleSubMenu" :open_submenu="open_sub_dropdown_name" v-on:maindropdown="toggleMenu" :nav_state="{in : open_main_dropdown}" :title="title" :nav_menus="nav_menus"></app-navbar>
-    <app-sidebar :current_panel="current_view" :panels="allPanelNames"></app-sidebar>
+    <app-sidebar :current_panel="current_panel" :panels="all_panels"></app-sidebar>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
-      <panel-navbar :current_panel_view="current_panel_view" :current_panel="current_view" :button_menus="currentPanelMenus" :dropdown_menu="allPanelNames"></panel-navbar>
-      <form-pane v-if="navigateAllowed(current_view, current_panel_view, formViews)" :form="getPanelView(current_panel_view)"></form-pane>
-      <table-pane v-if="navigateAllowed(current_view, current_panel_view, tableViews)" :list="getPanelView(current_panel_view)" :table_headers="getTableHeaders(current_panel_view) | spacereplace | capitalize"></table-pane>
-      <modal-window v-if="open_modal_state" :relationship_data="relationshipData" :form_labels="getTableHeaders(current_panel_view) | spacereplace | capitalize"></modal-window>
+      <panel-subnav v-if="currentSubnavs != null" :subnav_menus="currentSubnavs" :subnav_dropdown="all_panels" :current_panel="current_panel" :current_panel_view="current_panel_view"></panel-subnav>
+      <panel-form v-if="isNavigationAllowed(current_panel, current_panel_view, 'Form')" :form="getPanelViewData(current_panel, current_panel_view)"></panel-form>
+      <panel-table v-if="isNavigationAllowed(current_panel, current_panel_view, 'Table')" :list="getPanelViewData(current_panel, current_panel_view)" :table_headers="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></panel-table>
+      <modal-window v-if="open_modal_state" :relationship_data="getModalRelationshipData(current_panel_view)" :form_labels="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></modal-window>
     </div>
   </div>
 
@@ -76,7 +76,7 @@
     </div>
   </template>
 
-  <template id="panel-navbar">
+  <template id="panel-subnav">
     <div>
       <div class="row center-block hidden-xs panel-header">
         <h1>{{current_panel}}</h1>
@@ -87,33 +87,33 @@
           <i class="fa fa-angle-down"></i>
         </button>
         <ul class="dropdown-menu hidden-sm hidden-md hidden-lg panel-dropdown">
-          <li v-for="menu in dropdown_menu" :class="{'active': menu == current_panel}"><a v-on:click="panelSelected(menu)" class="text-center" href="#">{{menu}}</a></li>
+          <li v-for="menu in subnav_dropdown" :class="{'active': menu == current_panel}"><a v-on:click="panelSelected(menu)" class="text-center" href="#">{{menu}}</a></li>
         </ul>
       </div>
-      <div class="btn-group btn-group-justified panel-menu" v-if="button_menus.length > 0">
-        <div :class="panel_menu.length" v-for="panel_menu in button_menus">
-          <button :class="[panel_menu.class, {'active': panel_menu.name == current_panel_view}]" :title="panel_menu.reference" v-on:click="panelViewSelected(panel_menu.name)">
-            <i :class="panel_menu.icon"></i>
+      <div class="btn-group btn-group-justified panel-menu" v-if="subnav_menus.length > 0">
+        <div :class="panel_menu.bs_grid_length" v-for="panel_menu in subnav_menus">
+          <button :class="[panel_menu.bs_button, {'active': panel_menu.title == current_panel_view}]" :title="panel_menu.info" v-on:click="panelViewSelected(panel_menu.title)">
+            <i :class="panel_menu.fa_icon"></i>
           </button>
         </div>
       </div>
     </div>
   </template>
 
-  <template id="form-pane">
+  <template id="panel-form">
     <div>
         <form v-on:submit.prevent="validateAll">
-          <div v-for="input in form.inputs" :class="['form-group', {'has-error': errors.has(input.name) }]">
+          <div v-for="input in form.data" :class="['form-group', {'has-error': errors.has(input.name) }]">
             <label class="control-label">{{input.name}}</label>
             <input :name=input.name :data-vv-name=input.name v-validate=input.validate class="form-control" type="text" :placeholder=input.placeholder>
             <p class="text-danger" v-show=errors.has(input.name)>{{ errors.first(input.name) }}</p>
           </div>
-          <button type="submit" class="btn btn-default btn-lg btn-block">{{form.submit}}</button>
+          <button type="submit" class="btn btn-default btn-lg btn-block">Submit</button>
         </form>
     </div>
   </template>
 
-  <template id="table-pane">
+  <template id="panel-table">
     <div class="table-responsive">
       <table v-if="list.data.length > 0" class="table table-hover">
         <thead>
