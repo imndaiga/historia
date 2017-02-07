@@ -48,23 +48,15 @@ Vue.component('app-sidebar', {
 	}
 })
 
-Vue.component('panel-subnav', {
-	template: '#panel-subnav',
+Vue.component('panel-header', {
+	template: '#panel-header',
 	props: {
 		current_panel: {
 			type: String,
 			required: true
 		},
-		subnav_menus: {
-			type: Array,
-			required: true
-		},
 		subnav_dropdown: {
 			type: Array,
-			required: true
-		},
-		current_panel_view: {
-			type: String,
 			required: true
 		}
 	},
@@ -80,9 +72,24 @@ Vue.component('panel-subnav', {
 		panelSelected: function(panel) {
 			this.open_panel_menu = false
 			bus.$emit('panel-selected', panel)
+		}
+	}
+})
+
+Vue.component('panel-subnav', {
+	template: '#panel-subnav',
+	props: {
+		subnav_menus: {
+			type: Array,
+			required: true
 		},
+		current_panel_view: {
+			type: String,
+			required: true
+		}
+	},
+	methods: {
 		panelViewSelected: function(panel_view) {
-			this.open_panel_menu = false
 			bus.$emit('panel-view-selected', panel_view)
 		}
 	}

@@ -21,7 +21,8 @@
     <app-navbar v-on:subdropdown="toggleSubMenu" :open_submenu="open_sub_dropdown_name" v-on:maindropdown="toggleMenu" :nav_state="{in : open_main_dropdown}" :title="title" :nav_menus="nav_menus"></app-navbar>
     <app-sidebar :current_panel="current_panel" :panels="all_panels"></app-sidebar>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
-      <panel-subnav v-if="currentSubnavs != null" :subnav_menus="currentSubnavs" :subnav_dropdown="all_panels" :current_panel="current_panel" :current_panel_view="current_panel_view"></panel-subnav>
+      <panel-header :subnav_dropdown="all_panels" :current_panel="current_panel"></panel-header>
+      <panel-subnav v-if="currentSubnavs != null" :subnav_menus="currentSubnavs" :current_panel_view="current_panel_view"></panel-subnav>
       <panel-form v-if="isNavigationAllowed(current_panel, current_panel_view, 'Form')" :form="getPanelViewData(current_panel, current_panel_view)"></panel-form>
       <panel-table v-if="isNavigationAllowed(current_panel, current_panel_view, 'Table')" :list="getPanelViewData(current_panel, current_panel_view)" :table_headers="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></panel-table>
       <modal-window v-if="open_modal_state" :relationship_data="getModalRelationshipData(current_panel_view)" :form_labels="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></modal-window>
@@ -80,7 +81,7 @@
     </div>
   </template>
 
-  <template id="panel-subnav">
+  <template id="panel-header">
     <div>
       <div class="row center-block hidden-xs panel-header">
         <h1>{{current_panel}}</h1>
@@ -94,12 +95,15 @@
           <li v-for="menu in subnav_dropdown" :class="{'active': menu == current_panel}"><a v-on:click="panelSelected(menu)" class="text-center" href="#">{{menu}}</a></li>
         </ul>
       </div>
-      <div class="btn-group btn-group-justified panel-menu" v-if="subnav_menus.length > 0">
-        <div :class="panel_menu.bs_grid_length" v-for="panel_menu in subnav_menus">
-          <button :class="[panel_menu.bs_button, {'active': panel_menu.title == current_panel_view}]" :title="panel_menu.info" v-on:click="panelViewSelected(panel_menu.title)">
-            <i :class="panel_menu.fa_icon"></i>
-          </button>
-        </div>
+    </div>
+  </template>
+
+  <template id="panel-subnav">
+    <div class="btn-group btn-group-justified panel-menu" v-if="subnav_menus.length > 0">
+      <div :class="panel_menu.bs_grid_length" v-for="panel_menu in subnav_menus">
+        <button :class="[panel_menu.bs_button, {'active': panel_menu.title == current_panel_view}]" :title="panel_menu.info" v-on:click="panelViewSelected(panel_menu.title)">
+          <i :class="panel_menu.fa_icon"></i>
+        </button>
       </div>
     </div>
   </template>
