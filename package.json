@@ -7,8 +7,11 @@
   "dependencies": {
     "bootstrap-css-only": "^3.3.7",
     "font-awesome": "^4.7.0",
-    "vee-validate": "^2.0.0-beta.21",
-    "vue": "^2.1.10"
+    "moment": "^2.17.1",
+    "pikaday": "^1.5.1",
+    "vue": "^2.1.10",
+    "vue-form-generator": "^2.0.0-beta2",
+    "vue-multiselect": "^2.0.0-beta.13"
   },
   "devDependencies": {},
   "scripts": {

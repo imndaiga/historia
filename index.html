@@ -6,7 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MIMINANI</title>
   <script src="node_modules/vue/dist/vue.js"></script>
-  <script src="node_modules/vee-validate/dist/vee-validate.js"></script>
+  <script src="node_modules/vue-form-generator/dist/vue-form-generator.js"></script>
+  <script src="node_modules/pikaday/pikaday.js"></script>
+  <script src="node_modules/moment/moment.js"></script>
+  <script src="node_modules/vue-multiselect/lib/vue-multiselect.min.js"></script>
+  <link rel="stylesheet" href="node_modules/pikaday/css/pikaday.css" />
   <link rel="stylesheet" href="node_modules/bootstrap-css-only/css/bootstrap.css" />
   <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css" />
   <link rel="stylesheet" href="static/css/styles.css">
@@ -102,14 +106,7 @@
 
   <template id="panel-form">
     <div>
-        <form v-on:submit.prevent="validateAll">
-          <div v-for="input in form.data" :class="['form-group', {'has-error': errors.has(input.name) }]">
-            <label class="control-label">{{input.name}}</label>
-            <input :name=input.name :data-vv-name=input.name v-validate=input.validate class="form-control" type="text" :placeholder=input.placeholder>
-            <p class="text-danger" v-show=errors.has(input.name)>{{ errors.first(input.name) }}</p>
-          </div>
-          <button type="submit" class="btn btn-default btn-lg btn-block">Submit</button>
-        </form>
+        <vue-form-generator :schema="form.data.schema" :model="form.data.model" :options="form.data.formOptions"></vue-form-generator>
     </div>
   </template>
 
@@ -124,11 +121,7 @@
         </thead>
         <tbody>
           <tr v-for="relation in list.data">
-            <td class="center-content">{{ relation.first_name }}</td>
-            <td class="center-content">{{ relation.baptism_name }}</td>
-            <td class="center-content">{{ relation.ethnic_name }}</td>
-            <td class="center-content">{{ relation.last_name }}</td>
-            <td class="center-content">{{ relation.relation_name }}</td>
+            <td class="center-content" v-for="(detail, key) in relation" v-if="key != 'id'">{{ detail }}</td>
             <td class="center-content">
               <button type="button" v-on:click="openRelation(relation.id)" class="btn btn-primary btn-xs"><i class="fa fa-pencil-square-o"></i>  Edit</button>
               <button type="button" class="btn btn-danger btn-xs" v-on:click="deleteRelation(relation.id)"><i class="fa fa-trash"></i> Delete</button>

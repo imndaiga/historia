@@ -95,15 +95,6 @@ Vue.component('panel-form', {
 			type: Object,
 			required: true
 		}
-	},
-	methods: {
-		validateAll: function() {
-			this.$validator.validateAll().then(function(result) {
-				alert('Form Submitted')
-			}).catch(function(failure) {
-				alert('Please correct form details')
-			})
-		}
 	}
 })
 
@@ -156,7 +147,9 @@ Vue.component('modal-window', {
 	}
 })
 
-Vue.use(VeeValidate);
+Vue.component('multiselect', VueMultiselect.default)
+
+Vue.use(VueFormGenerator)
 
 var bus = new Vue()
 
@@ -193,20 +186,76 @@ var vm = new Vue({
 			Relationships: {
 				Add_Relationships: {
 					type: 'Form',
-					data: [
-						{ placeholder: 'JohnOlooDoe@gmail.com', validate: "email" , name: 'Email', type: 'email'},
-						{ placeholder: 'John', validate: "required|alpha" , name: 'First Name', type: 'alpha'},
-						{ placeholder: 'Oloo', validate: "required|alpha" , name: 'Ethnic Name', type: 'alpha'},
-						{ placeholder: 'Doe', validate: "required|alpha" , name: 'Last Name', type: 'alpha'},
-						{ placeholder: 'Father', validate: "required|alpha" , name: 'Relationship Name', type: 'alpha'}
-					]
+					data: {
+						model: {
+							fname: '',
+							ename: '',
+							lname: '',
+							relation: '',
+							email: '',
+							bdate: '2017-02-15'
+						},
+						schema: {
+							fields: [
+								{
+									type: 'text',
+									label: 'First name',
+									model: 'fname',
+									placeholder: 'John',
+									required: true,
+									validator: VueFormGenerator.validators.string
+								},{
+									type: 'text',
+									label: 'Ethnic name',
+									model: 'ename',
+									placeholder: 'Mutuku',
+									required: true,
+									validator: VueFormGenerator.validators.string
+								},{
+									type: 'text',
+									label: 'Last name',
+									model: 'lname',
+									placeholder: 'Mbuvi',
+									required: true,
+									validator: VueFormGenerator.validators.string
+								},{
+									type: 'vueMultiSelect',
+									label: 'Relation',
+									model: 'relation',
+									multiSelect: false,
+									values: ['Father','Mother', 'Brother', 'Sister', 'Step-Mother',
+											'Step-Father', 'Step-Brother', 'Step-Sister']
+								},{
+									type: 'email',
+									label: 'E-mail',
+									model: 'email',
+									placeholder: "John.Mbuvi@gmail.com",
+									validator: VueFormGenerator.validators.email
+								},{
+									type: "pikaday",
+									label: "Birthday",
+									placeholder: "Select Calendar Date",
+									model: "bdate",
+									readonly: true,
+									validator: VueFormGenerator.validators.date,
+									pikadayOptions: {
+										position: "top right"
+									}
+								}
+							]
+						},
+						formOptions: {
+							validateAfterLoad: false,
+							validateAfterChanged: true
+						}
+					}
 				},
 				List_Relationships: {
 					type: 'Table',
 					data: [
-						{id:'1', first_name: 'John', baptism_name: 'Charles', ethnic_name: 'Mwaura', last_name: 'Ndungu', relation_name: 'Father'},
-						{id:'2', first_name: 'Jane', baptism_name: 'Christine', ethnic_name: 'Moraa', last_name: 'Ndungu', relation_name: 'Mother'},
-						{id:'3', first_name: 'Jack', baptism_name: 'Christian', ethnic_name: 'Mutuku', last_name: 'Ndungu', relation_name: 'Brother'}
+						{id:'1', first_name: 'John', ethnic_name: 'Mwaura', last_name: 'Ndungu', relation_name: 'Father'},
+						{id:'2', first_name: 'Jane', ethnic_name: 'Moraa', last_name: 'Ndungu', relation_name: 'Mother'},
+						{id:'3', first_name: 'Jack', ethnic_name: 'Mutuku', last_name: 'Ndungu', relation_name: 'Brother'}
 					]
 				}
 
@@ -320,7 +369,7 @@ var vm = new Vue({
 			}
 			return fields
 		},
-		getViewFieldData: function(panel_view) {
+		_getViewFieldData: function(panel_view) {
 			for (iter_panel in this.panel_views) {
 				for (view in this.panel_views[iter_panel]) {
 					if (view == panel_view) {
@@ -330,7 +379,7 @@ var vm = new Vue({
 			}
 		},
 		getModalRelationshipData: function(panel_view) {
-			data = this.getViewFieldData(panel_view)
+			data = this._getViewFieldData(panel_view)
 			for (relation in data) {
 				if (data[relation].id == this.open_modal_relationship_id) {
 					return data[relation]
