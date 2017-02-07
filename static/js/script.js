@@ -130,26 +130,14 @@ Vue.component('panel-table', {
 Vue.component('modal-window', {
 	template: '#modal-window',
 	props: {
-		relationship_data: {
+		relationship_schema: {
 			type: Object,
 			required: true
-		},
-		form_labels: {
-			type: Array,
-			required: true
-		}
-	},
-	data: function() {
-		return {
-			active_form_fields : []
 		}
 	},
 	methods: {
 		closeModal: function() {
 			bus.$emit('close-modal')
-		},
-		activateFormField: function(form_field) {
-			this.active_form_fields.push(form_field)
 		}
 	}
 })
@@ -243,7 +231,6 @@ var vm = new Vue({
 									label: "Birthday",
 									placeholder: "Select Calendar Date",
 									model: "bdate",
-									readonly: true,
 									validator: VueFormGenerator.validators.date,
 									pikadayOptions: {
 										position: "top right"
@@ -260,9 +247,9 @@ var vm = new Vue({
 				List_Relationships: {
 					type: 'Table',
 					data: [
-						{id:'1', first_name: 'John', ethnic_name: 'Mwaura', last_name: 'Ndungu', relation_name: 'Father'},
-						{id:'2', first_name: 'Jane', ethnic_name: 'Moraa', last_name: 'Ndungu', relation_name: 'Mother'},
-						{id:'3', first_name: 'Jack', ethnic_name: 'Mutuku', last_name: 'Ndungu', relation_name: 'Brother'}
+						{id:'1', first_name: 'John', ethnic_name: 'Mwaura', last_name: 'Ndungu', relation_name: 'Father', email: 'john.mwaura@gmail.com', birth_date: '2017-02-15'},
+						{id:'2', first_name: 'Jane', ethnic_name: 'Moraa', last_name: 'Ndungu', relation_name: 'Mother', email: 'jane.mwaura@gmail.com', birth_date: '2017-02-15'},
+						{id:'3', first_name: 'Jack', ethnic_name: 'Mutuku', last_name: 'Ndungu', relation_name: 'Brother', email: 'jack.ndungu@gmail.com', birth_date: '2017-02-15'}
 					]
 				}
 
@@ -347,7 +334,7 @@ var vm = new Vue({
 			}
 			return false
 		},
-		getPanelViewData: function(panel, panel_view) {
+		getPanelViewObject: function(panel, panel_view) {
 			for (iter_panel in this.panel_views) {
 				if (iter_panel == panel) {
 					for (view in this.panel_views[panel]) {
@@ -376,7 +363,7 @@ var vm = new Vue({
 			}
 			return fields
 		},
-		_getViewFieldData: function(panel_view) {
+		getViewData: function(panel_view) {
 			for (iter_panel in this.panel_views) {
 				for (view in this.panel_views[iter_panel]) {
 					if (view == panel_view) {
@@ -386,10 +373,130 @@ var vm = new Vue({
 			}
 		},
 		getModalRelationshipData: function(panel_view) {
-			data = this._getViewFieldData(panel_view)
+			data = this.getViewData(panel_view)
 			for (relation in data) {
 				if (data[relation].id == this.open_modal_relationship_id) {
-					return data[relation]
+					return {
+						model: data[relation],
+						schema: {
+							fields: [
+								{
+									type: 'text',
+									label: 'First name',
+									model: 'first_name',
+									inputName: 'first_name',
+									placeholder: 'John',
+									required: true,
+									disabled: true,
+									validator: VueFormGenerator.validators.string,
+									buttons: [
+										{
+											classes: 'btn btn-primary',
+											label: 'Change',
+											onclick: function() {
+												document.getElementsByName('first_name')[0].disabled=false
+											}
+										}
+									]
+								},{
+									type: 'text',
+									label: 'Ethnic name',
+									model: 'ethnic_name',
+									inputName: 'ethnic_name',
+									placeholder: 'Mutuku',
+									required: true,
+									disabled: true,
+									validator: VueFormGenerator.validators.string,
+									buttons: [
+										{
+											classes: 'btn btn-primary',
+											label: 'Change',
+											onclick: function() {
+												document.getElementsByName('ethnic_name')[0].disabled=false
+											}
+										}
+									]
+								},{
+									type: 'text',
+									label: 'Last name',
+									model: 'last_name',
+									inputName: 'last_name',
+									placeholder: 'Mbuvi',
+									required: true,
+									disabled: true,
+									validator: VueFormGenerator.validators.string,
+									buttons: [
+										{
+											classes: 'btn btn-primary',
+											label: 'Change',
+											onclick: function() {
+												document.getElementsByName('last_name')[0].disabled=false
+											}
+										}
+									]
+								},{
+									type: 'vueMultiSelect',
+									label: 'Relation',
+									model: 'relation_name',
+									inputName: 'relation_name',
+									multiSelect: false,
+									styleClasses: 'disable-multiselect',
+									values: ['Father','Mother', 'Brother', 'Sister', 'Step-Mother',
+											'Step-Father', 'Step-Brother', 'Step-Sister'],
+									buttons: [
+										{
+											classes: 'btn btn-primary enable-button-multiselect',
+											label: 'Change',
+											onclick: function() {
+												document.getElementsByClassName('field-vueMultiSelect')[0].classList.remove('disable-multiselect')
+											}
+										}
+									]
+								},{
+									type: 'email',
+									label: 'E-mail',
+									model: 'email',
+									inputName: 'email',
+									placeholder: "John.Mbuvi@gmail.com",
+									disabled: true,
+									validator: VueFormGenerator.validators.email,
+									buttons: [
+										{
+											classes: 'btn btn-primary',
+											label: 'Change',
+											onclick: function() {
+												document.getElementsByName('email')[0].disabled=false
+											}
+										}
+									]
+								},{
+									type: "pikaday",
+									label: "Date of Birth",
+									placeholder: "Select Calendar Date",
+									model: "date_birth",
+									inputName: 'date_birth',
+									disabled: true,
+									validator: VueFormGenerator.validators.date,
+									pikadayOptions: {
+										position: "top right"
+									},
+									buttons: [
+										{
+											classes: 'btn btn-primary',
+											label: 'Change',
+											onclick: function() {
+												document.getElementsByName('date_birth')[0].disabled=false
+											}
+										}
+									]
+								}
+							]
+						},
+						formOptions: {
+							validateAfterLoad: false,
+							validateAfterChanged: true
+						}
+					}
 				}
 			}
 		}

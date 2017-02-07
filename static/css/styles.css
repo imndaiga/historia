@@ -106,6 +106,22 @@
 }
 
 /*
+* Multiselect
+*/
+
+.disable-multiselect {
+  cursor: not-allowed
+}
+
+.disable-multiselect .field-wrap{
+  pointer-events: none
+}
+
+.enable-button-multiselect {
+  pointer-events: auto
+}
+
+/*
 * Custom Vue-Form-Generator CSS
 */
 

@@ -23,9 +23,9 @@
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
       <panel-header :subnav_dropdown="all_panels" :current_panel="current_panel"></panel-header>
       <panel-subnav v-if="currentSubnavs != null" :subnav_menus="currentSubnavs" :current_panel_view="current_panel_view"></panel-subnav>
-      <panel-form v-if="isNavigationAllowed(current_panel, current_panel_view, 'Form')" :form="getPanelViewData(current_panel, current_panel_view)"></panel-form>
-      <panel-table v-if="isNavigationAllowed(current_panel, current_panel_view, 'Table')" :list="getPanelViewData(current_panel, current_panel_view)" :table_headers="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></panel-table>
-      <modal-window v-if="open_modal_state" :relationship_data="getModalRelationshipData(current_panel_view)" :form_labels="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></modal-window>
+      <panel-form v-if="isNavigationAllowed(current_panel, current_panel_view, 'Form')" :form="getPanelViewObject(current_panel, current_panel_view)"></panel-form>
+      <panel-table v-if="isNavigationAllowed(current_panel, current_panel_view, 'Table')" :list="getPanelViewObject(current_panel, current_panel_view)" :table_headers="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></panel-table>
+      <modal-window v-if="open_modal_state" :relationship_schema="getModalRelationshipData(current_panel_view)"></modal-window>
     </div>
   </div>
 
@@ -142,22 +142,10 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title">{{relationship_data.first_name}} {{relationship_data.last_name}}</h4>
+            <h4 class="modal-title">{{relationship_schema.model.first_name}} {{relationship_schema.model.last_name}}</h4>
           </div>
           <div class="modal-body">
-            <form>
-              <div v-for="(input, key, index) in relationship_data" v-if="key != 'id'" class="form-group">
-                <label class="control-label">{{form_labels[index-1]}}</label>
-                <div class="input-group">
-                  <input class="form-control" type="text" :placeholder=input :readonly="active_form_fields.indexOf(input) == -1">
-                  <div class="input-group-btn">
-                    <button type="button" class="btn btn-default" v-on:click="activateFormField(input)">
-                      Change
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </form>
+            <vue-form-generator :schema="relationship_schema.schema" :model="relationship_schema.model" :options="relationship_schema.formOptions"></vue-form-generator>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
