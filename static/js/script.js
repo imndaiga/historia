@@ -101,6 +101,15 @@ Vue.component('panel-form', {
 		form : {
 			type: Object,
 			required: true
+		},
+		bs_panels: {
+			type: Object,
+			required: true
+		}
+	},
+	methods: {
+		bs_panel_selected: function(bs_panel) {
+			bus.$emit('bs-panel-selected', bs_panel)
 		}
 	}
 })
@@ -157,6 +166,10 @@ var vm = new Vue({
 		open_sub_dropdown_name: '',
 		open_modal_state: false,
 		open_modal_relationship_id: '',
+		bs_panels: {
+			personal_details_panel: false,
+			connect_relations_panel: true
+		},
 		all_panels : ['Overview', 'Relationships', 'Visualisation', 'Share'],
 		panel_subnavs : {
 			Relationships: {
@@ -575,7 +588,17 @@ var vm = new Vue({
 		}),
 		bus.$on('destroy-picker', function(picker) {
 			picker.destroy()
-		})
+		}),
+		bus.$on('bs-panel-selected', function(bs_panel) {
+			for (key in this.bs_panels) {
+				if (key == bs_panel) {
+					this.bs_panels[bs_panel] = !this.bs_panels[bs_panel]
+				} else {
+					this.bs_panels[key] = false
+				}
+
+			}
+		}.bind(this))
 	},
 	filters: {
 		capitalize : function(value) {

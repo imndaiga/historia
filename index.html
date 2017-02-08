@@ -23,7 +23,7 @@
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
       <panel-header :subnav_dropdown="all_panels" :current_panel="current_panel"></panel-header>
       <panel-subnav v-if="currentSubnavs != null" :subnav_menus="currentSubnavs" :current_panel_view="current_panel_view"></panel-subnav>
-      <panel-form v-if="isNavigationAllowed(current_panel, current_panel_view, 'Form')" :form="getPanelViewObject(current_panel, current_panel_view)"></panel-form>
+      <panel-form v-if="isNavigationAllowed(current_panel, current_panel_view, 'Form')" :form="getPanelViewObject(current_panel, current_panel_view)" :bs_panels="bs_panels"></panel-form>
       <panel-table v-if="isNavigationAllowed(current_panel, current_panel_view, 'Table')" :list="getPanelViewObject(current_panel, current_panel_view)" :table_headers="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></panel-table>
       <modal-window v-if="open_modal_state" :relationship_schema="getModalRelationshipData(current_panel_view)"></modal-window>
     </div>
@@ -113,10 +113,10 @@
       <div class="panel panel-default">
         <div class="panel-heading">
           <h4 class="panel-title">
-            <a href="#">Personal Details</a>
+            <a href="#" v-on:click="bs_panel_selected('personal_details_panel')">Personal Details</a>
           </h4>
         </div>
-        <div class="panel-collapse collapse in">
+        <div class="panel-collapse collapse" :class="{in: bs_panels.personal_details_panel}">
           <div class="panel-body">
             <vue-form-generator :schema="form.data.schema" :model="form.data.model" :options="form.data.formOptions"></vue-form-generator>
           </div>
@@ -124,9 +124,9 @@
       </div>
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h4 class="panel-title"><a href="#">Connect Relations</a></h4>
+          <h4 class="panel-title"><a href="#" v-on:click="bs_panel_selected('connect_relations_panel')">Connect Relations</a></h4>
         </div>
-        <div class="panel-collapse collapse in">
+        <div class="panel-collapse collapse" :class="{in: bs_panels.connect_relations_panel}">
           <div class="panel-body">
             Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
             tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
