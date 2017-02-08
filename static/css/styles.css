@@ -108,6 +108,13 @@
 }
 
 /*
+* Bootstrap panel CSS fix to override global 50px default
+*/
+.panel-group .panel.panel-default {
+  padding-top: 0px;
+}
+
+/*
 * Table
 */
 .center-content {
