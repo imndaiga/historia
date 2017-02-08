@@ -188,7 +188,7 @@ var vm = new Vue({
 							lname: '',
 							relation: '',
 							email: '',
-							bdate: '2017-02-15'
+							bdate: ''
 						},
 						schema: {
 							fields: [
@@ -227,14 +227,29 @@ var vm = new Vue({
 									placeholder: "John.Mbuvi@gmail.com",
 									validator: VueFormGenerator.validators.email
 								},{
-									type: "pikaday",
-									label: "Birthday",
-									placeholder: "Select Calendar Date",
-									model: "bdate",
-									validator: VueFormGenerator.validators.date,
-									pikadayOptions: {
-										position: "top right"
-									}
+									type: 'text',
+									label: 'Birthday',
+									model: 'birth_date',
+									placeholder: 'Select Birth Date',
+									readonly: true,
+									inputName: 'birth_date',
+									buttons: [
+										{
+											classes: 'calendar-button',
+											label: ' ',
+											onclick: function() {
+												var picker = new Pikaday ({
+													field: document.getElementsByName('birth_date')[0],
+													trigger: document.getElementsByClassName('calendar-button')[0],
+													onClose: function() {
+														bus.$emit('destroy-picker', this)
+													}
+												})
+												bus.$emit('open-picker', picker)
+											}
+										}
+									],
+									validator: VueFormGenerator.validators.date
 								}
 							]
 						},
@@ -386,7 +401,6 @@ var vm = new Vue({
 									model: 'first_name',
 									inputName: 'first_name',
 									placeholder: 'John',
-									required: true,
 									disabled: true,
 									validator: VueFormGenerator.validators.string,
 									buttons: [
@@ -404,7 +418,6 @@ var vm = new Vue({
 									model: 'ethnic_name',
 									inputName: 'ethnic_name',
 									placeholder: 'Mutuku',
-									required: true,
 									disabled: true,
 									validator: VueFormGenerator.validators.string,
 									buttons: [
@@ -422,7 +435,6 @@ var vm = new Vue({
 									model: 'last_name',
 									inputName: 'last_name',
 									placeholder: 'Mbuvi',
-									required: true,
 									disabled: true,
 									validator: VueFormGenerator.validators.string,
 									buttons: [
@@ -470,22 +482,36 @@ var vm = new Vue({
 										}
 									]
 								},{
-									type: "pikaday",
-									label: "Date of Birth",
-									placeholder: "Select Calendar Date",
-									model: "date_birth",
-									inputName: 'date_birth',
-									disabled: true,
+									type: 'text',
+									label: 'Date of Birth',
+									placeholder: 'Select Calendar Date',
+									model: 'birth_date',
+									inputName: 'birth_date',
+									readonly: true,
 									validator: VueFormGenerator.validators.date,
 									pikadayOptions: {
 										position: "top right"
 									},
+									styleClasses: 'disable-calendar-button',
 									buttons: [
 										{
-											classes: 'btn btn-primary',
+											classes: 'calendar-button disabled-item',
+											label: ' ',
+											onclick: function() {
+												var picker = new Pikaday ({
+													field: document.getElementsByName('birth_date')[0],
+													trigger: document.getElementsByClassName('calendar-button')[0],
+													onClose: function() {
+														bus.$emit('destroy-picker', this)
+													}
+												})
+												bus.$emit('open-picker', picker)
+											}
+										},{
+											classes: 'button-active',
 											label: 'Change',
 											onclick: function() {
-												document.getElementsByName('date_birth')[0].disabled=false
+												document.getElementsByClassName('calendar-button')[0].classList.remove('disabled-item')
 											}
 										}
 									]
@@ -493,7 +519,7 @@ var vm = new Vue({
 							]
 						},
 						formOptions: {
-							validateAfterLoad: false,
+							validateAfterLoad: true,
 							validateAfterChanged: true
 						}
 					}
@@ -543,7 +569,13 @@ var vm = new Vue({
 					}
 				}
 			}
-		}.bind(this))
+		}.bind(this)),
+		bus.$on('open-picker', function(picker) {
+			picker.show()
+		}),
+		bus.$on('destroy-picker', function(picker) {
+			picker.destroy()
+		})
 	},
 	filters: {
 		capitalize : function(value) {

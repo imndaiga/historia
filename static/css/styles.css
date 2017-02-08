@@ -125,6 +125,39 @@
 * Custom Vue-Form-Generator CSS
 */
 
+.calendar-button {
+  position: relative;
+  max-height: 41px;
+}
+
+.calendar-button:before {
+  content: "\f073";
+  font-family: FontAwesome;
+  position: relative;
+  top: -4px;
+  font-size: 20px;
+}
+
+.button-active {
+  cursor: pointer;
+}
+
+.disable-calendar-button .field-wrap .buttons{
+  cursor: not-allowed;
+}
+
+.disabled-item {
+  pointer-events: none;
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+/*
+* Vue-Form-Generator CSS
+*/
+
 /**
  * vue-form-generator v2.0.0-beta2
  * https://github.com/icebob/vue-form-generator
