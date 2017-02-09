@@ -206,26 +206,29 @@ var vm = new Vue({
 						schema: {
 							fields: [
 								{
-									type: 'text',
+									type: 'input',
+									inputType: 'text',
 									label: 'First name',
 									model: 'fname',
 									placeholder: 'John',
 									required: true,
-									validator: VueFormGenerator.validators.string
+									validator: VueFormGenerator.validators.alpha
 								},{
-									type: 'text',
+									type: 'input',
+									inputType: 'text',
 									label: 'Ethnic name',
 									model: 'ename',
 									placeholder: 'Mutuku',
 									required: true,
-									validator: VueFormGenerator.validators.string
+									validator: VueFormGenerator.validators.alpha
 								},{
-									type: 'text',
+									type: 'input',
+									inputType: 'text',
 									label: 'Last name',
 									model: 'lname',
 									placeholder: 'Mbuvi',
 									required: true,
-									validator: VueFormGenerator.validators.string
+									validator: VueFormGenerator.validators.alpha
 								},{
 									type: 'vueMultiSelect',
 									label: 'Relation',
@@ -234,13 +237,15 @@ var vm = new Vue({
 									values: ['Father','Mother', 'Brother', 'Sister', 'Step-Mother',
 											'Step-Father', 'Step-Brother', 'Step-Sister']
 								},{
-									type: 'email',
+									type: 'input',
+									inputType: 'email',
 									label: 'E-mail',
 									model: 'email',
 									placeholder: "John.Mbuvi@gmail.com",
 									validator: VueFormGenerator.validators.email
 								},{
-									type: 'text',
+									type: 'input',
+									inputType: 'text',
 									label: 'Birthday',
 									model: 'birth_date',
 									placeholder: 'Select Birth Date',
@@ -409,13 +414,14 @@ var vm = new Vue({
 						schema: {
 							fields: [
 								{
-									type: 'text',
+									type: 'input',
+									inputType: 'text',
 									label: 'First name',
 									model: 'first_name',
 									inputName: 'first_name',
 									placeholder: 'John',
 									disabled: true,
-									validator: VueFormGenerator.validators.string,
+									validator: VueFormGenerator.validators.alpha,
 									buttons: [
 										{
 											classes: 'btn btn-primary',
@@ -426,13 +432,14 @@ var vm = new Vue({
 										}
 									]
 								},{
-									type: 'text',
+									type: 'input',
+									inputType: 'text',
 									label: 'Ethnic name',
 									model: 'ethnic_name',
 									inputName: 'ethnic_name',
 									placeholder: 'Mutuku',
 									disabled: true,
-									validator: VueFormGenerator.validators.string,
+									validator: VueFormGenerator.validators.alpha,
 									buttons: [
 										{
 											classes: 'btn btn-primary',
@@ -443,13 +450,14 @@ var vm = new Vue({
 										}
 									]
 								},{
-									type: 'text',
+									type: 'input',
+									inputType: 'text',
 									label: 'Last name',
 									model: 'last_name',
 									inputName: 'last_name',
 									placeholder: 'Mbuvi',
 									disabled: true,
-									validator: VueFormGenerator.validators.string,
+									validator: VueFormGenerator.validators.alpha,
 									buttons: [
 										{
 											classes: 'btn btn-primary',
@@ -478,7 +486,8 @@ var vm = new Vue({
 										}
 									]
 								},{
-									type: 'email',
+									type: 'input',
+									inputType: 'email',
 									label: 'E-mail',
 									model: 'email',
 									inputName: 'email',
@@ -495,7 +504,8 @@ var vm = new Vue({
 										}
 									]
 								},{
-									type: 'text',
+									type: 'input',
+									inputType: 'text',
 									label: 'Date of Birth',
 									placeholder: 'Select Calendar Date',
 									model: 'birth_date',
