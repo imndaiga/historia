@@ -2,10 +2,10 @@
 * General
 */
 .form-control {
-  margin-bottom: 15px;
+  margin-bottom: 15px
 }
 .alert {
-  margin-top: 5px;
+  margin-top: 5px
 }
 
 /*
@@ -22,44 +22,44 @@
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
   background-color: #f5f5f5;
-  border-right: 1px solid #eee;
+  border-right: 1px solid #eee
 }
 
 /* Sidebar navigation */
 .nav-sidebar {
   margin-right: -21px; /* 20px padding + 1px border */
   margin-bottom: 20px;
-  margin-left: -20px;
+  margin-left: -20px
 }
 .nav-sidebar > li > a {
   padding-right: 20px;
-  padding-left: 20px;
+  padding-left: 20px
 }
 .nav-sidebar > .active > a, .nav-sidebar > .active > a:hover, .nav-sidebar > .active > a:focus {
   color: #fff;
-  background-color: #428bca;
+  background-color: #428bca
 }
 
 /*
 * panel
 */
 .panel {
-  padding-top: 50px;
+  padding-top: 50px
 }
 @media (min-width:@screen-md-min) {
   .panel {
     padding-top: 50px;
     padding-right: 20px;
-    padding-left: 20px;
+    padding-left: 20px
   }
 }
 .button-header {
   margin-top: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 20px
 }
 .panel-dropdown {
   margin-left: calc(50% - 80px);
-  margin-right: calc(50% - 80px);
+  margin-right: calc(50% - 80px)
 }
 .panel-header {
   margin-bottom: 10px;
@@ -67,12 +67,12 @@
   padding-top: 10px;
   border-bottom: 1px solid #eee;
   background-color: #F8F8F8;
-  text-indent: 50px;
+  text-indent: 50px
 }
 .panel-menu {
   padding-bottom: 10px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #eee
 }
 
 /*
@@ -80,8 +80,7 @@
 */
 .nav-menu-caption {
   padding-left: 10px;
-  margin-right: 5px;
-  small;
+  margin-right: 5px
 }
 
 /*
@@ -93,7 +92,7 @@
 
 .modal-body {
   height: 300px;
-  overflow-y: auto;
+  overflow-y: auto
 }
 
 .modal-mask {
@@ -104,21 +103,21 @@
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, .5);
-  display: table;
+  display: table
 }
 
 /*
 * Bootstrap panel CSS fix to override global 50px default
 */
 .panel-group .panel.panel-default {
-  padding-top: 0px;
+  padding-top: 0px
 }
 
 /*
 * Table
 */
 .center-content {
-  text-align: center;
+  text-align: center
 }
 
 /*
@@ -129,12 +128,8 @@
   cursor: not-allowed
 }
 
-.disable-multiselect .field-wrap{
+.disable-multiselect .field-wrap .multiselect{
   pointer-events: none
-}
-
-.enable-button-multiselect {
-  pointer-events: auto
 }
 
 /*
@@ -143,7 +138,7 @@
 
 .calendar-button {
   position: relative;
-  max-height: 41px;
+  max-height: 41px
 }
 
 .calendar-button:before {
@@ -151,23 +146,36 @@
   font-family: FontAwesome;
   position: relative;
   top: -4px;
-  font-size: 20px;
+  font-size: 20px
 }
 
 .button-active {
-  cursor: pointer;
+  pointer-events: auto;
+  cursor: pointer
 }
 
-.disable-calendar-button .field-wrap .buttons{
-  cursor: not-allowed;
+.disable-buttons .field-wrap .buttons{
+  cursor: not-allowed
 }
 
-.disabled-item {
+.button-disabled {
   pointer-events: none;
   opacity: 0.65;
   filter: alpha(opacity=65);
   -webkit-box-shadow: none;
-  box-shadow: none;
+  box-shadow: none
+}
+
+.readonly-input .field-wrap .wrapper{
+  cursor: not-allowed;
+}
+
+.readonly-input .field-wrap input{
+  pointer-events: none;
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+  -webkit-box-shadow: none;
+  box-shadow: none
 }
 
 /*
@@ -198,7 +206,7 @@ fieldset.vue-form-generator .form-control {
   background-image: none;
   border: 1px solid #e8e8e8;
   border-radius: 5px;
-  box-shadow: inset 0 0 0 rgba(0, 0, 0, 0);
+  box-shadow: none;
   transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out
 }
 fieldset.vue-form-generator span.help {
@@ -318,6 +326,9 @@ fieldset.vue-form-generator .form-group.disabled>label {
   color: #666;
   font-style: italic
 }
+/*
+* Edited
+*/
 fieldset.vue-form-generator .form-group.error input:not([type=checkbox]), fieldset.vue-form-generator .form-group.error select, fieldset.vue-form-generator .form-group.error textarea {
   border: 1px solid red;
   background-color: rgba(255, 0, 0, .15)
