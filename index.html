@@ -22,10 +22,10 @@
     <app-sidebar :current_panel="current_panel" :panels="all_panels"></app-sidebar>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
       <panel-header :subnav_dropdown="all_panels" :current_panel="current_panel"></panel-header>
-      <panel-subnav v-if="currentSubnavs != null" :subnav_menus="currentSubnavs" :current_panel_view="current_panel_view"></panel-subnav>
+      <panel-subnav v-if="current_Subnavs != null" :subnav_menus="current_Subnavs" :current_panel_view="current_panel_view"></panel-subnav>
       <panel-form v-if="isNavigationAllowed(current_panel, current_panel_view, 'Form')" :form="getPanelViewObject(current_panel, current_panel_view)" :bs_panels="bs_panels"></panel-form>
       <panel-table v-if="isNavigationAllowed(current_panel, current_panel_view, 'Table')" :list="getPanelViewObject(current_panel, current_panel_view)" :table_headers="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></panel-table>
-      <modal-window v-if="open_modal_state" :relationship_schema="getModalRelationshipData(current_panel_view)"></modal-window>
+      <modal-window v-if="open_modal_state" :schema="modal_schema" :model="modal_Model" :options="modal_options"></modal-window>
     </div>
   </div>
 
@@ -168,10 +168,10 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title" v-once>{{relationship_schema.model.first_name}} {{relationship_schema.model.last_name}}</h4>
+            <h4 class="modal-title" v-once>{{model.first_name}} {{model.last_name}}</h4>
           </div>
           <div class="modal-body">
-            <vue-form-generator :schema="relationship_schema.schema" :model="relationship_schema.model" :options="relationship_schema.formOptions"></vue-form-generator>
+            <vue-form-generator :schema="schema" :model="model" :options="options"></vue-form-generator>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>

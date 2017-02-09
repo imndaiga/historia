@@ -139,7 +139,15 @@ Vue.component('panel-table', {
 Vue.component('modal-window', {
 	template: '#modal-window',
 	props: {
-		relationship_schema: {
+		schema: {
+			type: Object,
+			required: true
+		},
+		model: {
+			type: Object,
+			required: true
+		},
+		options: {
 			type: Object,
 			required: true
 		}
@@ -338,7 +346,137 @@ var vm = new Vue({
 				],
 				reference: 'Manage your profile'
 			}
-		]
+		],
+		modal_schema: {
+			fields: [
+				{
+					type: 'input',
+					inputType: 'text',
+					label: 'First name',
+					model: 'first_name',
+					inputName: 'first_name',
+					placeholder: 'John',
+					styleClasses: 'readonly-input',
+					validator: VueFormGenerator.validators.alpha,
+					buttons: [
+						{
+							label: 'Change',
+							onclick: function() {
+								document.getElementsByName('first_name')[0].parentElement.parentElement.parentElement.classList.remove('readonly-input')
+							}
+						}
+					]
+				},{
+					type: 'input',
+					inputType: 'text',
+					label: 'Ethnic name',
+					model: 'ethnic_name',
+					inputName: 'ethnic_name',
+					placeholder: 'Mutuku',
+					styleClasses: 'readonly-input',
+					validator: VueFormGenerator.validators.alpha,
+					buttons: [
+						{
+							label: 'Change',
+							onclick: function() {
+								document.getElementsByName('ethnic_name')[0].parentElement.parentElement.parentElement.classList.remove('readonly-input')
+							}
+						}
+					]
+				},{
+					type: 'input',
+					inputType: 'text',
+					label: 'Last name',
+					model: 'last_name',
+					inputName: 'last_name',
+					placeholder: 'Mbuvi',
+					styleClasses: 'readonly-input',
+					validator: VueFormGenerator.validators.alpha,
+					buttons: [
+						{
+							label: 'Change',
+							onclick: function() {
+								document.getElementsByName('last_name')[0].parentElement.parentElement.parentElement.classList.remove('readonly-input')
+							}
+						}
+					]
+				},{
+					type: 'vueMultiSelect',
+					label: 'Relation',
+					model: 'relation_name',
+					inputName: 'relation_name',
+					multiSelect: false,
+					styleClasses: 'disable-multiselect',
+					values: ['Father','Mother', 'Brother', 'Sister', 'Step-Mother',
+							'Step-Father', 'Step-Brother', 'Step-Sister'],
+					buttons: [
+						{
+							classes: 'button-active',
+							label: 'Change',
+							onclick: function() {
+								document.getElementsByClassName('field-vueMultiSelect')[0].classList.remove('disable-multiselect')
+							}
+						}
+					]
+				},{
+					type: 'input',
+					inputType: 'email',
+					label: 'E-mail',
+					model: 'email',
+					inputName: 'email',
+					placeholder: "John.Mbuvi@gmail.com",
+					styleClasses: 'readonly-input',
+					validator: VueFormGenerator.validators.email,
+					buttons: [
+						{
+							label: 'Change',
+							onclick: function() {
+								document.getElementsByName('email')[0].parentElement.parentElement.parentElement.classList.remove('readonly-input')
+							}
+						}
+					]
+				},{
+					type: 'input',
+					inputType: 'text',
+					label: 'Date of Birth',
+					placeholder: 'Select Calendar Date',
+					model: 'birth_date',
+					inputName: 'birth_date',
+					readonly: true,
+					styleClasses: 'disable-buttons',
+					validator: VueFormGenerator.validators.date,
+					pikadayOptions: {
+						position: "top right"
+					},
+					buttons: [
+						{
+							classes: 'calendar-button button-disabled',
+							label: ' ',
+							onclick: function() {
+								var picker = new Pikaday ({
+									field: document.getElementsByName('birth_date')[0],
+									trigger: document.getElementsByClassName('calendar-button')[0],
+									onClose: function() {
+										bus.$emit('destroy-picker', this)
+									}
+								})
+								bus.$emit('open-picker', picker)
+							}
+						},{
+							classes: 'button-active',
+							label: 'Change',
+							onclick: function() {
+								document.getElementsByClassName('calendar-button')[0].classList.remove('button-disabled')
+							}
+						}
+					]
+				}
+			]
+		},
+		modal_options: {
+			validateAfterLoad: false,
+			validateAfterChanged: true
+		}
 	},
 	methods: {
 		toggleMenu: function() {
@@ -404,154 +542,10 @@ var vm = new Vue({
 					}
 				}
 			}
-		},
-		getModalRelationshipData: function(panel_view) {
-			data = this.getViewData(panel_view)
-			for (relation in data) {
-				if (data[relation].id == this.open_modal_relationship_id) {
-					return {
-						model: data[relation],
-						schema: {
-							fields: [
-								{
-									type: 'input',
-									inputType: 'text',
-									label: 'First name',
-									model: 'first_name',
-									inputName: 'first_name',
-									placeholder: 'John',
-									disabled: true,
-									validator: VueFormGenerator.validators.alpha,
-									buttons: [
-										{
-											classes: 'btn btn-primary',
-											label: 'Change',
-											onclick: function() {
-												document.getElementsByName('first_name')[0].disabled=false
-											}
-										}
-									]
-								},{
-									type: 'input',
-									inputType: 'text',
-									label: 'Ethnic name',
-									model: 'ethnic_name',
-									inputName: 'ethnic_name',
-									placeholder: 'Mutuku',
-									disabled: true,
-									validator: VueFormGenerator.validators.alpha,
-									buttons: [
-										{
-											classes: 'btn btn-primary',
-											label: 'Change',
-											onclick: function() {
-												document.getElementsByName('ethnic_name')[0].disabled=false
-											}
-										}
-									]
-								},{
-									type: 'input',
-									inputType: 'text',
-									label: 'Last name',
-									model: 'last_name',
-									inputName: 'last_name',
-									placeholder: 'Mbuvi',
-									disabled: true,
-									validator: VueFormGenerator.validators.alpha,
-									buttons: [
-										{
-											classes: 'btn btn-primary',
-											label: 'Change',
-											onclick: function() {
-												document.getElementsByName('last_name')[0].disabled=false
-											}
-										}
-									]
-								},{
-									type: 'vueMultiSelect',
-									label: 'Relation',
-									model: 'relation_name',
-									inputName: 'relation_name',
-									multiSelect: false,
-									styleClasses: 'disable-multiselect',
-									values: ['Father','Mother', 'Brother', 'Sister', 'Step-Mother',
-											'Step-Father', 'Step-Brother', 'Step-Sister'],
-									buttons: [
-										{
-											classes: 'btn btn-primary enable-button-multiselect',
-											label: 'Change',
-											onclick: function() {
-												document.getElementsByClassName('field-vueMultiSelect')[0].classList.remove('disable-multiselect')
-											}
-										}
-									]
-								},{
-									type: 'input',
-									inputType: 'email',
-									label: 'E-mail',
-									model: 'email',
-									inputName: 'email',
-									placeholder: "John.Mbuvi@gmail.com",
-									disabled: true,
-									validator: VueFormGenerator.validators.email,
-									buttons: [
-										{
-											classes: 'btn btn-primary',
-											label: 'Change',
-											onclick: function() {
-												document.getElementsByName('email')[0].disabled=false
-											}
-										}
-									]
-								},{
-									type: 'input',
-									inputType: 'text',
-									label: 'Date of Birth',
-									placeholder: 'Select Calendar Date',
-									model: 'birth_date',
-									inputName: 'birth_date',
-									readonly: true,
-									validator: VueFormGenerator.validators.date,
-									pikadayOptions: {
-										position: "top right"
-									},
-									styleClasses: 'disable-calendar-button',
-									buttons: [
-										{
-											classes: 'calendar-button disabled-item',
-											label: ' ',
-											onclick: function() {
-												var picker = new Pikaday ({
-													field: document.getElementsByName('birth_date')[0],
-													trigger: document.getElementsByClassName('calendar-button')[0],
-													onClose: function() {
-														bus.$emit('destroy-picker', this)
-													}
-												})
-												bus.$emit('open-picker', picker)
-											}
-										},{
-											classes: 'button-active',
-											label: 'Change',
-											onclick: function() {
-												document.getElementsByClassName('calendar-button')[0].classList.remove('disabled-item')
-											}
-										}
-									]
-								}
-							]
-						},
-						formOptions: {
-							validateAfterLoad: true,
-							validateAfterChanged: true
-						}
-					}
-				}
-			}
 		}
 	},
 	computed: {
-		currentSubnavs: function() {
+		current_Subnavs: function() {
 			for (index in this.all_panels) {
 				panel = this.all_panels[index]
 				if (Object.keys(this.panel_subnavs).indexOf(panel) != -1 && panel == this.current_panel) {
@@ -559,6 +553,15 @@ var vm = new Vue({
 				}
 			}
 			return null
+		},
+		modal_Model: function() {
+			data = this.getViewData(this.current_panel_view)
+			for (relation in data) {
+				if (data[relation].id == this.open_modal_relationship_id) {
+					var model = data[relation]
+				}
+			}
+			return model
 		}
 	},
 	created: function() {
