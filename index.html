@@ -22,7 +22,7 @@
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
       <panel-header :subnav_dropdown="all_panels" :current_panel="current_panel"></panel-header>
       <panel-subnav v-if="current_Subnavs != null" :subnav_menus="current_Subnavs" :current_panel_view="current_panel_view"></panel-subnav>
-      <panel-form v-if="isNavigationAllowed(current_panel, current_panel_view, 'Form')" :form="getViewData(current_panel_view)" :form_labels="getViewFields(current_panel_view, ['type','placeholder']) | spacereplace | capitalize" :bs_panels="bs_panels"></panel-form>
+      <panel-form v-if="isNavigationAllowed(current_panel, current_panel_view, 'Form')" :form="getViewData(current_panel_view)" :form_labels="getViewFields(current_panel_view, ['type','placeholder','input_name']) | spacereplace | capitalize" :bs_panels="bs_panels"></panel-form>
       <panel-table v-if="isNavigationAllowed(current_panel, current_panel_view, 'Table')" :list="getViewData(current_panel_view)" :table_headers="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></panel-table>
       <modal-window v-if="open_modal_state" :form="modal_Form" :form_labels="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></modal-window>
     </div>
@@ -119,7 +119,7 @@
           <div class="panel-body">
           <form class="form-group" v-for="(label, index) in form_labels">
             <label>{{label}}</label>
-            <component :is="form[index].type" :placeholder="form[index].placeholder"></component>
+            <component :is="form[index].type" :placeholder="form[index].placeholder" :input_name="form[index].input_name"></component>
           </form>
           </div>
         </div>
@@ -175,7 +175,7 @@
           <div class="modal-body">
             <form class="form-group" v-for="(field_object, key, index) in form" v-if="key != 'id'">
               <label>{{form_labels[index-1]}}</label>
-              <component :is="field_object.type" :placeholder="field_object.value"></component>
+              <component :is="field_object.type" :placeholder="field_object.value" :input_name="field_object.input_name"></component>
             </form>
           </div>
           <div class="modal-footer">
@@ -188,11 +188,11 @@
   </template>
 
   <template id="alpha-input">
-    <input type="text" class="form-control" :placeholder="placeholder">
+    <input type="text" class="form-control" :placeholder="placeholder" :name="input_name">
   </template>
 
   <template id="email-input">
-    <input type="text" class="form-control" :placeholder="placeholder">
+    <input type="text" class="form-control" :placeholder="placeholder" :name="input_name">
   </template>
 
   <template id="pikaday-input">
