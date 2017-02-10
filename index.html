@@ -188,11 +188,11 @@
   </template>
 
   <template id="alpha-input">
-    <input type="text" class="form-control" :placeholder="placeholder" :name="input_name">
+    <input type="text" class="form-control" :placeholder="placeholder" :name="input_name" v-on:input="alphaChanged(input_name, $event.target.value)">
   </template>
 
   <template id="email-input">
-    <input type="text" class="form-control" :placeholder="placeholder" :name="input_name">
+    <input type="text" class="form-control" :placeholder="placeholder" :name="input_name" v-on:input="emailChanged(input_name, $event.target.value)">
   </template>
 
   <template id="pikaday-input">

@@ -172,6 +172,11 @@ Vue.component('alpha-input', {
 			type: String,
 			required: true
 		}
+	},
+	methods: {
+		alphaChanged: function(field_name, value) {
+			bus.$emit('alpha-changed', [field_name, event.target.value])
+		}
 	}
 })
 
@@ -185,6 +190,11 @@ Vue.component('email-input', {
 		input_name: {
 			type: String,
 			required: true
+		}
+	},
+	methods: {
+		emailChanged: function(field_name, value) {
+			bus.$emit('email-changed', [field_name, event.target.value])
 		}
 	}
 })
@@ -230,10 +240,10 @@ var vm = new Vue({
 				Add_Relationships: {
 					type: 'Form',
 					data: [
-						{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'fname'},
-						{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'ename'},
-						{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'lname'},
-						{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'email'},
+						{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name'},
+						{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name'},
+						{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name'},
+						{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email'},
 						// {type: 'multiselect-input', relation: ''},
 						// {type: 'pikaday-input', birth_date: ''}
 					]
@@ -243,26 +253,26 @@ var vm = new Vue({
 					data: [
 						{
 							id:{value:'1'},
-							first_name:{value:'John', type:'alpha-input', input_name: 'fname'},
-							ethnic_name:{value:'Mwaura', type:'alpha-input', input_name: 'fname'},
-							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'fname'},
-							email:{value:'john.mwaura@gmail.com', type:'email-input', input_name: 'fname'},
+							first_name:{value:'John', type:'alpha-input', input_name: 'mod_fname'},
+							ethnic_name:{value:'Mwaura', type:'alpha-input', input_name: 'mod_ename'},
+							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_lname'},
+							email:{value:'john.mwaura@gmail.com', type:'email-input', input_name: 'mod_email'},
 							// relation_name:{value:'Father', type:'multiselect-input'},
 							// birth_date:{value:'2017-02-15', type:'pikaday-input'}
 						},{
 							id:{value:'2'},
-							first_name:{value:'Jane', type:'alpha-input', input_name: 'fname'},
-							ethnic_name:{value:'Moraa', type:'alpha-input', input_name: 'fname'},
-							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'fname'},
-							email:{value:'jane.mwaura@gmail.com', type:'email-input', input_name: 'fname'},
+							first_name:{value:'Jane', type:'alpha-input', input_name: 'mod_fname'},
+							ethnic_name:{value:'Moraa', type:'alpha-input', input_name: 'mod_ename'},
+							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_lname'},
+							email:{value:'jane.mwaura@gmail.com', type:'email-input', input_name: 'mod_email'},
 							// relation_name:{value:'Mother', type:'multiselect-input'},
 							// birth_date:{value:'2017-02-15', type:'pikaday-input'}
 						},{
 							id:{value:'3'},
-							first_name:{value:'Jack', type:'alpha-input', input_name: 'fname'},
-							ethnic_name:{value:'Mutuku', type:'alpha-input', input_name: 'fname'},
-							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'fname'},
-							email:{value:'jack.ndungu@gmail.com', type:'email-input', input_name: 'fname'},
+							first_name:{value:'Jack', type:'alpha-input', input_name: 'mod_fname'},
+							ethnic_name:{value:'Mutuku', type:'alpha-input', input_name: 'mod_ename'},
+							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_lname'},
+							email:{value:'jack.ndungu@gmail.com', type:'email-input', input_name: 'mod_email'},
 							// relation_name:{value:'Brother', type:'multiselect-input'},
 							// birth_date:{value:'2017-02-15', type:'pikaday-input'}}
 						}
@@ -375,6 +385,15 @@ var vm = new Vue({
 					}
 				}
 			}
+		},
+		updateField: function(command, field, value) {
+			if (command == 'add') {
+				for (form_field in this.panel_views[this.current_panel][this.current_panel_view].data) {
+					if (Object.keys(this.panel_views[this.current_panel][this.current_panel_view].data[form_field]).indexOf(field) != -1) {
+						this.panel_views[this.current_panel][this.current_panel_view].data[form_field][field] = value
+					}
+				}
+			}
 		}
 	},
 	computed: {
@@ -438,6 +457,20 @@ var vm = new Vue({
 				}
 
 			}
+		}.bind(this)),
+		bus.$on('alpha-changed', function(form_data) {
+			var command = form_data[0].toString().split('_')[0]
+			var field = form_data[0].toString().split('_')[1]
+			var formatted_field = field.toString().replace('-','_')
+			var value = form_data[1]
+			this.updateField(command, formatted_field, value)
+		}.bind(this)),
+		bus.$on('email-changed', function(form_data) {
+			var command = form_data[0].toString().split('_')[0]
+			var field = form_data[0].toString().split('_')[1]
+			var formatted_field = field.toString().replace('-','_')
+			var value = form_data[1]
+			this.updateField(command, formatted_field, value)
 		}.bind(this))
 	},
 	filters: {
