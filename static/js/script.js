@@ -99,11 +99,15 @@ Vue.component('panel-form', {
 	template: '#panel-form',
 	props: {
 		form : {
-			type: Object,
+			type: Array,
 			required: true
 		},
 		bs_panels: {
 			type: Object,
+			required: true
+		},
+		form_labels : {
+			type: Array,
 			required: true
 		}
 	},
@@ -118,7 +122,7 @@ Vue.component('panel-table', {
 	template: '#panel-table',
 	props: {
 		list: {
-			type: Object,
+			type: Array,
 			required: true
 		},
 		table_headers: {
@@ -139,16 +143,12 @@ Vue.component('panel-table', {
 Vue.component('modal-window', {
 	template: '#modal-window',
 	props: {
-		schema: {
+		form: {
 			type: Object,
 			required: true
 		},
-		model: {
-			type: Object,
-			required: true
-		},
-		options: {
-			type: Object,
+		form_labels: {
+			type: Array,
 			required: true
 		}
 	},
@@ -159,9 +159,31 @@ Vue.component('modal-window', {
 	}
 })
 
-Vue.component('multiselect', VueMultiselect.default)
+Vue.component('multiselect-input', VueMultiselect.default)
 
-Vue.use(VueFormGenerator)
+Vue.component('alpha-input', {
+	template: '#alpha-input',
+	props: {
+		placeholder: {
+			type: String,
+			required: true
+		}
+	}
+})
+
+Vue.component('email-input', {
+	template: '#email-input',
+	props: {
+		placeholder: {
+			type: String,
+			required: true
+		}
+	}
+})
+
+Vue.component('pikaday-input', {
+	template: '#pikaday-input'
+})
 
 var bus = new Vue()
 
@@ -174,10 +196,7 @@ var vm = new Vue({
 		open_sub_dropdown_name: '',
 		open_modal_state: false,
 		open_modal_relationship_id: '',
-		bs_panels: {
-			personal_details_panel: false,
-			connect_relations_panel: true
-		},
+		bs_panels: { personal_details_panel: false, connect_relations_panel: true },
 		all_panels : ['Overview', 'Relationships', 'Visualisation', 'Share'],
 		panel_subnavs : {
 			Relationships: {
@@ -202,95 +221,43 @@ var vm = new Vue({
 			Relationships: {
 				Add_Relationships: {
 					type: 'Form',
-					data: {
-						model: {
-							fname: '',
-							ename: '',
-							lname: '',
-							relation: '',
-							email: '',
-							bdate: ''
-						},
-						schema: {
-							fields: [
-								{
-									type: 'input',
-									inputType: 'text',
-									label: 'First name',
-									model: 'fname',
-									placeholder: 'John',
-									required: true,
-									validator: VueFormGenerator.validators.alpha
-								},{
-									type: 'input',
-									inputType: 'text',
-									label: 'Ethnic name',
-									model: 'ename',
-									placeholder: 'Mutuku',
-									required: true,
-									validator: VueFormGenerator.validators.alpha
-								},{
-									type: 'input',
-									inputType: 'text',
-									label: 'Last name',
-									model: 'lname',
-									placeholder: 'Mbuvi',
-									required: true,
-									validator: VueFormGenerator.validators.alpha
-								},{
-									type: 'vueMultiSelect',
-									label: 'Relation',
-									model: 'relation',
-									multiSelect: false,
-									values: ['Father','Mother', 'Brother', 'Sister', 'Step-Mother',
-											'Step-Father', 'Step-Brother', 'Step-Sister']
-								},{
-									type: 'input',
-									inputType: 'email',
-									label: 'E-mail',
-									model: 'email',
-									placeholder: "John.Mbuvi@gmail.com",
-									validator: VueFormGenerator.validators.email
-								},{
-									type: 'input',
-									inputType: 'text',
-									label: 'Birthday',
-									model: 'birth_date',
-									placeholder: 'Select Birth Date',
-									readonly: true,
-									inputName: 'birth_date',
-									buttons: [
-										{
-											classes: 'calendar-button',
-											label: ' ',
-											onclick: function() {
-												var picker = new Pikaday ({
-													field: document.getElementsByName('birth_date')[0],
-													trigger: document.getElementsByClassName('calendar-button')[0],
-													onClose: function() {
-														bus.$emit('destroy-picker', this)
-													}
-												})
-												bus.$emit('open-picker', picker)
-											}
-										}
-									],
-									validator: VueFormGenerator.validators.date
-								}
-							]
-						},
-						formOptions: {
-							validateAfterLoad: false,
-							validateAfterChanged: true
-						}
-					}
+					data: [
+						{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name'},
+						{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name'},
+						{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name'},
+						{type: 'email-input', email: '', placeholder: 'Enter Email Address'},
+						// {type: 'multiselect-input', relation: ''},
+						// {type: 'pikaday-input', birth_date: ''}
+					]
 				},
 				List_Relationships: {
 					type: 'Table',
 					data: [
-						{id:'1', first_name: 'John', ethnic_name: 'Mwaura', last_name: 'Ndungu', relation_name: 'Father', email: 'john.mwaura@gmail.com', birth_date: '2017-02-15'},
-						{id:'2', first_name: 'Jane', ethnic_name: 'Moraa', last_name: 'Ndungu', relation_name: 'Mother', email: 'jane.mwaura@gmail.com', birth_date: '2017-02-15'},
-						{id:'3', first_name: 'Jack', ethnic_name: 'Mutuku', last_name: 'Ndungu', relation_name: 'Brother', email: 'jack.ndungu@gmail.com', birth_date: '2017-02-15'}
+						{
+							id:{value:'1'},
+							first_name:{value:'John', type:'alpha-input'},
+							ethnic_name:{value:'Mwaura', type:'alpha-input'},
+							last_name:{value:'Ndungu', type:'alpha-input'},
+							email:{value:'john.mwaura@gmail.com', type:'email-input'},
+							// relation_name:{value:'Father', type:'multiselect-input'},
+							// birth_date:{value:'2017-02-15', type:'pikaday-input'}
+						},{
+							id:{value:'2'},
+							first_name:{value:'Jane', type:'alpha-input'},
+							ethnic_name:{value:'Moraa', type:'alpha-input'},
+							last_name:{value:'Ndungu', type:'alpha-input'},
+							email:{value:'jane.mwaura@gmail.com', type:'email-input'},
+							// relation_name:{value:'Mother', type:'multiselect-input'},
+							// birth_date:{value:'2017-02-15', type:'pikaday-input'}
+						},{
+							id:{value:'3'},
+							first_name:{value:'Jack', type:'alpha-input'},
+							ethnic_name:{value:'Mutuku', type:'alpha-input'},
+							last_name:{value:'Ndungu', type:'alpha-input'},
+							email:{value:'jack.ndungu@gmail.com', type:'email-input'},
+							// relation_name:{value:'Brother', type:'multiselect-input'},
+							// birth_date:{value:'2017-02-15', type:'pikaday-input'}}
+						}
 					]
 				}
 
@@ -346,137 +313,7 @@ var vm = new Vue({
 				],
 				reference: 'Manage your profile'
 			}
-		],
-		modal_schema: {
-			fields: [
-				{
-					type: 'input',
-					inputType: 'text',
-					label: 'First name',
-					model: 'first_name',
-					inputName: 'first_name',
-					placeholder: 'John',
-					styleClasses: 'readonly-input',
-					validator: VueFormGenerator.validators.alpha,
-					buttons: [
-						{
-							label: 'Change',
-							onclick: function() {
-								document.getElementsByName('first_name')[0].parentElement.parentElement.parentElement.classList.remove('readonly-input')
-							}
-						}
-					]
-				},{
-					type: 'input',
-					inputType: 'text',
-					label: 'Ethnic name',
-					model: 'ethnic_name',
-					inputName: 'ethnic_name',
-					placeholder: 'Mutuku',
-					styleClasses: 'readonly-input',
-					validator: VueFormGenerator.validators.alpha,
-					buttons: [
-						{
-							label: 'Change',
-							onclick: function() {
-								document.getElementsByName('ethnic_name')[0].parentElement.parentElement.parentElement.classList.remove('readonly-input')
-							}
-						}
-					]
-				},{
-					type: 'input',
-					inputType: 'text',
-					label: 'Last name',
-					model: 'last_name',
-					inputName: 'last_name',
-					placeholder: 'Mbuvi',
-					styleClasses: 'readonly-input',
-					validator: VueFormGenerator.validators.alpha,
-					buttons: [
-						{
-							label: 'Change',
-							onclick: function() {
-								document.getElementsByName('last_name')[0].parentElement.parentElement.parentElement.classList.remove('readonly-input')
-							}
-						}
-					]
-				},{
-					type: 'vueMultiSelect',
-					label: 'Relation',
-					model: 'relation_name',
-					inputName: 'relation_name',
-					multiSelect: false,
-					styleClasses: 'disable-multiselect',
-					values: ['Father','Mother', 'Brother', 'Sister', 'Step-Mother',
-							'Step-Father', 'Step-Brother', 'Step-Sister'],
-					buttons: [
-						{
-							classes: 'button-active',
-							label: 'Change',
-							onclick: function() {
-								document.getElementsByClassName('field-vueMultiSelect')[0].classList.remove('disable-multiselect')
-							}
-						}
-					]
-				},{
-					type: 'input',
-					inputType: 'email',
-					label: 'E-mail',
-					model: 'email',
-					inputName: 'email',
-					placeholder: "John.Mbuvi@gmail.com",
-					styleClasses: 'readonly-input',
-					validator: VueFormGenerator.validators.email,
-					buttons: [
-						{
-							label: 'Change',
-							onclick: function() {
-								document.getElementsByName('email')[0].parentElement.parentElement.parentElement.classList.remove('readonly-input')
-							}
-						}
-					]
-				},{
-					type: 'input',
-					inputType: 'text',
-					label: 'Date of Birth',
-					placeholder: 'Select Calendar Date',
-					model: 'birth_date',
-					inputName: 'birth_date',
-					readonly: true,
-					styleClasses: 'disable-buttons',
-					validator: VueFormGenerator.validators.date,
-					pikadayOptions: {
-						position: "top right"
-					},
-					buttons: [
-						{
-							classes: 'calendar-button button-disabled',
-							label: ' ',
-							onclick: function() {
-								var picker = new Pikaday ({
-									field: document.getElementsByName('birth_date')[0],
-									trigger: document.getElementsByClassName('calendar-button')[0],
-									onClose: function() {
-										bus.$emit('destroy-picker', this)
-									}
-								})
-								bus.$emit('open-picker', picker)
-							}
-						},{
-							classes: 'button-active',
-							label: 'Change',
-							onclick: function() {
-								document.getElementsByClassName('calendar-button')[0].classList.remove('button-disabled')
-							}
-						}
-					]
-				}
-			]
-		},
-		modal_options: {
-			validateAfterLoad: false,
-			validateAfterChanged: true
-		}
+		]
 	},
 	methods: {
 		toggleMenu: function() {
@@ -504,18 +341,6 @@ var vm = new Vue({
 				}
 			}
 			return false
-		},
-		getPanelViewObject: function(panel, panel_view) {
-			for (iter_panel in this.panel_views) {
-				if (iter_panel == panel) {
-					for (view in this.panel_views[panel]) {
-						if (view == panel_view) {
-							return this.panel_views[panel][view]
-						}
-					}
-				}
-			}
-			return null
 		},
 		getViewFields: function(panel_view, exceptions=[]) {
 			fields = []
@@ -554,14 +379,14 @@ var vm = new Vue({
 			}
 			return null
 		},
-		modal_Model: function() {
+		modal_Form: function() {
 			data = this.getViewData(this.current_panel_view)
-			for (relation in data) {
-				if (data[relation].id == this.open_modal_relationship_id) {
-					var model = data[relation]
+			for (i=0; i<data.length; i++) {
+				if (data[i].id == this.open_modal_relationship_id) {
+					return data[i]
 				}
 			}
-			return model
+			return null
 		}
 	},
 	created: function() {
@@ -596,12 +421,6 @@ var vm = new Vue({
 				}
 			}
 		}.bind(this)),
-		bus.$on('open-picker', function(picker) {
-			picker.show()
-		}),
-		bus.$on('destroy-picker', function(picker) {
-			picker.destroy()
-		}),
 		bus.$on('bs-panel-selected', function(bs_panel) {
 			for (key in this.bs_panels) {
 				if (key == bs_panel) {
@@ -623,9 +442,10 @@ var vm = new Vue({
 					cap_array.push(new_value)
 				}
 			return cap_array
+			} else {
+				value = value.toString()
+				return value.charAt(0).toUpperCase() + value.slice(1)
 			}
-			value = value.toString()
-			return value.charAt(0).toUpperCase() + value.slice(1)
 		},
 		spacereplace: function(value) {
 			if (!value) return ''
@@ -636,9 +456,10 @@ var vm = new Vue({
 					spaced_array.push(new_value)
 				}
 			return spaced_array
+			} else {
+				value = value.toString()
+				return value.replace('_',' ')
 			}
-			value = value.toString()
-			return value.charAt(0).toUpperCase() + value.slice(1)
 		}
 	}
 })
