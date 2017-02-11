@@ -466,7 +466,7 @@ var vm = new Vue({
 				for (view in this.panel_views[panel]) {
 					if (view == 'List_Relationships') {
 						for (i=0; i<this.panel_views[panel][view].data.length; i++) {
-							if (this.panel_views[panel][view].data[i].id == relationship_id) {
+							if (this.panel_views[panel][view].data[i].id.value == relationship_id) {
 								this.panel_views[panel][view].data.splice(i, 1)
 							}
 						}
