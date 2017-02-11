@@ -411,6 +411,14 @@ var vm = new Vue({
 						this.panel_views[this.current_panel][this.current_panel_view].data[form_field][field] = value
 					}
 				}
+			} else if (command == 'mod') {
+				for (data_field in this.panel_views[this.current_panel][this.current_panel_view].data) {
+					for (model in this.panel_views[this.current_panel][this.current_panel_view].data[data_field]) {
+						if (model == 'id' && this.panel_views[this.current_panel][this.current_panel_view].data[data_field][model].value == this.open_modal_relationship_id) {
+							this.panel_views[this.current_panel][this.current_panel_view].data[data_field][field].value = value
+						}
+					}
+				}
 			}
 		}
 	},
@@ -427,7 +435,7 @@ var vm = new Vue({
 		modal_Form: function() {
 			data = this.getViewData(this.current_panel_view)
 			for (i=0; i<data.length; i++) {
-				if (data[i].id == this.open_modal_relationship_id) {
+				if (data[i].id.value == this.open_modal_relationship_id) {
 					return data[i]
 				}
 			}

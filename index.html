@@ -154,8 +154,8 @@
           <tr v-for="relation in list">
             <td class="center-content" v-for="(detail, key) in relation" v-if="key != 'id'">{{ detail.value }}</td>
             <td class="center-content">
-              <button type="button" v-on:click="openRelation(relation.id)" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-pencil-square-o fa-lg"></i></button>
-              <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRelation(relation.id)" title="Delete"><i class="fa fa-trash-o fa-lg"></i></button>
+              <button type="button" v-on:click="openRelation(relation.id.value)" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-pencil-square-o fa-lg"></i></button>
+              <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRelation(relation.id.value)" title="Delete"><i class="fa fa-trash-o fa-lg"></i></button>
             </td>
           </tr>
         </tbody>
