@@ -105,10 +105,6 @@ Vue.component('panel-form', {
 		bs_panels: {
 			type: Object,
 			required: true
-		},
-		form_labels : {
-			type: Array,
-			required: true
 		}
 	},
 	methods: {
@@ -146,10 +142,6 @@ Vue.component('modal-window', {
 		form: {
 			type: Object,
 			required: true
-		},
-		form_labels: {
-			type: Array,
-			required: true
 		}
 	},
 	methods: {
@@ -171,6 +163,10 @@ Vue.component('alpha-input', {
 		input_name: {
 			type: String,
 			required: true
+		},
+		label: {
+			type: String,
+			required: true
 		}
 	},
 	methods: {
@@ -190,6 +186,10 @@ Vue.component('email-input', {
 		input_name: {
 			type: String,
 			required: true
+		},
+		label: {
+			type: String,
+			required: true
 		}
 	},
 	methods: {
@@ -201,6 +201,24 @@ Vue.component('email-input', {
 
 Vue.component('pikaday-input', {
 	template: '#pikaday-input'
+})
+
+Vue.component('hidden-input', {
+	template: '#hidden-input',
+	props: {
+		input_name: {
+			type: String,
+			required: true
+		},
+		placeholder: {
+			type: Number,
+			required: true
+		},
+		label: {
+			type: String,
+			required: true
+		}
+	}
 })
 
 var bus = new Vue()
@@ -240,10 +258,10 @@ var vm = new Vue({
 				Add_Relationships: {
 					type: 'Form',
 					data: [
-						{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name'},
-						{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name'},
-						{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name'},
-						{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email'},
+						{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name', label: 'First Name'},
+						{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name'},
+						{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name'},
+						{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email'},
 						// {type: 'multiselect-input', relation: ''},
 						// {type: 'pikaday-input', birth_date: ''}
 					]
@@ -252,27 +270,27 @@ var vm = new Vue({
 					type: 'Table',
 					data: [
 						{
-							id:{value:'1'},
-							first_name:{value:'John', type:'alpha-input', input_name: 'mod_fname'},
-							ethnic_name:{value:'Mwaura', type:'alpha-input', input_name: 'mod_ename'},
-							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_lname'},
-							email:{value:'john.mwaura@gmail.com', type:'email-input', input_name: 'mod_email'},
+							id:{value:1, type:'hidden-input', input_name: 'data_id', label: 'ID'},
+							first_name:{value:'John', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
+							ethnic_name:{value:'Mwaura', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
+							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
+							email:{value:'john.mwaura@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
 							// relation_name:{value:'Father', type:'multiselect-input'},
 							// birth_date:{value:'2017-02-15', type:'pikaday-input'}
 						},{
-							id:{value:'2'},
-							first_name:{value:'Jane', type:'alpha-input', input_name: 'mod_fname'},
-							ethnic_name:{value:'Moraa', type:'alpha-input', input_name: 'mod_ename'},
-							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_lname'},
-							email:{value:'jane.mwaura@gmail.com', type:'email-input', input_name: 'mod_email'},
+							id:{value:2, type:'hidden-input', input_name: 'data_id', label: 'ID'},
+							first_name:{value:'Jane', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
+							ethnic_name:{value:'Moraa', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
+							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
+							email:{value:'jane.mwaura@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
 							// relation_name:{value:'Mother', type:'multiselect-input'},
 							// birth_date:{value:'2017-02-15', type:'pikaday-input'}
 						},{
-							id:{value:'3'},
-							first_name:{value:'Jack', type:'alpha-input', input_name: 'mod_fname'},
-							ethnic_name:{value:'Mutuku', type:'alpha-input', input_name: 'mod_ename'},
-							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_lname'},
-							email:{value:'jack.ndungu@gmail.com', type:'email-input', input_name: 'mod_email'},
+							id:{value:3, type:'hidden-input', input_name: 'data_id', label: 'ID'},
+							first_name:{value:'Jack', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
+							ethnic_name:{value:'Mutuku', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
+							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
+							email:{value:'jack.ndungu@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
 							// relation_name:{value:'Brother', type:'multiselect-input'},
 							// birth_date:{value:'2017-02-15', type:'pikaday-input'}}
 						}
