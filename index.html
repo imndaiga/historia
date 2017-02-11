@@ -117,7 +117,7 @@
         </div>
         <div class="panel-collapse collapse" :class="{in: bs_panels.personal_details_panel}">
           <div class="panel-body">
-            <div v-for="field in form">
+            <div v-for="field in form" v-if="field.type != 'multiselect-input'">
               <component :is="field.type" :placeholder="field.placeholder" :input_name="field.input_name" :label="field.label"></component>
             </div>
           </div>
@@ -129,12 +129,12 @@
         </div>
         <div class="panel-collapse collapse" :class="{in: bs_panels.connect_relations_panel}">
           <div class="panel-body">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            <div v-for="field in form">
+              <form v-if="field.type == 'multiselect-input'" class="form-group">
+                <label>{{field.label}}</label>
+                <component :is="field.type" :placeholder="field.placeholder" :input_name="field.input_name" :options="field.multiselect_options" deselect-label="Remove" select-label="Select"></component>
+              </form>
+            </div>
           </div>
         </div>
       </div>

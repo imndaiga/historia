@@ -262,7 +262,9 @@ var vm = new Vue({
 						{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name'},
 						{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name'},
 						{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email'},
-						// {type: 'multiselect-input', relation: ''},
+						{type: 'multiselect-input', relation: '', placeholder: 'Choose Relation', label: 'Relation',
+							multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother']
+						},
 						// {type: 'pikaday-input', birth_date: ''}
 					]
 				},
