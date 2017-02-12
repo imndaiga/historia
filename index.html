@@ -109,28 +109,16 @@
 
   <template id="panel-form">
     <div class="panel-group">
-      <div class="panel panel-default">
+      <div class="panel panel-default" v-for="bs_panel in bs_panels">
         <div class="panel-heading">
           <h4 class="panel-title">
-            <a href="#" v-on:click="bs_panel_selected('personal_details_panel')">Personal Details</a>
+            <a href="#" v-on:click="bs_panel_selected(bs_panel.name)">{{bs_panel.label}}</a>
           </h4>
         </div>
-        <div class="panel-collapse collapse" :class="{in: bs_panels.personal_details_panel}">
+        <div class="panel-collapse collapse" :class="{in: bs_panel.open}">
           <div class="panel-body">
-            <div v-for="field in form" v-if="field.type != 'multiselect-input'">
-              <component :is="field.type" :placeholder="field.placeholder" :input_name="field.input_name" :label="field.label"></component>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title"><a href="#" v-on:click="bs_panel_selected('connect_relations_panel')">Connect Relations</a></h4>
-        </div>
-        <div class="panel-collapse collapse" :class="{in: bs_panels.connect_relations_panel}">
-          <div class="panel-body">
-            <div v-for="field in form" v-if="field.type == 'multiselect-input'">
-              <component :is="field.type" :placeholder="field.placeholder" :options="field.multiselect_options" :label="field.label" :input_name="field.input_name"></component>
+            <div v-for="field in form" v-if="field.bs_panel == bs_panel.name">
+              <component :is="field.type" :placeholder="field.placeholder" :input_name="field.input_name" :label="field.label" :options="field.multiselect_options" :label="field.label"></component>
             </div>
           </div>
         </div>

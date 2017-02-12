@@ -103,7 +103,7 @@ Vue.component('panel-form', {
 			required: true
 		},
 		bs_panels: {
-			type: Object,
+			type: Array,
 			required: true
 		}
 	},
@@ -252,7 +252,9 @@ var vm = new Vue({
 		open_sub_dropdown_name: '',
 		open_modal_state: false,
 		open_modal_relationship_id: '',
-		bs_panels: { personal_details_panel: false, connect_relations_panel: true },
+		bs_panels: [
+			{name: 'personal_details_panel', open: true, label: 'Personal Details'},
+			{name: 'connect_relations_panel', open: false, label:'Connect Relations'}],
 		all_panels : ['Overview', 'Relationships', 'Visualisation', 'Share'],
 		panel_subnavs : {
 			Relationships: {
@@ -278,12 +280,13 @@ var vm = new Vue({
 				Add_Relationships: {
 					type: 'Form',
 					data: [
-						{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name', label: 'First Name'},
-						{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name'},
-						{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name'},
-						{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email'},
+						{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name', label: 'First Name', bs_panel: 'personal_details_panel'},
+						{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name', bs_panel: 'personal_details_panel'},
+						{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name', bs_panel: 'personal_details_panel'},
+						{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email', bs_panel: 'personal_details_panel'},
 						{type: 'multiselect-input', relation: '', placeholder: 'Choose Relation', input_name: 'add_relation', label: 'Relation',
-							multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother']
+							multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
+							bs_panel: 'connect_relations_panel'
 						},
 						// {type: 'pikaday-input', birth_date: ''}
 					]
@@ -497,11 +500,11 @@ var vm = new Vue({
 			}
 		}.bind(this)),
 		bus.$on('bs-panel-selected', function(bs_panel) {
-			for (key in this.bs_panels) {
-				if (key == bs_panel) {
-					this.bs_panels[bs_panel] = !this.bs_panels[bs_panel]
+			for (bs_panel_object in this.bs_panels) {
+				if (this.bs_panels[bs_panel_object].name == bs_panel) {
+					this.bs_panels[bs_panel_object].open = !this.bs_panels[bs_panel_object].open
 				} else {
-					this.bs_panels[key] = false
+					this.bs_panels[bs_panel_object].open = false
 				}
 
 			}
