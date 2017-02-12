@@ -160,6 +160,15 @@ Vue.component('multiselect-input', {
 		label: {
 			type: String,
 			required: true
+		},
+		input_name: {
+			type: String,
+			required: true
+		}
+	},
+	methods: {
+		updateSelected: function(field_name, value) {
+			bus.$emit('multi-selected', [field_name, value])
 		}
 	}
 })
@@ -273,7 +282,7 @@ var vm = new Vue({
 						{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name'},
 						{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name'},
 						{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email'},
-						{type: 'multiselect-input', relation: '', placeholder: 'Choose Relation', label: 'Relation',
+						{type: 'multiselect-input', relation: '', placeholder: 'Choose Relation', input_name: 'add_relation', label: 'Relation',
 							multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother']
 						},
 						// {type: 'pikaday-input', birth_date: ''}
@@ -510,6 +519,12 @@ var vm = new Vue({
 			var formatted_field = field.toString().replace('-','_')
 			var value = form_data[1]
 			this.updateField(command, formatted_field, value)
+		}.bind(this)),
+		bus.$on('multi-selected', function(selection_data) {
+			var command = selection_data[0].toString().split('_')[0]
+			var field = selection_data[0].toString().split('_')[1]
+			var value = selection_data[1]
+			this.updateField(command, field, value)
 		}.bind(this))
 	},
 	filters: {
