@@ -171,7 +171,7 @@ Vue.component('alpha-input', {
 	},
 	methods: {
 		alphaChanged: function(field_name, value) {
-			bus.$emit('alpha-changed', [field_name, event.target.value])
+			bus.$emit('alpha-changed', [field_name, value])
 		}
 	}
 })
@@ -194,7 +194,7 @@ Vue.component('email-input', {
 	},
 	methods: {
 		emailChanged: function(field_name, value) {
-			bus.$emit('email-changed', [field_name, event.target.value])
+			bus.$emit('email-changed', [field_name, value])
 		}
 	}
 })
