@@ -129,11 +129,8 @@
         </div>
         <div class="panel-collapse collapse" :class="{in: bs_panels.connect_relations_panel}">
           <div class="panel-body">
-            <div v-for="field in form">
-              <form v-if="field.type == 'multiselect-input'" class="form-group">
-                <label>{{field.label}}</label>
-                <component :is="field.type" :placeholder="field.placeholder" :input_name="field.input_name" :options="field.multiselect_options" deselect-label="Remove" select-label="Select"></component>
-              </form>
+            <div v-for="field in form" v-if="field.type == 'multiselect-input'">
+              <component :is="field.type" :placeholder="field.placeholder" :options="field.multiselect_options" :label="field.label"></component>
             </div>
           </div>
         </div>
@@ -206,6 +203,13 @@
     <form class="form-group" style="display: none;">
       <label>{{label}}</label>
       <input type="hidden" class="form-control" :name="input_name" :value="placeholder">
+    </form>
+  </template>
+
+  <template id="multiselect-input">
+    <form class="form-group">
+      <label>{{label}}</label>
+      <multiselect :options="options" :placeholder="placeholder" deselect-label="Remove" select-label="Select"></multiselect>
     </form>
   </template>
 

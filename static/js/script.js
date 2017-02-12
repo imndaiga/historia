@@ -151,7 +151,18 @@ Vue.component('modal-window', {
 	}
 })
 
-Vue.component('multiselect-input', VueMultiselect.default)
+Vue.component('multiselect', VueMultiselect.default)
+
+Vue.component('multiselect-input', {
+	template: '#multiselect-input',
+	mixins: [window.VueMultiselect.multiselectMixin, window.VueMultiselect.pointerMixin],
+	props: {
+		label: {
+			type: String,
+			required: true
+		}
+	}
+})
 
 Vue.component('alpha-input', {
 	template: '#alpha-input',
