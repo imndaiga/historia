@@ -201,6 +201,13 @@
     </form>
   </template>
 
+  <template id="search-input">
+    <form class="form-group">
+      <label>{{label}}</label>
+      <multiselect :internal-search="false" id="input_name" :options="people" :placeholder="placeholder"  :loading="isLoading" :limit="3" v-on:search-change="asyncFind"></multiselect>
+    </form>
+  </template>
+
 </body>
 
 <script src="static/js/script.js"></script>

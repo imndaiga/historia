@@ -153,26 +153,6 @@ Vue.component('modal-window', {
 
 Vue.component('multiselect', VueMultiselect.default)
 
-Vue.component('multiselect-input', {
-	template: '#multiselect-input',
-	mixins: [window.VueMultiselect.multiselectMixin, window.VueMultiselect.pointerMixin],
-	props: {
-		label: {
-			type: String,
-			required: true
-		},
-		input_name: {
-			type: String,
-			required: true
-		}
-	},
-	methods: {
-		updateSelected: function(field_name, value) {
-			bus.$emit('multi-selected', [field_name, value])
-		}
-	}
-})
-
 Vue.component('alpha-input', {
 	template: '#alpha-input',
 	props: {
@@ -241,6 +221,54 @@ Vue.component('hidden-input', {
 	}
 })
 
+Vue.component('multiselect-input', {
+	template: '#multiselect-input',
+	mixins: [window.VueMultiselect.multiselectMixin, window.VueMultiselect.pointerMixin],
+	props: {
+		label: {
+			type: String,
+			required: true
+		},
+		input_name: {
+			type: String,
+			required: true
+		}
+	},
+	methods: {
+		updateSelected: function(field_name, value) {
+			bus.$emit('multi-selected', [field_name, value])
+		}
+	}
+})
+
+Vue.component('search-input', {
+	template: '#search-input',
+	mixins: [window.VueMultiselect.multiselectMixin, window.VueMultiselect.pointerMixin],
+	props: {
+		label: {
+			type: String,
+			required: true
+		},
+		input_name: {
+			type: String,
+			required: true
+		}
+	},
+	data: function() {
+		return {
+			people: [],
+			isLoading: false
+		}
+	},
+	methods: {
+		asyncFind: function(query) {
+			this.isLoading = true
+			console.log('Searching...')
+			this.isLoading = false
+		}
+	}
+})
+
 var bus = new Vue()
 
 var vm = new Vue({
@@ -284,7 +312,11 @@ var vm = new Vue({
 						{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name', bs_panel: 'personal_details_panel'},
 						{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name', bs_panel: 'personal_details_panel'},
 						{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email', bs_panel: 'personal_details_panel'},
-						{type: 'multiselect-input', relation: '', placeholder: 'Choose Relation', input_name: 'add_relation', label: 'Relation',
+						{type: 'search-input', relation: '', placeholder: 'Search for Relative', input_name: 'add_relation-person', label: 'Relative',
+							multiselect_options: [],
+							bs_panel: 'connect_relations_panel'
+						},
+						{type: 'multiselect-input', relation: '', placeholder: 'Choose a Relation', input_name: 'add_relation-name', label: 'Relation',
 							multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
 							bs_panel: 'connect_relations_panel'
 						},
