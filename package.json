@@ -5,6 +5,7 @@
   "description": "Official miminani client",
   "main": "index.html",
   "dependencies": {
+    "axios": "^0.15.3",
     "bootstrap-css-only": "^3.3.7",
     "font-awesome": "^4.7.0",
     "moment": "^2.17.1",
