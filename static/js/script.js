@@ -200,7 +200,33 @@ Vue.component('email-input', {
 })
 
 Vue.component('pikaday-input', {
-	template: '#pikaday-input'
+	template: '#pikaday-input',
+	props: {
+		placeholder: {
+			type: String,
+			required: true
+		},
+		input_name: {
+			type: String,
+			required: true
+		},
+		label: {
+			type: String,
+			required: true
+		}
+	},
+	data: function() {
+		return {
+			picker: '',
+			base_ref: this.input_name
+		}
+	},
+	mounted: function() {
+		this.picker = new Pikaday({
+			field: this.$refs[this.base_ref],
+			trigger: this.$refs[this.base_ref+'-btn']
+		})
+	}
 })
 
 Vue.component('hidden-input', {
@@ -320,7 +346,7 @@ var vm = new Vue({
 							multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
 							bs_panel: 'connect_relations_panel'
 						},
-						// {type: 'pikaday-input', birth_date: ''}
+						{type: 'pikaday-input', birth_date: '', placeholder: '', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'}
 					]
 				},
 				List_Relationships: {
@@ -349,7 +375,7 @@ var vm = new Vue({
 							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
 							email:{value:'jack.ndungu@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
 							// relation_name:{value:'Brother', type:'multiselect-input'},
-							// birth_date:{value:'2017-02-15', type:'pikaday-input'}}
+							// birth_date:{value:'2017-02-15', type:'pikaday-input'}
 						}
 					]
 				}
