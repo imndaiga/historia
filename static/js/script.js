@@ -223,8 +223,13 @@ Vue.component('pikaday-input', {
 	},
 	mounted: function() {
 		this.picker = new Pikaday({
+			ref: this.base_ref,
 			field: this.$refs[this.base_ref],
-			trigger: this.$refs[this.base_ref+'-btn']
+			trigger: this.$refs[this.base_ref+'-btn'],
+			onSelect: function() {
+				date = this.getMoment().format('Do MMMM YYYY')
+				bus.$emit('date-selected', [this._o.ref, date])
+			}
 		})
 	}
 })
@@ -308,7 +313,7 @@ var vm = new Vue({
 		open_modal_relationship_id: '',
 		bs_panels: [
 			{name: 'personal_details_panel', open: true, label: 'Personal Details'},
-			{name: 'connect_relations_panel', open: false, label:'Connect Relations'}],
+			{name: 'connect_relations_panel', open: false, label: 'Connect Relations'}],
 		all_panels : ['Overview', 'Relationships', 'Visualisation', 'Share'],
 		panel_subnavs : {
 			Relationships: {
@@ -346,7 +351,7 @@ var vm = new Vue({
 							multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
 							bs_panel: 'connect_relations_panel'
 						},
-						{type: 'pikaday-input', birth_date: '', placeholder: '', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'}
+						{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'}
 					]
 				},
 				List_Relationships: {
@@ -586,6 +591,13 @@ var vm = new Vue({
 			var field = selection_data[0].toString().split('_')[1]
 			var value = selection_data[1]
 			this.updateField(command, field, value)
+		}.bind(this)),
+		bus.$on('date-selected', function(selection_data) {
+			var command = selection_data[0].toString().split('_')[0]
+			var field = selection_data[0].toString().split('_')[1]
+			var formatted_field = field.toString().replace('-','_')
+			var value = selection_data[1]
+			this.updateField(command, formatted_field, value)
 		}.bind(this))
 	},
 	filters: {
