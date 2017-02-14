@@ -1,6 +1,39 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
-from flask_script import Command
+from flask_script import Command, Option
+from faker import Factory
+from faker.providers import BaseProvider
+from datetime import datetime
+
+fake = Factory.create('en_GB')
+
+
+class FamilyProvider(BaseProvider):
+    def family(self, seed, size):
+        fake.seed(seed)
+        parents = [self.family_member(sex='M'),
+                   self.family_member(sex='F')]
+        children = []
+        for _ in range(0, size - 2):
+            a_child = self.family_member(sex=fake.random.choice(['M', 'F']))
+            children.append(a_child)
+        a_family = {'parents': parents, 'children': children}
+        return a_family
+
+    def family_member(self, sex):
+        info = ['name', 'sex', 'birthdate', 'blood group', 'mail']
+        family_member = fake.profile(fields=info, sex=sex)
+        name_array = family_member['name'].split()
+        if len(name_array) > 2:
+            name_array.pop(0)
+            family_member['name'] = ' '.join(name_array)
+        family_member['birthdate'] = datetime.strptime(
+            family_member['birthdate'],
+            "%Y-%m-%d")
+        return family_member
+
+
+fake.add_provider(FamilyProvider)
 
 
 class Seed(Command):
@@ -9,6 +42,11 @@ class Seed(Command):
 
     auto = False
     authorised = False
+
+    option_list = (
+        Option('--units', '-u', dest='family_units'),
+        Option('--fsize', '-fs', dest='family_size')
+    )
 
     def init_app(self, app, auto):
         from app.models import Person, Link
@@ -21,15 +59,27 @@ class Seed(Command):
         if app.config['DEBUG'] or app.config['TESTING']:
             self.testing = True
 
-    def run(self):
+    def run(self, family_units, family_size):
         if self.testing is True:
-            a1 = self.Person(baptism_name='Chris', email='chris@test.com')
-            a2 = self.Person(
-                baptism_name='Christine',
-                email='christine@test.com')
-            a3 = self.Person(baptism_name='Charlie', email='charles@test.com')
-            a4 = self.Person(baptism_name='Carol', email='carol@test.com')
-            result = self.relate(parents=[a1, a2], children=[a3, a4])
+            parents = []
+            children = []
+            for i in range(0, int(family_units)):
+                family_unit = fake.family(seed=i, size=int(family_size))
+                for relation in family_unit:
+                    for relative in family_unit[relation]:
+                        person = self.Person(
+                            baptism_name=relative['name'].split()[0],
+                            surname=relative['name'].split()[1],
+                            sex=relative['sex'],
+                            dob=relative['birthdate'],
+                            email=relative['mail'],
+                            confirmed=True
+                        )
+                        if relation == 'parents':
+                            parents.append(person)
+                        elif relation == 'children':
+                            children.append(person)
+                result = self.relate(parents=parents, children=children)
         self._graph_update(self.auto)
         return result
 
