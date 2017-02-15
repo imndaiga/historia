@@ -631,6 +631,12 @@ const login = Vue.component('login-page', {
 					dropdown: [],
 					reference: 'View our open source code'
 				}
+			],
+			form: [
+				{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'reg_email', label: 'Email'},
+				{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'},
+				{type: 'multiselect-input', residence: '', placeholder: 'Select African Country', input_name: 'reg_residence', label: 'Country of Residence',
+					multiselect_options: ['Kenya', 'Uganda', 'Tanzania']}
 			]
 		}
 	}
