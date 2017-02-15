@@ -606,6 +606,14 @@ const dashboard = Vue.component('dashboard-page', {
 				return value.replace('_',' ')
 			}
 		}
+	},
+	watch: {
+		$route: function (to, from) {
+			requested_path = to.path.toString().split('/')[2]
+			if (!this.all_panels.includes(requested_path)) {
+				router.push({path: 'Overview'})
+			}
+		}
 	}
 })
 
