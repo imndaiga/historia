@@ -157,9 +157,9 @@
     <div class="panel-group">
       <div class="panel panel-default" v-for="bs_panel in bs_panels">
         <div class="panel-heading">
-          <h4 class="panel-title">
-            <a href="#" v-on:click="bs_panel_selected(bs_panel.name)">{{bs_panel.label}}</a>
-          </h4>
+          <router-link to="#" class="panel-title" v-on:click.native="bs_panel_selected(bs_panel.name)">
+          {{bs_panel.label}}
+          </router-link>
         </div>
         <div class="panel-collapse collapse" :class="{in: bs_panel.open}">
           <div class="panel-body">
