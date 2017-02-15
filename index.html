@@ -9,6 +9,7 @@
   <script src="node_modules/moment/moment.js"></script>
   <script src="node_modules/pikaday/pikaday.js"></script>
   <script src="node_modules/vue-multiselect/lib/vue-multiselect.min.js"></script>
+  <script src="node_modules/vue-router/dist/vue-router.js"></script>
   <link rel="stylesheet" href="node_modules/pikaday/css/pikaday.css" />
   <link rel="stylesheet" href="node_modules/bootstrap-css-only/css/bootstrap.css" />
   <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css" />
@@ -17,48 +18,67 @@
 
 <body>
   <div id="app">
-    <app-navbar v-on:subdropdown="toggleSubMenu" :open_submenu="open_sub_dropdown_name" v-on:maindropdown="toggleMenu" :nav_state="{in : open_main_dropdown}" :title="title" :nav_menus="nav_menus"></app-navbar>
-    <app-sidebar :current_panel="current_panel" :panels="all_panels"></app-sidebar>
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
-      <panel-header :subnav_dropdown="all_panels" :current_panel="current_panel"></panel-header>
-      <panel-subnav v-if="current_Subnavs != null" :subnav_menus="current_Subnavs" :current_panel_view="current_panel_view"></panel-subnav>
-      <panel-form v-if="isNavigationAllowed(current_panel, current_panel_view, 'Form')" :form="getViewData(current_panel_view)" :bs_panels="bs_panels"></panel-form>
-      <panel-table v-if="isNavigationAllowed(current_panel, current_panel_view, 'Table')" :list="getViewData(current_panel_view)" :table_headers="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></panel-table>
-      <modal-window v-if="open_modal_state" :form="modal_Form"></modal-window>
-    </div>
+    <router-view></router-view>
   </div>
+
+  <template id="dashboard-page">
+    <div>
+      <app-navbar :title="title" :nav_menus="nav_menus"></app-navbar>
+      <app-sidebar :current_panel="current_Panel" :panels="all_panels"></app-sidebar>
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
+        <panel-header :subnav_dropdown="all_panels" :current_panel="current_Panel"></panel-header>
+        <panel-subnav v-if="current_Subnavs != null" :subnav_menus="current_Subnavs" :current_panel_view="current_panel_view"></panel-subnav>
+        <panel-form v-if="isNavigationAllowed(current_Panel, current_panel_view, 'Form')" :form="getViewData(current_panel_view)" :bs_panels="bs_panels"></panel-form>
+        <panel-table v-if="isNavigationAllowed(current_Panel, current_panel_view, 'Table')" :list="getViewData(current_panel_view)" :table_headers="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></panel-table>
+        <modal-window v-if="open_modal_state" :form="modal_Form"></modal-window>
+      </div>
+    </div>
+  </template>
+
+  <template id="login-page">
+    <app-navbar :title="title" :nav_menus="nav_menus"></app-navbar>
+  </template>
 
   <template id="app-navbar">
     <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" v-on:click="maindropdown">
+          <button type="button" class="navbar-toggle collapsed" v-on:click="toggleMainMenu">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">{{title}}</a>
+          <router-link to="#"><a class="navbar-brand">{{title}}</a></router-link>
         </div>
-        <div class="collapse navbar-collapse" :class="nav_state">
+        <div class="collapse navbar-collapse" :class="{'in': open_main_dropdown}">
           <ul class="nav navbar-nav navbar-right">
-            <li :class="[item.class, {'open': item.caption == open_submenu}]" v-for="item in nav_menus" :title="item.reference">
-              <a :href="item.link" class="dropdown-toggle" v-on:click="subdropdown(item.caption)" v-if="item.class.includes('dropdown')">
-                <i :class="item.icon"></i>
-                <small class="nav-menu-caption">{{item.caption}}</small>
-                <i class='fa fa-angle-down fa-lg'></i>
-              </a>
-              <a v-else :href="item.link">
+            <li :class="item.class" v-for="item in nav_menus" :title="item.reference">
+              <a v-if="item.class.includes('external')" :href="item.link" class="anchor-button">
                 <i :class="item.icon"></i>
                 <small class="hidden-md hidden-sm hidden-lg nav-menu-caption">
                   {{item.caption}}
                 </small>
               </a>
-              <ul class="dropdown-menu" v-if="item.dropdown.length > 0">
-                <li v-for="submenu in item.dropdown" :class="submenu.class">
-                  <a :href="submenu.link">{{submenu.caption}}</a>
-                </li>
-              </ul>
+              <router-link v-else-if="item.class.includes('internal')" :to="item.link">
+                <i :class="item.icon"></i>
+                <small class="hidden-md hidden-sm hidden-lg nav-menu-caption">
+                  {{item.caption}}
+                </small>
+              </router-link>
+              <router-link v-else-if="item.class.includes('dropdown')" :to="item.link" v-on:click.native="toggleSubMenu(item.caption)">
+                <a class="dropdown-toggle"></a>
+                <i :class="item.icon"></i>
+                <small class="nav-menu-caption">{{item.caption}}</small>
+                <i class='fa fa-angle-down fa-lg'></i>
+              </router-link>
+              <div v-if="item.class.includes('dropdown')" :class="['dropdown', {'open': item.caption == sub_menu_dropdown_name}]">
+                <ul class="dropdown-menu">
+                  <li v-for="submenu in item.dropdown" :class="submenu.class">
+                    <router-link :to="submenu.link">{{submenu.caption}}</router-link>
+                  </li>
+                </ul>
+              </div>
             </li>
           </ul>
         </div>
@@ -71,9 +91,7 @@
       <div class="row">
         <div class="col-sm-3 col-md-2 hidden-xs sidebar">
           <ul class="nav nav-sidebar">
-            <li :class="{active: panel == current_panel}" v-for="panel in panels">
-              <a v-on:click="panelSelected(panel)" href="#"><h4>{{panel}}</h4></a>
-            </li>
+            <router-link v-for="panel in panels" :to="panel" tag="li" active-class="active"><a><h4>{{panel}}</h4></a></router-link>
           </ul>
         </div>
       </div>
@@ -91,7 +109,7 @@
           <i class="fa fa-angle-down"></i>
         </button>
         <ul class="dropdown-menu hidden-sm hidden-md hidden-lg panel-dropdown">
-          <li v-for="menu in subnav_dropdown" :class="{'active': menu == current_panel}"><a v-on:click="panelSelected(menu)" class="text-center" href="#">{{menu}}</a></li>
+          <router-link v-for="menu in subnav_dropdown" :to="menu" tag="li" active-class="active" v-on:click.native="togglePanelMenu"><a><h4>{{menu}}</h4></a></router-link>
         </ul>
       </div>
     </div>

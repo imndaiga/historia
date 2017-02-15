@@ -1,14 +1,6 @@
 Vue.component('app-navbar', {
 	template: '#app-navbar',
 	props: {
-		nav_state: {
-			type: Object,
-			required: true
-		},
-		open_submenu: {
-			type: String,
-			required: true
-		},
 		title: {
 			type: String,
 			required: true
@@ -19,12 +11,22 @@ Vue.component('app-navbar', {
 		},
 
 	},
+	data: function() {
+		return {
+			open_main_dropdown: false,
+			sub_menu_dropdown_name: ''
+		}
+	},
 	methods: {
-		maindropdown: function() {
-			this.$emit('maindropdown')
+		toggleMainMenu: function() {
+			this.open_main_dropdown = !this.open_main_dropdown
 		},
-		subdropdown: function(menu) {
-			this.$emit('subdropdown', menu)
+		toggleSubMenu: function(submenu) {
+			if (submenu == this.sub_menu_dropdown_name) {
+				this.sub_menu_dropdown_name = ''
+			} else {
+				this.sub_menu_dropdown_name = submenu
+			}
 		}
 	}
 })
@@ -39,11 +41,6 @@ Vue.component('app-sidebar', {
 		panels: {
 			type: Array,
 			required: true
-		}
-	},
-	methods: {
-		panelSelected: function(panel) {
-			bus.$emit('panel-selected', panel)
 		}
 	}
 })
@@ -68,10 +65,6 @@ Vue.component('panel-header', {
 	methods: {
 		togglePanelMenu: function() {
 			this.open_panel_menu = !this.open_panel_menu
-		},
-		panelSelected: function(panel) {
-			this.open_panel_menu = false
-			bus.$emit('panel-selected', panel)
 		}
 	}
 })
@@ -300,157 +293,143 @@ Vue.component('search-input', {
 	}
 })
 
-var bus = new Vue()
-
-var vm = new Vue({
-	el: '#app',
-	data: {
-		current_panel: 'Relationships',
-		current_panel_view: 'Add_Relationships',
-		open_main_dropdown: false,
-		open_sub_dropdown_name: '',
-		open_modal_state: false,
-		open_modal_relationship_id: '',
-		bs_panels: [
-			{name: 'personal_details_panel', open: true, label: 'Personal Details'},
-			{name: 'connect_relations_panel', open: false, label: 'Connect Relations'}],
-		all_panels : ['Overview', 'Relationships', 'Visualisation', 'Share'],
-		panel_subnavs : {
-			Relationships: {
-				navs: [
-					{
-						title: 'List_Relationships',
-						info: 'List all your relationships',
-						fa_icon: 'fa fa-users fa-lg',
-						bs_button: 'btn btn-lg btn-primary btn-block',
-						bs_grid_length: 'col-md-6 col-sm-6 col-xs-6',
-					},{
-						title: 'Add_Relationships',
-						info: 'Add a relationship to your tree',
-						fa_icon: 'fa fa-user-plus fa-lg',
-						bs_button: 'btn btn-lg btn-info btn-block',
-						bs_grid_length: 'col-md-6 col-sm-6 col-xs-6',
-					}
-				]
-			}
-		},
-		panel_views : {
-			Relationships: {
-				Add_Relationships: {
-					type: 'Form',
-					data: [
-						{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name', label: 'First Name', bs_panel: 'personal_details_panel'},
-						{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name', bs_panel: 'personal_details_panel'},
-						{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name', bs_panel: 'personal_details_panel'},
-						{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email', bs_panel: 'personal_details_panel'},
-						{type: 'search-input', relation: '', placeholder: 'Search for Relative', input_name: 'add_relation-person', label: 'Relative',
-							multiselect_options: [],
-							bs_panel: 'connect_relations_panel'
-						},
-						{type: 'multiselect-input', relation: '', placeholder: 'Choose a Relation', input_name: 'add_relation-name', label: 'Relation',
-							multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
-							bs_panel: 'connect_relations_panel'
-						},
-						{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'}
-					]
-				},
-				List_Relationships: {
-					type: 'Table',
-					data: [
+const dashboard = Vue.component('dashboard-page', {
+	template: '#dashboard-page',
+	data: function() {
+		return {
+			current_panel_view: 'Add_Relationships',
+			open_modal_state: false,
+			open_modal_relationship_id: '',
+			bs_panels: [
+				{name: 'personal_details_panel', open: true, label: 'Personal Details'},
+				{name: 'connect_relations_panel', open: false, label: 'Connect Relations'}],
+			all_panels : ['Overview', 'Relationships', 'Visualisation', 'Share'],
+			panel_subnavs : {
+				Relationships: {
+					navs: [
 						{
-							id:{value:1, type:'hidden-input', input_name: 'data_id', label: 'ID'},
-							first_name:{value:'John', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
-							ethnic_name:{value:'Mwaura', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
-							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
-							email:{value:'john.mwaura@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
-							// relation_name:{value:'Father', type:'multiselect-input'},
-							// birth_date:{value:'2017-02-15', type:'pikaday-input'}
+							title: 'List_Relationships',
+							info: 'List all your relationships',
+							fa_icon: 'fa fa-users fa-lg',
+							bs_button: 'btn btn-lg btn-primary btn-block',
+							bs_grid_length: 'col-md-6 col-sm-6 col-xs-6',
 						},{
-							id:{value:2, type:'hidden-input', input_name: 'data_id', label: 'ID'},
-							first_name:{value:'Jane', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
-							ethnic_name:{value:'Moraa', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
-							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
-							email:{value:'jane.mwaura@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
-							// relation_name:{value:'Mother', type:'multiselect-input'},
-							// birth_date:{value:'2017-02-15', type:'pikaday-input'}
-						},{
-							id:{value:3, type:'hidden-input', input_name: 'data_id', label: 'ID'},
-							first_name:{value:'Jack', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
-							ethnic_name:{value:'Mutuku', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
-							last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
-							email:{value:'jack.ndungu@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
-							// relation_name:{value:'Brother', type:'multiselect-input'},
-							// birth_date:{value:'2017-02-15', type:'pikaday-input'}
+							title: 'Add_Relationships',
+							info: 'Add a relationship to your tree',
+							fa_icon: 'fa fa-user-plus fa-lg',
+							bs_button: 'btn btn-lg btn-info btn-block',
+							bs_grid_length: 'col-md-6 col-sm-6 col-xs-6',
 						}
 					]
 				}
-
-			}
-		},
-		title: 'MIMINANI',
-		nav_menus: [
-			{
-				caption: 'Info',
-				icon: 'fa fa-info-circle fa-lg',
-				link: '#',
-				class: '',
-				dropdown: [],
-				reference: 'Read more about the miminani project'
 			},
-			{
-				caption: 'Github',
-				icon: 'fa fa-github fa-lg',
-				link: 'http://github.com/squarenomad/miminani',
-				class: '',
-				dropdown: [],
-				reference: 'View our open source code'
-			},
-			{
-				caption: 'Messages',
-				icon: 'fa fa-inbox fa-lg',
-				link: '#',
-				class: '',
-				dropdown: [],
-				reference: 'Notifications and alerts'
-			},
-			{
-				caption: 'User',
-				icon: 'fa fa-user-circle fa-lg',
-				link: '#',
-				class: 'dropdown active',
-				dropdown: [
-					{
-						caption:'Profile',
-						link: '#',
-						class: 'disabled'
+			panel_views : {
+				Relationships: {
+					Add_Relationships: {
+						type: 'Form',
+						data: [
+							{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name', label: 'First Name', bs_panel: 'personal_details_panel'},
+							{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name', bs_panel: 'personal_details_panel'},
+							{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name', bs_panel: 'personal_details_panel'},
+							{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email', bs_panel: 'personal_details_panel'},
+							{type: 'search-input', relation: '', placeholder: 'Search for Relative', input_name: 'add_relation-person', label: 'Relative',
+								multiselect_options: [],
+								bs_panel: 'connect_relations_panel'
+							},
+							{type: 'multiselect-input', relation: '', placeholder: 'Choose a Relation', input_name: 'add_relation-name', label: 'Relation',
+								multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
+								bs_panel: 'connect_relations_panel'
+							},
+							{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'}
+						]
 					},
-					{
-						caption:'Settings',
-						link: '#',
-						class: 'disabled'
-					},
-					{
-						caption:'Sign Out',
-						link: '#',
-						class: ''
+					List_Relationships: {
+						type: 'Table',
+						data: [
+							{
+								id:{value:1, type:'hidden-input', input_name: 'data_id', label: 'ID'},
+								first_name:{value:'John', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
+								ethnic_name:{value:'Mwaura', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
+								last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
+								email:{value:'john.mwaura@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
+								// relation_name:{value:'Father', type:'multiselect-input'},
+								// birth_date:{value:'2017-02-15', type:'pikaday-input'}
+							},{
+								id:{value:2, type:'hidden-input', input_name: 'data_id', label: 'ID'},
+								first_name:{value:'Jane', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
+								ethnic_name:{value:'Moraa', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
+								last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
+								email:{value:'jane.mwaura@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
+								// relation_name:{value:'Mother', type:'multiselect-input'},
+								// birth_date:{value:'2017-02-15', type:'pikaday-input'}
+							},{
+								id:{value:3, type:'hidden-input', input_name: 'data_id', label: 'ID'},
+								first_name:{value:'Jack', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
+								ethnic_name:{value:'Mutuku', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
+								last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
+								email:{value:'jack.ndungu@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
+								// relation_name:{value:'Brother', type:'multiselect-input'},
+								// birth_date:{value:'2017-02-15', type:'pikaday-input'}
+							}
+						]
 					}
-				],
-				reference: 'Manage your profile'
-			}
-		]
+
+				}
+			},
+			title: 'MIMINANI',
+			nav_menus: [
+				{
+					caption: 'Info',
+					icon: 'fa fa-info-circle fa-lg',
+					link: '#',
+					class: 'internal',
+					dropdown: [],
+					reference: 'Read more about the miminani project'
+				},
+				{
+					caption: 'Github',
+					icon: 'fa fa-github fa-lg',
+					link: 'http://github.com/squarenomad/miminani',
+					class: 'external',
+					dropdown: [],
+					reference: 'View our open source code'
+				},
+				{
+					caption: 'Messages',
+					icon: 'fa fa-inbox fa-lg',
+					link: '#',
+					class: 'internal',
+					dropdown: [],
+					reference: 'Notifications and alerts'
+				},
+				{
+					caption: 'User',
+					icon: 'fa fa-user-circle fa-lg',
+					link: '#',
+					class: 'dropdown active',
+					dropdown: [
+						{
+							caption:'Profile',
+							link: '#',
+							class: 'disabled'
+						},
+						{
+							caption:'Settings',
+							link: '#',
+							class: 'disabled'
+						},
+						{
+							caption:'Sign Out',
+							link: '#',
+							class: ''
+						}
+					],
+					reference: 'Manage your profile'
+				}
+			]
+		}
 	},
 	methods: {
-		toggleMenu: function() {
-			this.open_main_dropdown = !this.open_main_dropdown
-			this.open_sub_dropdown_name = ''
-		},
-		toggleSubMenu: function(menu_name) {
-			if (this.open_sub_dropdown_name == menu_name) {
-				this.open_sub_dropdown_name = ''
-			} else {
-				this.open_sub_dropdown_name = menu_name
-			}
-		},
 		isNavigationAllowed: function(panel, panel_view, view_type) {
 			for (index in this.all_panels) {
 				iter_panel = this.all_panels[index]
@@ -494,16 +473,16 @@ var vm = new Vue({
 		},
 		updateField: function(command, field, value) {
 			if (command == 'add') {
-				for (form_field in this.panel_views[this.current_panel][this.current_panel_view].data) {
-					if (Object.keys(this.panel_views[this.current_panel][this.current_panel_view].data[form_field]).indexOf(field) != -1) {
-						this.panel_views[this.current_panel][this.current_panel_view].data[form_field][field] = value
+				for (form_field in this.panel_views[this.current_Panel][this.current_panel_view].data) {
+					if (Object.keys(this.panel_views[this.current_Panel][this.current_panel_view].data[form_field]).indexOf(field) != -1) {
+						this.panel_views[this.current_Panel][this.current_panel_view].data[form_field][field] = value
 					}
 				}
 			} else if (command == 'mod') {
-				for (data_field in this.panel_views[this.current_panel][this.current_panel_view].data) {
-					for (model in this.panel_views[this.current_panel][this.current_panel_view].data[data_field]) {
-						if (model == 'id' && this.panel_views[this.current_panel][this.current_panel_view].data[data_field][model].value == this.open_modal_relationship_id) {
-							this.panel_views[this.current_panel][this.current_panel_view].data[data_field][field].value = value
+				for (data_field in this.panel_views[this.current_Panel][this.current_panel_view].data) {
+					for (model in this.panel_views[this.current_Panel][this.current_panel_view].data[data_field]) {
+						if (model == 'id' && this.panel_views[this.current_Panel][this.current_panel_view].data[data_field][model].value == this.open_modal_relationship_id) {
+							this.panel_views[this.current_Panel][this.current_panel_view].data[data_field][field].value = value
 						}
 					}
 				}
@@ -514,7 +493,7 @@ var vm = new Vue({
 		current_Subnavs: function() {
 			for (index in this.all_panels) {
 				panel = this.all_panels[index]
-				if (Object.keys(this.panel_subnavs).indexOf(panel) != -1 && panel == this.current_panel) {
+				if (Object.keys(this.panel_subnavs).indexOf(panel) != -1 && panel == this.current_Panel) {
 					return this.panel_subnavs[panel].navs
 				}
 			}
@@ -528,14 +507,12 @@ var vm = new Vue({
 				}
 			}
 			return null
+		},
+		current_Panel: function() {
+			return this.$route.params.panel
 		}
 	},
 	created: function() {
-		bus.$on('panel-selected', function(panel) {
-			this.current_panel = panel
-			this.open_main_dropdown = false
-			this.open_sub_dropdown_name = ''
-		}.bind(this)),
 		bus.$on('panel-view-selected', function(panel_view) {
 			this.open_main_dropdown = false
 			this.current_panel_view = panel_view
@@ -630,4 +607,47 @@ var vm = new Vue({
 			}
 		}
 	}
+})
+
+const login = Vue.component('login-page', {
+	template: '#login-page',
+	data: function() {
+		return {
+			title: 'MIMINANI',
+			nav_menus: [
+				{
+					caption: 'Info',
+					icon: 'fa fa-info-circle fa-lg',
+					link: '#',
+					class: 'internal',
+					dropdown: [],
+					reference: 'Read more about the miminani project'
+				},
+				{
+					caption: 'Github',
+					icon: 'fa fa-github fa-lg',
+					link: 'http://github.com/squarenomad/miminani',
+					class: 'external',
+					dropdown: [],
+					reference: 'View our open source code'
+				}
+			]
+		}
+	}
+})
+
+const routes = [
+	{ path: '/', component: login},
+	{ path: '/dashboard/:panel', component: dashboard}
+]
+
+const router = new VueRouter({
+	routes: routes
+})
+
+var bus = new Vue()
+
+var vm = new Vue({
+	el: '#app',
+	router: router
 })
