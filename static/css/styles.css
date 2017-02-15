@@ -7,6 +7,16 @@
 .alert {
   margin-top: 5px
 }
+.form-control {
+  border-radius: 5px;
+  border: 1px solid rgba(232, 232, 232, 1);
+  min-height: 40px;
+  box-shadow: none
+}
+
+.input-group-btn button {
+  min-height: 40px
+}
 
 /*
  * Sidebar
