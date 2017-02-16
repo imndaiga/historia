@@ -509,7 +509,7 @@ const dashboard = Vue.component('dashboard-page', {
 			return null
 		},
 		current_Panel: function() {
-			return this.$route.params.panel
+			return this.$route.path.split('/')[2]
 		}
 	},
 	created: function() {
@@ -606,14 +606,6 @@ const dashboard = Vue.component('dashboard-page', {
 				return value.replace('_',' ')
 			}
 		}
-	},
-	watch: {
-		$route: function (to, from) {
-			requested_path = to.path.toString().split('/')[2]
-			if (!this.all_panels.includes(requested_path)) {
-				router.push({path: 'Overview'})
-			}
-		}
 	}
 })
 
@@ -697,7 +689,16 @@ const login = Vue.component('login-page', {
 
 const routes = [
 	{ path: '/', component: login},
-	{ path: '/dashboard/:panel', component: dashboard}
+	{ path: '/dashboard', component: dashboard,
+		children: [
+			{path: 'Overview', component: dashboard},
+			{path: 'Relationships', component: dashboard},
+			{path: 'Visualisation', component: dashboard},
+			{path: 'Share', component: dashboard},
+			{path: '*', redirect: 'Overview'}
+		]
+	},
+	{ path: '*', redirect: '/'}
 ]
 
 const router = new VueRouter({
