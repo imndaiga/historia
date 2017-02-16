@@ -609,8 +609,8 @@ const dashboard = Vue.component('dashboard-page', {
 	}
 })
 
-const login = Vue.component('login-page', {
-	template: '#login-page',
+const welcome = Vue.component('welcome-page', {
+	template: '#welcome-page',
 	data: function() {
 		return {
 			title: 'MIMINANI',
@@ -688,7 +688,7 @@ const login = Vue.component('login-page', {
 })
 
 const routes = [
-	{ path: '/', component: login},
+	{ path: '/', component: welcome},
 	{ path: '/dashboard', component: dashboard,
 		children: [
 			{path: 'Overview', component: dashboard},
