@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0 user-scalable=no">
   <title>MIMINANI</title>
   <script src="node_modules/vue/dist/vue.js"></script>
   <script src="node_modules/moment/moment.js"></script>
@@ -11,6 +11,7 @@
   <script src="node_modules/vue-multiselect/lib/vue-multiselect.min.js"></script>
   <script src="node_modules/vue-router/dist/vue-router.js"></script>
   <script src="node_modules/particles.js/particles.js"></script>
+  <script src="https://cdn.auth0.com/js/lock/10.9.1/lock.min.js"></script>
   <link rel="stylesheet" href="node_modules/pikaday/css/pikaday.css" />
   <link rel="stylesheet" href="node_modules/bootstrap-css-only/css/bootstrap.css" />
   <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css" />
@@ -58,6 +59,8 @@
               <div v-for="field in form">
                 <component :is="field.type" :placeholder="field.placeholder" :input_name="field.input_name" :label="field.label" :options="field.multiselect_options" :label="field.label"></component>
               </div>
+              <br>
+              <button class="btn btn-primary btn-block" v-on:click="login()" v-if="!authentication">Login</button>
               <hr>
               <small>We respect your privacy.</small><br>
               <small>Please read our privacy policy <a href="#">here</a>.</small>
@@ -104,7 +107,8 @@
               <div v-if="item.class.includes('dropdown')" :class="['dropdown', {'open': item.caption == sub_menu_dropdown_name}]">
                 <ul class="dropdown-menu">
                   <li v-for="submenu in item.dropdown" :class="submenu.class">
-                    <router-link :to="submenu.link">{{submenu.caption}}</router-link>
+                    <router-link v-if="submenu.class.includes('logout')" :to="submenu.link" v-on:click.native="logout">{{submenu.caption}}</router-link>
+                    <router-link v-else :to="submenu.link">{{submenu.caption}}</router-link>
                   </li>
                 </ul>
               </div>

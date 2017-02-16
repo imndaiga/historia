@@ -27,6 +27,9 @@ Vue.component('app-navbar', {
 			} else {
 				this.sub_menu_dropdown_name = submenu
 			}
+		},
+		logout: function() {
+			this.$parent.$parent.logout()
 		}
 	}
 })
@@ -421,7 +424,7 @@ const dashboard = Vue.component('dashboard-page', {
 						{
 							caption:'Sign Out',
 							link: '#',
-							class: ''
+							class: 'logout'
 						}
 					],
 					reference: 'Manage your profile'
@@ -633,9 +636,7 @@ const welcome = Vue.component('welcome-page', {
 				}
 			],
 			form: [
-				{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'reg_email', label: 'Email'},
-				{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'},
-				{type: 'multiselect-input', residence: '', placeholder: 'Select African Country', input_name: 'reg_residence', label: 'Country of Residence',
+				{type: 'multiselect-input', residence: '', placeholder: 'Select Country', input_name: 'reg_residence', label: 'Country of Origin',
 					multiselect_options: ['Kenya', 'Uganda', 'Tanzania']}
 			],
 			particlesjs_data : {
@@ -682,23 +683,32 @@ const welcome = Vue.component('welcome-page', {
 			}
 		}
 	},
+	computed: {
+		authentication: function() {
+			return this.$parent.authenticated
+		}
+	},
 	mounted: function() {
 		particlesJS('particlesjs', this.particlesjs_data)
+	},
+	methods: {
+		login: function() {
+			this.$parent.login()
+		}
 	}
 })
 
 const routes = [
-	{ path: '/', component: welcome},
-	{ path: '/dashboard', component: dashboard,
+	{ path: '/', component: welcome, beforeEnter: autoRoute},
+	{ path: '/dashboard', component: dashboard, beforeEnter: requireAuth,
 		children: [
-			{path: 'Overview', component: dashboard},
-			{path: 'Relationships', component: dashboard},
-			{path: 'Visualisation', component: dashboard},
-			{path: 'Share', component: dashboard},
-			{path: '*', redirect: 'Overview'}
+			{path: 'Overview', component: dashboard, beforeEnter: requireAuth},
+			{path: 'Relationships', component: dashboard, beforeEnter: requireAuth},
+			{path: 'Visualisation', component: dashboard, beforeEnter: requireAuth},
+			{path: 'Share', component: dashboard, beforeEnter: requireAuth},
+			{path: '*', redirect: 'Overview', beforeEnter: requireAuth}
 		]
-	},
-	{ path: '*', redirect: '/'}
+	}
 ]
 
 const router = new VueRouter({
@@ -707,7 +717,79 @@ const router = new VueRouter({
 
 var bus = new Vue()
 
+function checkAuth() {
+	return !!localStorage.getItem('id_token')
+}
+
+function requireAuth(to, from, next) {
+	if (!checkAuth()) {
+		console.log('authorisation required')
+		var path = '/'
+		next({ path: path })
+	} else {
+		next()
+	}
+}
+
+function autoRoute(to, from, next) {
+	if (checkAuth()) {
+		var path = '/dashboard/Overview'
+		next({ path: path })
+	} else {
+		next()
+	}
+}
+
 var vm = new Vue({
 	el: '#app',
-	router: router
+	router: router,
+	data: {
+		authenticated: false,
+		lock: new Auth0Lock('', '')
+	},
+	// Check the user's auth status when the app
+	// loads to account for page refreshing
+	mounted: function() {
+		var self = this
+		this.authenticated = checkAuth()
+		this.lock.on('authenticated', function(authResult) {
+			console.log('authenticated')
+			localStorage.setItem('id_token', authResult.idToken)
+			self.lock.getUserInfo(authResult.accessToken, function(error, profile) {
+				if (error) {
+					// Handle error
+					console.log('Error loading the Profile', error)
+					return
+				} else {
+					// Set the token and user profile in local storage
+					localStorage.setItem('profile', JSON.stringify(profile))
+					self.authenticated = true
+				}
+			})
+		})
+		this.lock.on('authorization_error', function(error) {
+			// handle error when authorizaton fails
+		})
+	},
+	methods: {
+		login: function() {
+			this.lock.show()
+		},
+		logout: function() {
+			localStorage.removeItem('id_token')
+			localStorage.removeItem('profile')
+			this.authenticated = false
+
+		}
+	},
+	watch: {
+		authenticated: function(state) {
+			// Automatically reload login page
+			// when user logs out
+			if (state == false) {
+				router.push('/')
+			}
+		}
+	}
+
 })
