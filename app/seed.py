@@ -45,7 +45,8 @@ class Seed(Command):
 
     option_list = (
         Option('--units', '-u', dest='family_units'),
-        Option('--fsize', '-fs', dest='family_size')
+        Option('--fsize', '-fs', dest='family_size'),
+        Option('--verbose', '-v', dest='verbose', required=False)
     )
 
     def init_app(self, app, auto):
@@ -59,26 +60,56 @@ class Seed(Command):
         if app.config['DEBUG'] or app.config['TESTING']:
             self.testing = True
 
-    def run(self, family_units, family_size):
+    def run(self, family_units, family_size, verbose="False"):
         if self.testing is True:
             parents = []
             children = []
+            fake_index = 1
             for i in range(0, int(family_units)):
                 family_unit = fake.family(seed=i, size=int(family_size))
+                if verbose == 'True':
+                        print('============================================')
                 for relation in family_unit:
                     for relative in family_unit[relation]:
-                        person = self.Person(
-                            baptism_name=relative['name'].split()[0],
-                            surname=relative['name'].split()[1],
-                            sex=relative['sex'],
-                            dob=relative['birthdate'],
-                            email=relative['mail'],
-                            confirmed=True
-                        )
-                        if relation == 'parents':
-                            parents.append(person)
-                        elif relation == 'children':
-                            children.append(person)
+                        created_status = False
+                        while created_status is False:
+                            person = self.Person(
+                                baptism_name=relative['name'].split()[0],
+                                surname=relative['name'].split()[1],
+                                sex=relative['sex'],
+                                dob=relative['birthdate'],
+                                email=relative['mail'],
+                                confirmed=True
+                            )
+                            if verbose == 'True':
+                                print(
+                                    '{0} Validating: {1} ...'.format(
+                                        fake_index, person.email), end="")
+                            (created_person,
+                                created_status) = self._get_or_create_one(
+                                    session=self.db.session,
+                                    model=self.Person,
+                                    create_method='auto',
+                                    create_method_kwargs={'person': person},
+                                    baptism_name=person.baptism_name)
+                            if created_status is True:
+                                if verbose == 'True':
+                                    print('Success! --> ', end="")
+                                self.db.session.commit()
+                                stored_person = self.Person.query.filter_by(
+                                    email=person.email).first()
+                                if verbose == 'True':
+                                    print('ID = {}'.format(stored_person.id))
+                                fake_index += 1
+                                if relation == 'parents':
+                                    parents.append(created_person)
+                                elif relation == 'children':
+                                    children.append(created_person)
+                            else:
+                                if verbose == 'True':
+                                    print('Failed!')
+                                sex = relative['sex']
+                                relative = fake.family_member(sex)
                 result = self.relate(parents=parents, children=children)
         self._graph_update(self.auto)
         return result
@@ -147,17 +178,14 @@ class Seed(Command):
         except NoResultFound:
             kwargs.update(create_method_kwargs or {})
             created = getattr(model, create_method, model)(**kwargs)
-            if created is not None:
-                try:
-                    session.add(created)
-                    session.flush()
-                    return created, True
-                except IntegrityError:
-                    session.rollback()
-                    return session.query(model).filter_by(**kwargs).one(),
-                    False
-            else:
-                return None, False
+            try:
+                session.add(created)
+                session.flush()
+                return created, True
+            except IntegrityError:
+                session.rollback()
+                return session.query(model).filter_by(**kwargs).one(),
+                False
 
     @staticmethod
     def _post_process_relations(preprocessed):
