@@ -12,6 +12,7 @@
   <script src="node_modules/vue-router/dist/vue-router.js"></script>
   <script src="node_modules/particles.js/particles.js"></script>
   <script src="https://cdn.auth0.com/js/lock/10.9.1/lock.min.js"></script>
+  <script src="node_modules/axios/dist/axios.js"></script>
   <link rel="stylesheet" href="node_modules/pikaday/css/pikaday.css" />
   <link rel="stylesheet" href="node_modules/bootstrap-css-only/css/bootstrap.css" />
   <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css" />
@@ -81,7 +82,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <router-link to="#"><a class="navbar-brand">{{title}}</a></router-link>
+          <router-link to="#" v-on:click.native="testSecured"><a class="navbar-brand">{{title}}</a></router-link>
         </div>
         <div class="collapse navbar-collapse" :class="{'in': open_main_dropdown}">
           <ul class="nav navbar-nav navbar-right">

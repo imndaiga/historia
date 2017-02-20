@@ -30,6 +30,9 @@ Vue.component('app-navbar', {
 		},
 		logout: function() {
 			this.$parent.$parent.logout()
+		},
+		testSecured: function() {
+			this.$parent.$parent.testSecured()
 		}
 	}
 })
@@ -419,7 +422,7 @@ const dashboard = Vue.component('dashboard-page', {
 						{
 							caption:'Settings',
 							link: '#',
-							class: 'disabled'
+							class: ''
 						},
 						{
 							caption:'Sign Out',
@@ -740,6 +743,22 @@ function autoRoute(to, from, next) {
 	}
 }
 
+axios.interceptors.response.use(
+function(response) {
+	return response
+},
+function(error) {
+	// Do something with response error
+	if (error.response.status === 401) {
+		console.log('unauthorized, logging out ...')
+		localStorage.removeItem('id_token')
+		localStorage.removeItem('profile')
+		this.authenticated = false
+		router.replace('/')
+	}
+	return Promise.reject(error)
+})
+
 var vm = new Vue({
 	el: '#app',
 	router: router,
@@ -750,6 +769,11 @@ var vm = new Vue({
 	// Check the user's auth status when the app
 	// loads to account for page refreshing
 	mounted: function() {
+		// set auth header on start up if token is present
+		if (localStorage.getItem('id_token')) {
+			axios.defaults.headers.common['Authorization'] = 'Bearer '+ localStorage.getItem('id_token')
+		}
+		axios.defaults.baseURL = ''
 		var self = this
 		this.authenticated = checkAuth()
 		this.lock.on('authenticated', function(authResult) {
@@ -764,6 +788,8 @@ var vm = new Vue({
 					// Set the token and user profile in local storage
 					localStorage.setItem('profile', JSON.stringify(profile))
 					self.authenticated = true
+					axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
+					self.testSecured()
 				}
 			})
 		})
@@ -779,7 +805,17 @@ var vm = new Vue({
 			localStorage.removeItem('id_token')
 			localStorage.removeItem('profile')
 			this.authenticated = false
-
+			axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
+		},
+		testSecured: function() {
+			console.log('testing secured connection')
+			axios.get('api/ping').then(
+				function(response) {
+					console.log(response)
+				},
+				function(response) {
+					console.log(response)
+				})
 		}
 	},
 	watch: {
