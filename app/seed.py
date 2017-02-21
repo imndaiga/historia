@@ -60,7 +60,7 @@ class Seed(Command):
         if app.config['DEBUG'] or app.config['TESTING']:
             self.testing = True
 
-    def run(self, family_units, family_size, verbose="False"):
+    def run(self, family_units, family_size, verbose='False'):
         if self.testing is True:
             parents = []
             children = []
@@ -91,7 +91,7 @@ class Seed(Command):
                                     model=self.Person,
                                     create_method='auto',
                                     create_method_kwargs={'person': person},
-                                    baptism_name=person.baptism_name)
+                                    email=person.email)
                             if created_status is True:
                                 if verbose == 'True':
                                     print('Success! --> ', end="")
@@ -165,7 +165,7 @@ class Seed(Command):
                     model=self.Person,
                     create_method='auto',
                     create_method_kwargs={'person': person},
-                    baptism_name=person.baptism_name)
+                    email=person.email)
                 if created_status is True:
                     _processed_list.append(created_person)
         return _processed_list

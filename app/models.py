@@ -100,8 +100,12 @@ class Person(db.Model, UserMixin):
             return retrieved_link
         return None
 
-    def auto(person, baptism_name):
-        return person
+    @classmethod
+    def auto(cls, email=None, person=None):
+        if person is None and email is not None:
+            return cls(email=email)
+        elif person is not None and email is not None:
+            return person
 
     @staticmethod
     def person_from_token(token):

@@ -2,10 +2,14 @@ from functools import wraps
 from flask import request, jsonify, _app_ctx_stack
 import jwt
 import os
+import requests
+from ..models import Person
+from .. import db, seed
 
 # AUTH0 JWT DECODING
 client_secret = os.environ.get('CLIENT_SECRET', None)
 client_id = os.environ.get('CLIENT_ID', None)
+client_domain = os.environ.get('CLIENT_DOMAIN', None)
 
 
 def handle_error(error, status_code):
@@ -62,7 +66,19 @@ def requires_auth(f):
             return handle_error({'code': 'invalid_header',
                                  'description': 'Unable to parse'
                                  ' authentication token'}, 400)
-
+        r = requests.post('https://' + client_domain + '/tokeninfo',
+                          data={"id_token": token})
+        user_email = r.json()['email']
+        print('Validating {}'.format(user_email))
+        (person, created_status) = seed._get_or_create_one(
+            session=db.session,
+            model=Person,
+            create_method='auto',
+            email=user_email)
+        if (created_status is True):
+            print('User registered')
+        else:
+            print('User already registered')
         _app_ctx_stack.top.current_user = payLoad
         return f(*args, **kwargs)
     return decorated
