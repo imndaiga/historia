@@ -1,3 +1,27 @@
+// Check the user's auth status when the app
+// loads to account for page refreshing
+if (localStorage.getItem('id_token')) {
+	axios.defaults.headers.common['Authorization'] = 'Bearer '+ localStorage.getItem('id_token')
+}
+axios.defaults.baseURL = ''
+
+// Set up axios interceptors to error responses
+axios.interceptors.response.use(
+function(response) {
+	return response
+},
+function(error) {
+	// Do something with response error
+	if (error.response.status === 401) {
+		console.log('unauthorized, logging out ...')
+		localStorage.removeItem('id_token')
+		localStorage.removeItem('profile')
+		this.authenticated = false
+		router.replace('/')
+	}
+	return Promise.reject(error)
+})
+
 Vue.component('app-navbar', {
 	template: '#app-navbar',
 	props: {
@@ -351,33 +375,7 @@ const dashboard = Vue.component('dashboard-page', {
 					},
 					List_Relationships: {
 						type: 'Table',
-						data: [
-							{
-								id:{value:1, type:'hidden-input', input_name: 'data_id', label: 'ID'},
-								first_name:{value:'John', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
-								ethnic_name:{value:'Mwaura', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
-								last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
-								email:{value:'john.mwaura@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
-								// relation_name:{value:'Father', type:'multiselect-input'},
-								// birth_date:{value:'2017-02-15', type:'pikaday-input'}
-							},{
-								id:{value:2, type:'hidden-input', input_name: 'data_id', label: 'ID'},
-								first_name:{value:'Jane', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
-								ethnic_name:{value:'Moraa', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
-								last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
-								email:{value:'jane.mwaura@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
-								// relation_name:{value:'Mother', type:'multiselect-input'},
-								// birth_date:{value:'2017-02-15', type:'pikaday-input'}
-							},{
-								id:{value:3, type:'hidden-input', input_name: 'data_id', label: 'ID'},
-								first_name:{value:'Jack', type:'alpha-input', input_name: 'mod_first-name', label: 'First Name'},
-								ethnic_name:{value:'Mutuku', type:'alpha-input', input_name: 'mod_ethnic-name', label: 'Ethnic Name'},
-								last_name:{value:'Ndungu', type:'alpha-input', input_name: 'mod_last-name', label: 'Last Name'},
-								email:{value:'jack.ndungu@gmail.com', type:'email-input', input_name: 'mod_email', label: 'Email'},
-								// relation_name:{value:'Brother', type:'multiselect-input'},
-								// birth_date:{value:'2017-02-15', type:'pikaday-input'}
-							}
-						]
+						data: []
 					}
 
 				}
@@ -493,6 +491,19 @@ const dashboard = Vue.component('dashboard-page', {
 					}
 				}
 			}
+		},
+		fetchData: function() {
+			var self = this
+			this.loading = true
+			axios.get('/api/relationships').then(
+				function(response) {
+					self.panel_views.Relationships.List_Relationships.data = response.data
+				},
+				function(response) {
+					console.log(response)
+				}
+			)
+			this.loading = false
 		}
 	},
 	computed: {
@@ -519,19 +530,20 @@ const dashboard = Vue.component('dashboard-page', {
 		}
 	},
 	created: function() {
+		this.fetchData()
 		bus.$on('panel-view-selected', function(panel_view) {
 			this.open_main_dropdown = false
 			this.current_panel_view = panel_view
-		}.bind(this)),
+		}.bind(this))
 		bus.$on('open-relation-modal', function(relationship_id) {
 			this.open_main_dropdown = false
 			this.open_modal_state = true
 			this.open_modal_relationship_id = relationship_id
-		}.bind(this)),
+		}.bind(this))
 		bus.$on('close-modal', function() {
 			this.open_modal_state = false
 			this.open_modal_relationship_id = ''
-		}.bind(this)),
+		}.bind(this))
 		bus.$on('delete-relation', function(relationship_id) {
 			for (panel in this.panel_views) {
 				for (view in this.panel_views[panel]) {
@@ -544,7 +556,7 @@ const dashboard = Vue.component('dashboard-page', {
 					}
 				}
 			}
-		}.bind(this)),
+		}.bind(this))
 		bus.$on('bs-panel-selected', function(bs_panel) {
 			for (bs_panel_object in this.bs_panels) {
 				if (this.bs_panels[bs_panel_object].name == bs_panel) {
@@ -554,27 +566,27 @@ const dashboard = Vue.component('dashboard-page', {
 				}
 
 			}
-		}.bind(this)),
+		}.bind(this))
 		bus.$on('alpha-changed', function(form_data) {
 			var command = form_data[0].toString().split('_')[0]
 			var field = form_data[0].toString().split('_')[1]
 			var formatted_field = field.toString().replace('-','_')
 			var value = form_data[1]
 			this.updateField(command, formatted_field, value)
-		}.bind(this)),
+		}.bind(this))
 		bus.$on('email-changed', function(form_data) {
 			var command = form_data[0].toString().split('_')[0]
 			var field = form_data[0].toString().split('_')[1]
 			var formatted_field = field.toString().replace('-','_')
 			var value = form_data[1]
 			this.updateField(command, formatted_field, value)
-		}.bind(this)),
+		}.bind(this))
 		bus.$on('multi-selected', function(selection_data) {
 			var command = selection_data[0].toString().split('_')[0]
 			var field = selection_data[0].toString().split('_')[1]
 			var value = selection_data[1]
 			this.updateField(command, field, value)
-		}.bind(this)),
+		}.bind(this))
 		bus.$on('date-selected', function(selection_data) {
 			var command = selection_data[0].toString().split('_')[0]
 			var field = selection_data[0].toString().split('_')[1]
@@ -743,22 +755,6 @@ function autoRoute(to, from, next) {
 	}
 }
 
-axios.interceptors.response.use(
-function(response) {
-	return response
-},
-function(error) {
-	// Do something with response error
-	if (error.response.status === 401) {
-		console.log('unauthorized, logging out ...')
-		localStorage.removeItem('id_token')
-		localStorage.removeItem('profile')
-		this.authenticated = false
-		router.replace('/')
-	}
-	return Promise.reject(error)
-})
-
 var vm = new Vue({
 	el: '#app',
 	router: router,
@@ -766,19 +762,13 @@ var vm = new Vue({
 		authenticated: false,
 		lock: new Auth0Lock('', '')
 	},
-	// Check the user's auth status when the app
-	// loads to account for page refreshing
 	mounted: function() {
-		// set auth header on start up if token is present
-		if (localStorage.getItem('id_token')) {
-			axios.defaults.headers.common['Authorization'] = 'Bearer '+ localStorage.getItem('id_token')
-		}
-		axios.defaults.baseURL = ''
 		var self = this
 		this.authenticated = checkAuth()
 		this.lock.on('authenticated', function(authResult) {
 			console.log('authenticated')
 			localStorage.setItem('id_token', authResult.idToken)
+			axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
 			self.lock.getUserInfo(authResult.accessToken, function(error, profile) {
 				if (error) {
 					// Handle error
@@ -788,8 +778,6 @@ var vm = new Vue({
 					// Set the token and user profile in local storage
 					localStorage.setItem('profile', JSON.stringify(profile))
 					self.authenticated = true
-					axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
-					self.testSecured()
 				}
 			})
 		})
@@ -805,7 +793,6 @@ var vm = new Vue({
 			localStorage.removeItem('id_token')
 			localStorage.removeItem('profile')
 			this.authenticated = false
-			axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
 		},
 		testSecured: function() {
 			console.log('testing secured connection')
@@ -827,5 +814,4 @@ var vm = new Vue({
 			}
 		}
 	}
-
 })
