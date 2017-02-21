@@ -1,7 +1,7 @@
 // Check the user's auth status when the app
 // loads to account for page refreshing
 if (localStorage.getItem('id_token')) {
-	axios.defaults.headers.common['Authorization'] = 'Bearer '+ localStorage.getItem('id_token')
+	axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
 }
 axios.defaults.baseURL = ''
 
@@ -13,9 +13,15 @@ function(response) {
 function(error) {
 	// Do something with response error
 	if (error.response.status === 401) {
+		error_obj = {'error_message': [{
+			'code': error.response.data.code,
+			'description': error.response.data.description
+		}]}
 		console.log('unauthorized, logging out ...')
+		console.log(error_obj)
 		localStorage.removeItem('id_token')
 		localStorage.removeItem('profile')
+		axios.defaults.headers.common['Authorization'] = 'Bearer '
 		this.authenticated = false
 		router.replace('/')
 	}
@@ -793,6 +799,7 @@ var vm = new Vue({
 			localStorage.removeItem('id_token')
 			localStorage.removeItem('profile')
 			this.authenticated = false
+			axios.defaults.headers.common['Authorization'] = 'Bearer '
 		},
 		testSecured: function() {
 			console.log('testing secured connection')
