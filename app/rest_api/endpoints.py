@@ -1,18 +1,9 @@
 from . import api
 from flask_restful import Resource
 from .decorators import requires_auth
-
-
-class UserAPI(Resource):
-
-    def get(self, id):
-        return "Hello, World!"
-
-    def put(self, id):
-        pass
-
-    def delete(self, id):
-        pass
+from .. import graph
+from ..models import Person
+from flask import _app_ctx_stack
 
 
 class pingAPI(Resource):
@@ -22,10 +13,10 @@ class pingAPI(Resource):
         return 'Here is a ping'
 
     def put(self):
-        return 'Ping updated'
+        return 'Here is a ping'
 
     def delete(self):
-        return 'Ping deleted'
+        return 'Here is a ping'
 
 # relation_name:{value:'Father', type:'multiselect-input'},
 # birth_date:{value:'2017-02-15', type:'pikaday-input'}
@@ -34,63 +25,42 @@ class pingAPI(Resource):
 class relationshipsAPI(Resource):
     decorators = [requires_auth]
 
+    def format_response(self, nodes, user_id):
+        relations = []
+        for node in nodes:
+            if node != user_id:
+                relation = Person.query.get(node)
+                relations.append({
+                    'id': {'value': relation.id, 'type': 'hidden-input',
+                           'input_name': 'data_id', 'label': 'ID'},
+                    'first_name': {'value': relation.baptism_name,
+                                   'type': 'alpha-input',
+                                   'input_name': 'mod_first-name',
+                                   'label': 'First Name'},
+                    'ethnic_name': {'value': relation.ethnic_name,
+                                    'type': 'alpha-input',
+                                    'input_name': 'mod_ethnic-name',
+                                    'label': 'Ethnic Name'},
+                    'last_name': {'value': relation.surname,
+                                  'type': 'alpha-input',
+                                  'input_name': 'mod_last-name',
+                                  'label': 'Last Name'},
+                    'email': {'value': relation.email,
+                              'type': 'email-input',
+                              'input_name': 'mod_email',
+                              'label': 'Email'}
+                })
+        return relations
+
     def get(self):
-        return [
-            {
-                'id': {'value': 1, 'type': 'hidden-input',
-                       'input_name': 'data_id', 'label': 'ID'},
-                'first_name': {'value': 'John', 'type': 'alpha-input',
-                               'input_name': 'mod_first-name',
-                               'label': 'First Name'},
-                'ethnic_name': {'value': 'Mwaura', 'type': 'alpha-input',
-                                'input_name': 'mod_ethnic-name',
-                                'label': 'Ethnic Name'},
-                'last_name': {'value': 'Ndungu', 'type': 'alpha-input',
-                              'input_name': 'mod_last-name',
-                              'label': 'Last Name'},
-                'email': {'value': 'john.mwaura@gmail.com',
-                          'type': 'email-input',
-                          'input_name': 'mod_email',
-                          'label': 'Email'}
-            },
-            {
-                'id': {'value': 1, 'type': 'hidden-input',
-                       'input_name': 'data_id', 'label': 'ID'},
-                'first_name': {'value': 'Joanna', 'type': 'alpha-input',
-                               'input_name': 'mod_first-name',
-                               'label': 'First Name'},
-                'ethnic_name': {'value': 'Moraa', 'type': 'alpha-input',
-                                'input_name': 'mod_ethnic-name',
-                                'label': 'Ethnic Name'},
-                'last_name': {'value': 'Ndungu', 'type': 'alpha-input',
-                              'input_name': 'mod_last-name',
-                              'label': 'Last Name'},
-                'email': {'value': 'joan.moraa@gmail.com',
-                          'type': 'email-input',
-                          'input_name': 'mod_email',
-                          'label': 'Email'}
-            },
-            {
-                'id': {'value': 1, 'type': 'hidden-input',
-                       'input_name': 'data_id', 'label': 'ID'},
-                'first_name': {'value': 'Jeremiah', 'type': 'alpha-input',
-                               'input_name': 'mod_first-name',
-                               'label': 'First Name'},
-                'ethnic_name': {'value': 'Mugwe', 'type': 'alpha-input',
-                                'input_name': 'mod_ethnic-name',
-                                'label': 'Ethnic Name'},
-                'last_name': {'value': 'Ndungu', 'type': 'alpha-input',
-                              'input_name': 'mod_last-name',
-                              'label': 'Last Name'},
-                'email': {'value': 'jerendu@gmail.com',
-                          'type': 'email-input',
-                          'input_name': 'mod_email',
-                          'label': 'Email'}
-            }
-        ]
+        user_email = _app_ctx_stack.top.current_user['email']
+        user = Person.query.filter_by(email=user_email).first()
+        node_list = graph.get_subgraph(user).nodes()
+        response = self.format_response(node_list, user.id)
+        return response
 
     def put(self):
-        return 'Relationship added'
+        return 'Relationship added/updated'
 
     def delete(self):
         return 'Relationship deleted'
@@ -98,4 +68,3 @@ class relationshipsAPI(Resource):
 
 api.add_resource(relationshipsAPI, '/relationships', endpoint='relationships')
 api.add_resource(pingAPI, '/ping', endpoint='ping')
-api.add_resource(UserAPI, '/users/<int:id>', endpoint='user')
