@@ -1,12 +1,13 @@
-// Check the user's auth status when the app
-// loads to account for page refreshing
-if (localStorage.getItem('id_token')) {
-	axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
-}
-axios.defaults.baseURL = ''
+// Create axios instance
+var HTTP = axios.create({
+	baseURL: '',
+	headers: {
+		Authorization: 'Bearer ' + localStorage.getItem('id_token')
+	}
+})
 
 // Set up axios interceptors to error responses
-axios.interceptors.response.use(
+HTTP.interceptors.response.use(
 function(response) {
 	return response
 },
@@ -21,7 +22,7 @@ function(error) {
 		console.log(error_obj)
 		localStorage.removeItem('id_token')
 		localStorage.removeItem('profile')
-		axios.defaults.headers.common['Authorization'] = 'Bearer '
+		HTTP.defaults.headers.common['Authorization'] = 'Bearer '
 		this.authenticated = false
 		router.replace('/')
 	}
@@ -501,7 +502,7 @@ const dashboard = Vue.component('dashboard-page', {
 		fetchData: function() {
 			var self = this
 			this.loading = true
-			axios.get('/api/relationships').then(
+			HTTP.get('/api/relationships').then(
 				function(response) {
 					self.panel_views.Relationships.List_Relationships.data = response.data
 				},
@@ -780,7 +781,7 @@ var vm = new Vue({
 		this.lock.on('authenticated', function(authResult) {
 			console.log('authenticated')
 			localStorage.setItem('id_token', authResult.idToken)
-			axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
+			HTTP.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
 			self.lock.getUserInfo(authResult.accessToken, function(error, profile) {
 				if (error) {
 					// Handle error
@@ -805,11 +806,11 @@ var vm = new Vue({
 			localStorage.removeItem('id_token')
 			localStorage.removeItem('profile')
 			this.authenticated = false
-			axios.defaults.headers.common['Authorization'] = 'Bearer '
+			HTTP.defaults.headers.common['Authorization'] = 'Bearer '
 		},
 		testSecured: function() {
 			console.log('testing secured connection')
-			axios.get('api/ping').then(
+			HTTP.get('api/ping').then(
 				function(response) {
 					console.log(response)
 				},
