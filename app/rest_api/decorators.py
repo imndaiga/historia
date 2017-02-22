@@ -2,7 +2,6 @@ from functools import wraps
 from flask import request, jsonify, _app_ctx_stack
 import jwt
 import os
-import requests
 from ..models import Person
 from .. import db, seed
 
@@ -66,9 +65,7 @@ def requires_auth(f):
             return handle_error({'code': 'invalid_header',
                                  'description': 'Unable to parse'
                                  ' authentication token'}, 400)
-        r = requests.post('https://' + client_domain + '/tokeninfo',
-                          data={"id_token": token})
-        user_email = r.json()['email']
+        user_email = payLoad['email']
         print('Validating {}'.format(user_email))
         (person, created_status) = seed._get_or_create_one(
             session=db.session,
