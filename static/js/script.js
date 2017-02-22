@@ -766,7 +766,13 @@ var vm = new Vue({
 	router: router,
 	data: {
 		authenticated: false,
-		lock: new Auth0Lock('', '')
+		lock: new Auth0Lock('', '', {
+			auth: {
+				params: {
+					scope: 'openid email'
+				}
+			}
+		})
 	},
 	mounted: function() {
 		var self = this
