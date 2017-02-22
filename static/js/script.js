@@ -71,13 +71,19 @@ Vue.component('app-navbar', {
 Vue.component('app-sidebar', {
 	template: "#app-sidebar",
 	props: {
-		current_panel: {
-			type: String,
-			required: true
-		},
 		panels: {
 			type: Array,
 			required: true
+		}
+	},
+	methods: {
+		panelViewSelected: function(panel_view) {
+			bus.$emit('panel-view-selected', panel_view)
+		}
+	},
+	computed: {
+		current_Panel: function() {
+			return this.$route.path.split('/')[2].charAt(0).toUpperCase() + this.$route.path.split('/')[2].slice(1)
 		}
 	}
 })
@@ -85,11 +91,7 @@ Vue.component('app-sidebar', {
 Vue.component('panel-header', {
 	template: '#panel-header',
 	props: {
-		current_panel: {
-			type: String,
-			required: true
-		},
-		subnav_dropdown: {
+		panels: {
 			type: Array,
 			required: true
 		}
@@ -102,6 +104,11 @@ Vue.component('panel-header', {
 	methods: {
 		togglePanelMenu: function() {
 			this.open_panel_menu = !this.open_panel_menu
+		}
+	},
+	computed: {
+		current_Panel: function() {
+			return this.$route.path.split('/')[2].charAt(0).toUpperCase() + this.$route.path.split('/')[2].slice(1)
 		}
 	}
 })
@@ -140,7 +147,63 @@ Vue.component('panel-form', {
 	methods: {
 		bs_panel_selected: function(bs_panel) {
 			bus.$emit('bs-panel-selected', bs_panel)
+		},
+		updateField: function(command, field, value) {
+			// if (command == 'add') {
+			// 	for (form_field in this.panel_views[this.current_Panel][this.current_panel_view].data) {
+			// 		if (Object.keys(this.panel_views[this.current_Panel][this.current_panel_view].data[form_field]).indexOf(field) != -1) {
+			// 			this.panel_views[this.current_Panel][this.current_panel_view].data[form_field][field] = value
+			// 		}
+			// 	}
+			// } else if (command == 'mod') {
+			// 	for (data_field in this.panel_views[this.current_Panel][this.current_panel_view].data) {
+			// 		for (model in this.panel_views[this.current_Panel][this.current_panel_view].data[data_field]) {
+			// 			if (model == 'id' && this.panel_views[this.current_Panel][this.current_panel_view].data[data_field][model].value == this.open_modal_relationship_id) {
+			// 				this.panel_views[this.current_Panel][this.current_panel_view].data[data_field][field].value = value
+			// 			}
+			// 		}
+			// 	}
+			// }
 		}
+	},
+	created: function() {
+		bus.$on('bs-panel-selected', function(bs_panel) {
+			for (bs_panel_object in this.bs_panels) {
+				if (this.bs_panels[bs_panel_object].name == bs_panel) {
+					this.bs_panels[bs_panel_object].open = !this.bs_panels[bs_panel_object].open
+				} else {
+					this.bs_panels[bs_panel_object].open = false
+				}
+
+			}
+		}.bind(this))
+		bus.$on('alpha-changed', function(form_data) {
+			var command = form_data[0].toString().split('_')[0]
+			var field = form_data[0].toString().split('_')[1]
+			var formatted_field = field.toString().replace('-','_')
+			var value = form_data[1]
+			this.updateField(command, formatted_field, value)
+		}.bind(this))
+		bus.$on('email-changed', function(form_data) {
+			var command = form_data[0].toString().split('_')[0]
+			var field = form_data[0].toString().split('_')[1]
+			var formatted_field = field.toString().replace('-','_')
+			var value = form_data[1]
+			this.updateField(command, formatted_field, value)
+		}.bind(this))
+		bus.$on('multi-selected', function(selection_data) {
+			var command = selection_data[0].toString().split('_')[0]
+			var field = selection_data[0].toString().split('_')[1]
+			var value = selection_data[1]
+			this.updateField(command, field, value)
+		}.bind(this))
+		bus.$on('date-selected', function(selection_data) {
+			var command = selection_data[0].toString().split('_')[0]
+			var field = selection_data[0].toString().split('_')[1]
+			var formatted_field = field.toString().replace('-','_')
+			var value = selection_data[1]
+			this.updateField(command, formatted_field, value)
+		}.bind(this))
 	}
 })
 
@@ -163,6 +226,30 @@ Vue.component('panel-table', {
 		deleteRelation: function(relation_id) {
 			bus.$emit('delete-relation', relation_id)
 		}
+	},
+	created: function() {
+		bus.$on('open-relation-modal', function(relationship_id) {
+			this.open_main_dropdown = false
+			this.open_modal_state = true
+			this.open_modal_relationship_id = relationship_id
+		}.bind(this))
+		bus.$on('close-modal', function() {
+			this.open_modal_state = false
+			this.open_modal_relationship_id = ''
+		}.bind(this))
+		bus.$on('delete-relation', function(relationship_id) {
+			// for (panel in this.panel_views) {
+			// 	for (view in this.panel_views[panel]) {
+			// 		if (view == 'List_Relationships') {
+			// 			for (i=0; i<this.panel_views[panel][view].data.length; i++) {
+			// 				if (this.panel_views[panel][view].data[i].id.value == relationship_id) {
+			// 					this.panel_views[panel][view].data.splice(i, 1)
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// }
+		}.bind(this))
 	}
 })
 
@@ -334,59 +421,25 @@ const dashboard = Vue.component('dashboard-page', {
 	template: '#dashboard-page',
 	data: function() {
 		return {
-			current_panel_view: 'Add_Relationships',
-			open_modal_state: false,
-			open_modal_relationship_id: '',
-			bs_panels: [
-				{name: 'personal_details_panel', open: true, label: 'Personal Details'},
-				{name: 'connect_relations_panel', open: false, label: 'Connect Relations'}],
-			all_panels : ['Overview', 'Relationships', 'Visualisation', 'Share'],
-			panel_subnavs : {
-				Relationships: {
+			panels : [
+				{ name: 'Overview', navs: []},
+				{ name: 'Visualisation', navs: []},
+				{ name: 'Share', navs: []},
+				{ name: 'Relationships',
 					navs: [
 						{
-							title: 'List_Relationships',
+							title: 'List Relationships',
 							info: 'List all your relationships',
-							fa_icon: 'fa fa-users fa-lg',
-							bs_button: 'btn btn-lg btn-primary btn-block',
-							bs_grid_length: 'col-md-6 col-sm-6 col-xs-6',
+							view: 'List_Relationships'
 						},{
-							title: 'Add_Relationships',
+							title: 'Add Relationships',
 							info: 'Add a relationship to your tree',
-							fa_icon: 'fa fa-user-plus fa-lg',
-							bs_button: 'btn btn-lg btn-info btn-block',
-							bs_grid_length: 'col-md-6 col-sm-6 col-xs-6',
+							view: 'Add_Relationships'
 						}
-					]
+					],
+					default_view: 'List_Relationships'
 				}
-			},
-			panel_views : {
-				Relationships: {
-					Add_Relationships: {
-						type: 'Form',
-						data: [
-							{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name', label: 'First Name', bs_panel: 'personal_details_panel'},
-							{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name', bs_panel: 'personal_details_panel'},
-							{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name', bs_panel: 'personal_details_panel'},
-							{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email', bs_panel: 'personal_details_panel'},
-							{type: 'search-input', relation: '', placeholder: 'Search for Relative', input_name: 'add_relation-person', label: 'Relative',
-								multiselect_options: [],
-								bs_panel: 'connect_relations_panel'
-							},
-							{type: 'multiselect-input', relation: '', placeholder: 'Choose a Relation', input_name: 'add_relation-name', label: 'Relation',
-								multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
-								bs_panel: 'connect_relations_panel'
-							},
-							{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'}
-						]
-					},
-					List_Relationships: {
-						type: 'Table',
-						data: []
-					}
-
-				}
-			},
+			],
 			title: 'MIMINANI',
 			nav_menus: [
 				{
@@ -438,198 +491,6 @@ const dashboard = Vue.component('dashboard-page', {
 					reference: 'Manage your profile'
 				}
 			]
-		}
-	},
-	methods: {
-		isNavigationAllowed: function(panel, panel_view, view_type) {
-			for (index in this.all_panels) {
-				iter_panel = this.all_panels[index]
-				if (iter_panel == panel) {
-					for (view in this.panel_views[panel]) {
-						if (view == panel_view) {
-							if (this.panel_views[panel][view].type == view_type) {
-								return true
-							}
-						}
-					}
-				}
-			}
-			return false
-		},
-		getViewFields: function(panel_view, exceptions=[]) {
-			fields = []
-			for (panel in this.panel_views) {
-				for (view in this.panel_views[panel]) {
-					if (view == panel_view) {
-						for (entry in this.panel_views[panel][view].data) {
-							for (field in this.panel_views[panel][view].data[entry]) {
-								if (fields.indexOf(field) == -1 && exceptions.indexOf(field) == -1) {
-									fields.push(field)
-								}
-							}
-						}
-					}
-				}
-			}
-			return fields
-		},
-		getViewData: function(panel_view) {
-			for (iter_panel in this.panel_views) {
-				for (view in this.panel_views[iter_panel]) {
-					if (view == panel_view) {
-						return this.panel_views[iter_panel][panel_view].data
-					}
-				}
-			}
-		},
-		updateField: function(command, field, value) {
-			if (command == 'add') {
-				for (form_field in this.panel_views[this.current_Panel][this.current_panel_view].data) {
-					if (Object.keys(this.panel_views[this.current_Panel][this.current_panel_view].data[form_field]).indexOf(field) != -1) {
-						this.panel_views[this.current_Panel][this.current_panel_view].data[form_field][field] = value
-					}
-				}
-			} else if (command == 'mod') {
-				for (data_field in this.panel_views[this.current_Panel][this.current_panel_view].data) {
-					for (model in this.panel_views[this.current_Panel][this.current_panel_view].data[data_field]) {
-						if (model == 'id' && this.panel_views[this.current_Panel][this.current_panel_view].data[data_field][model].value == this.open_modal_relationship_id) {
-							this.panel_views[this.current_Panel][this.current_panel_view].data[data_field][field].value = value
-						}
-					}
-				}
-			}
-		},
-		fetchData: function() {
-			var self = this
-			this.loading = true
-			HTTP.get('/api/relationships').then(
-				function(response) {
-					self.panel_views.Relationships.List_Relationships.data = response.data
-				},
-				function(response) {
-					console.log(response)
-				}
-			)
-			this.loading = false
-		}
-	},
-	computed: {
-		current_Subnavs: function() {
-			for (index in this.all_panels) {
-				panel = this.all_panels[index]
-				if (Object.keys(this.panel_subnavs).indexOf(panel) != -1 && panel == this.current_Panel) {
-					return this.panel_subnavs[panel].navs
-				}
-			}
-			return null
-		},
-		modal_Form: function() {
-			data = this.getViewData(this.current_panel_view)
-			for (i=0; i<data.length; i++) {
-				if (data[i].id.value == this.open_modal_relationship_id) {
-					return data[i]
-				}
-			}
-			return null
-		},
-		current_Panel: function() {
-			return this.$route.path.split('/')[2]
-		}
-	},
-	created: function() {
-		this.fetchData()
-		bus.$on('panel-view-selected', function(panel_view) {
-			this.open_main_dropdown = false
-			this.current_panel_view = panel_view
-		}.bind(this))
-		bus.$on('open-relation-modal', function(relationship_id) {
-			this.open_main_dropdown = false
-			this.open_modal_state = true
-			this.open_modal_relationship_id = relationship_id
-		}.bind(this))
-		bus.$on('close-modal', function() {
-			this.open_modal_state = false
-			this.open_modal_relationship_id = ''
-		}.bind(this))
-		bus.$on('delete-relation', function(relationship_id) {
-			for (panel in this.panel_views) {
-				for (view in this.panel_views[panel]) {
-					if (view == 'List_Relationships') {
-						for (i=0; i<this.panel_views[panel][view].data.length; i++) {
-							if (this.panel_views[panel][view].data[i].id.value == relationship_id) {
-								this.panel_views[panel][view].data.splice(i, 1)
-							}
-						}
-					}
-				}
-			}
-		}.bind(this))
-		bus.$on('bs-panel-selected', function(bs_panel) {
-			for (bs_panel_object in this.bs_panels) {
-				if (this.bs_panels[bs_panel_object].name == bs_panel) {
-					this.bs_panels[bs_panel_object].open = !this.bs_panels[bs_panel_object].open
-				} else {
-					this.bs_panels[bs_panel_object].open = false
-				}
-
-			}
-		}.bind(this))
-		bus.$on('alpha-changed', function(form_data) {
-			var command = form_data[0].toString().split('_')[0]
-			var field = form_data[0].toString().split('_')[1]
-			var formatted_field = field.toString().replace('-','_')
-			var value = form_data[1]
-			this.updateField(command, formatted_field, value)
-		}.bind(this))
-		bus.$on('email-changed', function(form_data) {
-			var command = form_data[0].toString().split('_')[0]
-			var field = form_data[0].toString().split('_')[1]
-			var formatted_field = field.toString().replace('-','_')
-			var value = form_data[1]
-			this.updateField(command, formatted_field, value)
-		}.bind(this))
-		bus.$on('multi-selected', function(selection_data) {
-			var command = selection_data[0].toString().split('_')[0]
-			var field = selection_data[0].toString().split('_')[1]
-			var value = selection_data[1]
-			this.updateField(command, field, value)
-		}.bind(this))
-		bus.$on('date-selected', function(selection_data) {
-			var command = selection_data[0].toString().split('_')[0]
-			var field = selection_data[0].toString().split('_')[1]
-			var formatted_field = field.toString().replace('-','_')
-			var value = selection_data[1]
-			this.updateField(command, formatted_field, value)
-		}.bind(this))
-	},
-	filters: {
-		capitalize : function(value) {
-			if (!value) return ''
-			if (typeof value == "object") {
-				cap_array = []
-				for (i=0; i<value.length; i++) {
-					new_value = value[i].charAt(0).toUpperCase() + value[i].slice(1)
-					cap_array.push(new_value)
-				}
-			return cap_array
-			} else {
-				value = value.toString()
-				return value.charAt(0).toUpperCase() + value.slice(1)
-			}
-		},
-		spacereplace: function(value) {
-			if (!value) return ''
-			if (typeof value == "object") {
-				spaced_array = []
-				for (i=0; i<value.length; i++) {
-					new_value = value[i].toString().replace('_',' ')
-					spaced_array.push(new_value)
-				}
-			return spaced_array
-			} else {
-				value = value.toString()
-				return value.replace('_',' ')
-			}
 		}
 	}
 })
@@ -720,15 +581,114 @@ const welcome = Vue.component('welcome-page', {
 	}
 })
 
+const relationships = Vue.component('relationships-page', {
+	template: '#relationships-page'
+})
+
+const add_relationships = Vue.component('add-relationships-page', {
+	template: '#add-relationships-page',
+	data: function() {
+		return {
+			bs_panels: [
+				{name: 'personal_details_panel', open: true, label: 'Personal Details'},
+				{name: 'connect_relations_panel', open: false, label: 'Connect Relations'}],
+			form_data: [
+				{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name', label: 'First Name', bs_panel: 'personal_details_panel'},
+				{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name', bs_panel: 'personal_details_panel'},
+				{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name', bs_panel: 'personal_details_panel'},
+				{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email', bs_panel: 'personal_details_panel'},
+				{type: 'search-input', relation: '', placeholder: 'Search for Relative', input_name: 'add_relation-person', label: 'Relative',
+					multiselect_options: [],
+					bs_panel: 'connect_relations_panel'
+				},
+				{type: 'multiselect-input', relation: '', placeholder: 'Choose a Relation', input_name: 'add_relation-name', label: 'Relation',
+					multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
+					bs_panel: 'connect_relations_panel'
+				},
+				{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'}
+			]
+		}
+	}
+})
+
+const list_relationships = Vue.component('list-relationships-page', {
+	template: '#list-relationships-page',
+	data: function() {
+		return {
+			open_modal_state: false,
+			open_modal_relationship_id: '',
+			table_data: []
+		}
+	},
+	methods: {
+		fetchData: function() {
+			var self = this
+			HTTP.get('/api/relationships').then(
+				function(response) {
+					self.table_data = response.data
+				},
+				function(response) {
+					console.log(response)
+				}
+			)
+		}
+	},
+	computed: {
+		modal_Form: function() {
+			// data = this.getViewData(this.current_panel_view)
+			// for (i=0; i<data.length; i++) {
+			// 	if (data[i].id.value == this.open_modal_relationship_id) {
+			// 		return data[i]
+			// 	}
+			// }
+			// return null
+		},
+		table_Headers: function() {
+			headers = []
+			for (entry in this.table_data) {
+				for (field in this.table_data[entry]) {
+					header = this.table_data[entry][field].label
+					if (headers.indexOf(header) == -1 && header != 'ID') {
+						headers.push(this.table_data[entry][field].label)
+					}
+				}
+			}
+			return headers
+		}
+	},
+	mounted: function() {
+		this.fetchData()
+	}
+})
+
+const visualisation = Vue.component('visualisation-page', {
+	template: '#visualisation-page'
+})
+
+const share = Vue.component('share-page', {
+	template: '#share-page'
+})
+
+const overview = Vue.component('overview-page', {
+	template: '#overview-page'
+})
+
 const routes = [
 	{ path: '/', component: welcome, beforeEnter: autoRoute},
 	{ path: '/dashboard', component: dashboard, beforeEnter: requireAuth,
 		children: [
-			{path: 'Overview', component: dashboard, beforeEnter: requireAuth},
-			{path: 'Relationships', component: dashboard, beforeEnter: requireAuth},
-			{path: 'Visualisation', component: dashboard, beforeEnter: requireAuth},
-			{path: 'Share', component: dashboard, beforeEnter: requireAuth},
-			{path: '*', redirect: 'Overview', beforeEnter: requireAuth}
+			{path: 'overview', name: 'Overview', component: overview, beforeEnter: requireAuth},
+			{path: 'relationships', component: relationships, beforeEnter: requireAuth,
+				children: [
+					{path: 'list', name: 'List_Relationships', component: list_relationships, beforeEnter: requireAuth},
+					{path: 'add', name: 'Add_Relationships', component: add_relationships, beforeEnter: requireAuth},
+					{path: '', component: list_relationships, beforeEnter: requireAuth},
+					{path: '*', redirect: 'list', beforeEnter: requireAuth}
+				]
+			},
+			{path: 'visualisation', name: 'Visualisation',component: visualisation, beforeEnter: requireAuth},
+			{path: 'share', name: 'Share', component: share, beforeEnter: requireAuth},
+			{path: '*', redirect: 'overview', beforeEnter: requireAuth}
 		]
 	}
 ]
@@ -755,7 +715,7 @@ function requireAuth(to, from, next) {
 
 function autoRoute(to, from, next) {
 	if (checkAuth()) {
-		var path = '/dashboard/Overview'
+		var path = 'dashboard/overview'
 		next({ path: path })
 	} else {
 		next()

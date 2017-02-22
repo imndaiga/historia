@@ -28,14 +28,43 @@
   <template id="dashboard-page">
     <div>
       <app-navbar :title="title" :nav_menus="nav_menus"></app-navbar>
-      <app-sidebar :current_panel="current_Panel" :panels="all_panels"></app-sidebar>
+      <app-sidebar :panels="panels"></app-sidebar>
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
-        <panel-header :subnav_dropdown="all_panels" :current_panel="current_Panel"></panel-header>
-        <panel-subnav v-if="current_Subnavs != null" :subnav_menus="current_Subnavs" :current_panel_view="current_panel_view"></panel-subnav>
-        <panel-form v-if="isNavigationAllowed(current_Panel, current_panel_view, 'Form')" :form="getViewData(current_panel_view)" :bs_panels="bs_panels"></panel-form>
-        <panel-table v-if="isNavigationAllowed(current_Panel, current_panel_view, 'Table')" :list="getViewData(current_panel_view)" :table_headers="getViewFields(current_panel_view, ['id']) | spacereplace | capitalize"></panel-table>
-        <modal-window v-if="open_modal_state" :form="modal_Form"></modal-window>
+        <panel-header :panels="panels"></panel-header>
       </div>
+      <router-view></router-view>
+    </div>
+  </template>
+
+  <template id="relationships-page">
+    <router-view></router-view>
+  </template>
+
+  <template id="add-relationships-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+      <panel-form :form="form_data" :bs_panels="bs_panels"></panel-form>
+    </div>
+  </template>
+
+  <template id="list-relationships-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+      <panel-table :list="table_data" :table_headers="table_Headers"></panel-table>
+      <modal-window v-if="open_modal_state" :form="modal_Form"></modal-window>
+    </div>
+  </template>
+
+  <template id="visualisation-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+    </div>
+  </template>
+
+  <template id="share-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+    </div>
+  </template>
+
+  <template id="overview-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
     </div>
   </template>
 
@@ -124,8 +153,18 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-3 col-md-2 hidden-xs sidebar">
-          <ul class="nav nav-sidebar">
-            <router-link v-for="panel in panels" :to="panel" tag="li" active-class="active"><a><h4>{{panel}}</h4></a></router-link>
+          <ul v-for="panel in panels" class="nav nav-sidebar">
+            <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active">
+              <a>{{panel.name}}</a>
+            </router-link>
+            <router-link  v-else-if="panel.navs.length > 0" :to="{name: panel.default_view}" tag="li" active-class="active">
+              <a>{{panel.name}}</a>
+            </router-link>
+            <ul v-if="panel.name == current_Panel" class="open nav nav-subnav">
+              <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active">
+                <a>{{menu.title}}</a>
+              </router-link>
+            </ul>
           </ul>
         </div>
       </div>
@@ -135,15 +174,27 @@
   <template id="panel-header">
     <div>
       <div class="row center-block hidden-xs panel-header">
-        <h1>{{current_panel}}</h1>
+        <h1>{{current_Panel}}</h1>
       </div>
       <div class="dropdown" :class="{open : open_panel_menu}">
         <button class="btn btn-default btn-lg btn-group-justified hidden-sm hidden-md hidden-lg button-header" v-on:click="togglePanelMenu">
-          <h3>{{current_panel}}</h3>
+          <h3>{{current_Panel}}</h3>
           <i class="fa fa-angle-down"></i>
         </button>
         <ul class="dropdown-menu hidden-sm hidden-md hidden-lg panel-dropdown">
-          <router-link v-for="menu in subnav_dropdown" :to="menu" tag="li" active-class="active" v-on:click.native="togglePanelMenu"><a><h4>{{menu}}</h4></a></router-link>
+          <ul v-for="panel in panels" class="nav">
+            <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active" v-on:click.native="togglePanelMenu">
+              <a>{{panel.name}}</a>
+            </router-link>
+            <router-link  v-else-if="panel.navs.length > 0" :to="{name: panel.default_view}" tag="li" active-class="active">
+              <a>{{panel.name}}</a>
+            </router-link>
+            <ul v-if="panel.name == current_Panel" class="open nav nav-sub-dropdown">
+              <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" v-on:click.native="togglePanelMenu">
+                <a>{{menu.title}}</a>
+              </router-link>
+            </ul>
+          </ul>
         </ul>
       </div>
     </div>
