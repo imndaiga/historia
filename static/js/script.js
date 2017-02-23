@@ -1,9 +1,6 @@
 // Create axios instance
 var HTTP = axios.create({
-	baseURL: '',
-	headers: {
-		Authorization: 'Bearer ' + localStorage.getItem('id_token')
-	}
+	baseURL: ''
 })
 
 // Set up axios interceptors to error responses
@@ -22,7 +19,6 @@ function(error) {
 		console.log(error_obj)
 		localStorage.removeItem('id_token')
 		localStorage.removeItem('profile')
-		HTTP.defaults.headers.common['Authorization'] = 'Bearer '
 		this.authenticated = false
 		router.replace('/')
 	}
@@ -695,6 +691,11 @@ const router = new VueRouter({
 	routes: routes
 })
 
+router.beforeEach(function(to, from, next) {
+	HTTP.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
+	next()
+})
+
 var bus = new Vue()
 
 function checkAuth() {
@@ -739,7 +740,6 @@ var vm = new Vue({
 		this.lock.on('authenticated', function(authResult) {
 			console.log('authenticated')
 			localStorage.setItem('id_token', authResult.idToken)
-			HTTP.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
 			self.lock.getUserInfo(authResult.accessToken, function(error, profile) {
 				if (error) {
 					// Handle error
@@ -764,7 +764,6 @@ var vm = new Vue({
 			localStorage.removeItem('id_token')
 			localStorage.removeItem('profile')
 			this.authenticated = false
-			HTTP.defaults.headers.common['Authorization'] = 'Bearer '
 		},
 		testSecured: function() {
 			console.log('testing secured connection')
