@@ -226,30 +226,6 @@ Vue.component('panel-table', {
 		deleteRelation: function(relation_id) {
 			bus.$emit('delete-relation', relation_id)
 		}
-	},
-	created: function() {
-		bus.$on('open-relation-modal', function(relationship_id) {
-			this.open_main_dropdown = false
-			this.open_modal_state = true
-			this.open_modal_relationship_id = relationship_id
-		}.bind(this))
-		bus.$on('close-modal', function() {
-			this.open_modal_state = false
-			this.open_modal_relationship_id = ''
-		}.bind(this))
-		bus.$on('delete-relation', function(relationship_id) {
-			// for (panel in this.panel_views) {
-			// 	for (view in this.panel_views[panel]) {
-			// 		if (view == 'List_Relationships') {
-			// 			for (i=0; i<this.panel_views[panel][view].data.length; i++) {
-			// 				if (this.panel_views[panel][view].data[i].id.value == relationship_id) {
-			// 					this.panel_views[panel][view].data.splice(i, 1)
-			// 				}
-			// 			}
-			// 		}
-			// 	}
-			// }
-		}.bind(this))
 	}
 })
 
@@ -635,13 +611,11 @@ const list_relationships = Vue.component('list-relationships-page', {
 	},
 	computed: {
 		modal_Form: function() {
-			// data = this.getViewData(this.current_panel_view)
-			// for (i=0; i<data.length; i++) {
-			// 	if (data[i].id.value == this.open_modal_relationship_id) {
-			// 		return data[i]
-			// 	}
-			// }
-			// return null
+			for (i=0; i<this.table_data.length; i++) {
+				if (this.table_data[i].id.value == this.open_modal_relationship_id) {
+					return this.table_data[i]
+				}
+			}
 		},
 		table_Headers: function() {
 			headers = []
@@ -658,6 +632,30 @@ const list_relationships = Vue.component('list-relationships-page', {
 	},
 	mounted: function() {
 		this.fetchData()
+	},
+	created: function() {
+		bus.$on('open-relation-modal', function(relationship_id) {
+			this.open_modal_state = true
+			this.open_modal_relationship_id = relationship_id
+		}.bind(this))
+		bus.$on('close-modal', function() {
+			this.open_modal_state = false
+			this.open_modal_relationship_id = ''
+		}.bind(this))
+		bus.$on('delete-relation', function(relationship_id) {
+			var self = this
+			HTTP.delete('/api/relationships', {
+				data: relationship_id
+			}).then(
+				function(response) {
+					console.log('record deleted')
+					self.table_data = response.data
+				},
+				function(response) {
+					console.log(response)
+				}
+			)
+		}.bind(this))
 	}
 })
 
