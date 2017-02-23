@@ -61,7 +61,8 @@ class relationshipsAPI(Resource):
         return response
 
     def put(self):
-        return {'Relationship added/updated'}
+        print(request.get_json('data'))
+        return {'message': 'Relationship added/updated'}
 
     def delete(self):
         user_email = _app_ctx_stack.top.current_user['email']
