@@ -562,7 +562,7 @@ const add_relationships = Vue.component('add-relationships-page', {
 	data: function() {
 		return {
 			bs_panels: [
-				{name: 'personal_details_panel', open: true, label: 'Personal Details'},
+				{name: 'personal_details_panel', open: false, label: 'Personal Details'},
 				{name: 'connect_relations_panel', open: false, label: 'Connect Relations'}],
 			form_data: [
 				{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name', label: 'First Name', bs_panel: 'personal_details_panel'},

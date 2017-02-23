@@ -127,6 +127,17 @@ th {
   margin-bottom: 20px;
   border-bottom: 1px solid #eee
 }
+.nav.panel-heading {
+  padding: 0px 0px;
+  cursor: pointer
+}
+.nav.panel-heading > .active > a,
+.nav.panel-heading > .active > a:hover,
+.nav.panel-heading > .active > a:focus {
+  color: #fff;
+  background-color: #91acc3;
+  border-radius: 3px 3px 0px 0px
+}
 
 /*
 * Navbar specific

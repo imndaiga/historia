@@ -213,11 +213,13 @@
   <template id="panel-form">
     <div class="panel-group">
       <div class="panel panel-default" v-for="bs_panel in bs_panels">
-        <div class="panel-heading">
-          <router-link to="#" class="panel-title" v-on:click.native="bs_panel_selected(bs_panel.name)">
-          {{bs_panel.label}}
-          </router-link>
-        </div>
+        <ul class="nav panel-heading">
+          <li :class="['panel-title', {active: bs_panel.open}]">
+            <a v-on:click.stop="bs_panel_selected(bs_panel.name)">
+              {{bs_panel.label}}
+            </a>
+          </li>
+        </ul>
         <div class="panel-collapse collapse" :class="{in: bs_panel.open}">
           <div class="panel-body">
             <div v-for="field in form" v-if="field.bs_panel == bs_panel.name">
