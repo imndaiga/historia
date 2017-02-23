@@ -44,6 +44,11 @@ class Graph:
             G.clear()
             self.save(G)
 
+    def delete_node(self, node_id):
+        G = self.current
+        G.remove_node(node_id)
+        self.save(G)
+
     def get_subgraph(self, source, gtype=nx.Graph):
         subgraph = gtype()
         MDG = self.current

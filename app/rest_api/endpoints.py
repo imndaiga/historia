@@ -1,9 +1,10 @@
 from . import api
 from flask_restful import Resource
 from .decorators import requires_auth
-from .. import graph
-from ..models import Person
-from flask import _app_ctx_stack
+from .. import graph, db
+from ..models import Person, Link
+from flask import _app_ctx_stack, request
+from sqlalchemy import or_
 
 
 class pingAPI(Resource):
@@ -60,10 +61,21 @@ class relationshipsAPI(Resource):
         return response
 
     def put(self):
-        return 'Relationship added/updated'
+        return {'Relationship added/updated'}
 
     def delete(self):
-        return 'Relationship deleted'
+        user_email = _app_ctx_stack.top.current_user['email']
+        delete_person_id = int(request.data)
+        user = Person.query.filter_by(email=user_email).first()
+        Person.query.filter_by(id=delete_person_id).delete()
+        Link.query.filter(
+            or_(Link.ascendant_id == delete_person_id,
+                Link.descendant_id == delete_person_id)).delete()
+        db.session.commit()
+        graph.delete_node(delete_person_id)
+        node_list = graph.get_subgraph(user).nodes()
+        response = self.format_response(node_list, user.id)
+        return response
 
 
 api.add_resource(relationshipsAPI, '/relationships', endpoint='relationships')
