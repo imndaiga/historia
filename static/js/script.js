@@ -140,26 +140,50 @@ Vue.component('panel-form', {
 			required: true
 		}
 	},
+	data: function() {
+		return {
+			updatedFields: {}
+		}
+	},
 	methods: {
 		bs_panel_selected: function(bs_panel) {
 			bus.$emit('bs-panel-selected', bs_panel)
 		},
-		updateField: function(command, field, value) {
-			// if (command == 'add') {
-			// 	for (form_field in this.panel_views[this.current_Panel][this.current_panel_view].data) {
-			// 		if (Object.keys(this.panel_views[this.current_Panel][this.current_panel_view].data[form_field]).indexOf(field) != -1) {
-			// 			this.panel_views[this.current_Panel][this.current_panel_view].data[form_field][field] = value
-			// 		}
-			// 	}
-			// } else if (command == 'mod') {
-			// 	for (data_field in this.panel_views[this.current_Panel][this.current_panel_view].data) {
-			// 		for (model in this.panel_views[this.current_Panel][this.current_panel_view].data[data_field]) {
-			// 			if (model == 'id' && this.panel_views[this.current_Panel][this.current_panel_view].data[data_field][model].value == this.open_modal_relationship_id) {
-			// 				this.panel_views[this.current_Panel][this.current_panel_view].data[data_field][field].value = value
-			// 			}
-			// 		}
-			// 	}
-			// }
+		submitForm: function() {
+			var self = this
+			HTTP.put('/api/relationships', {
+				data: JSON.stringify(this.updatedFields)
+			}).then(
+				function(response) {
+					console.log(response)
+				},
+				function(response) {
+					console.log(response)
+				}
+			)
+		},
+		updateField: function(command, input_name, value) {
+			if (command == 'add') {
+				for (index in this.form) {
+					if (this.form[index].input_name == input_name) {
+						field_name = input_name.split('_')[1].replace('-','_')
+						if (this.form[index][field_name] != value) {
+							this.updatedFields.task = command
+							this.updatedFields[field_name] = value
+						}
+					}
+				}
+			} else if (command == 'mod') {
+				// for (index in this.form) {
+				// 	if (this.form[index].input_name == input_name) {
+				// 		field_name = input_name.split('_')[1].replace('-','_')
+				// 		if (this.form[index][field_name] != value) {
+				// 			this.updatedFields.task = command
+				// 			this.updatedFields[field_name] = value
+				// 		}
+				// 	}
+				// }
+			}
 		}
 	},
 	created: function() {
@@ -175,30 +199,27 @@ Vue.component('panel-form', {
 		}.bind(this))
 		bus.$on('alpha-changed', function(form_data) {
 			var command = form_data[0].toString().split('_')[0]
-			var field = form_data[0].toString().split('_')[1]
-			var formatted_field = field.toString().replace('-','_')
+			var input_name = form_data[0].toString()
 			var value = form_data[1]
-			this.updateField(command, formatted_field, value)
+			this.updateField(command, input_name, value)
 		}.bind(this))
 		bus.$on('email-changed', function(form_data) {
 			var command = form_data[0].toString().split('_')[0]
-			var field = form_data[0].toString().split('_')[1]
-			var formatted_field = field.toString().replace('-','_')
+			var input_name = form_data[0].toString()
 			var value = form_data[1]
-			this.updateField(command, formatted_field, value)
+			this.updateField(command, input_name, value)
 		}.bind(this))
 		bus.$on('multi-selected', function(selection_data) {
 			var command = selection_data[0].toString().split('_')[0]
-			var field = selection_data[0].toString().split('_')[1]
+			var input_name = selection_data[0].toString()
 			var value = selection_data[1]
-			this.updateField(command, field, value)
+			this.updateField(command, input_name, value)
 		}.bind(this))
 		bus.$on('date-selected', function(selection_data) {
 			var command = selection_data[0].toString().split('_')[0]
-			var field = selection_data[0].toString().split('_')[1]
-			var formatted_field = field.toString().replace('-','_')
+			var input_name = selection_data[0].toString()
 			var value = selection_data[1]
-			this.updateField(command, formatted_field, value)
+			this.updateField(command, input_name, value)
 		}.bind(this))
 	}
 })
@@ -389,6 +410,20 @@ Vue.component('search-input', {
 	}
 })
 
+Vue.component('submit-button', {
+	template: '#submit-button',
+	props: {
+		button_class: {
+			type: String,
+			required: true
+		},
+		button_message: {
+			type: String,
+			required: true
+		}
+	}
+})
+
 const dashboard = Vue.component('dashboard-page', {
 	template: '#dashboard-page',
 	data: function() {
@@ -569,15 +604,18 @@ const add_relationships = Vue.component('add-relationships-page', {
 				{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name', bs_panel: 'personal_details_panel'},
 				{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name', bs_panel: 'personal_details_panel'},
 				{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email', bs_panel: 'personal_details_panel'},
-				{type: 'search-input', relation: '', placeholder: 'Search for Relative', input_name: 'add_relation-person', label: 'Relative',
+				{type: 'search-input', relation_person: '', placeholder: 'Search for Relative', input_name: 'add_relation-person', label: 'Relative',
 					multiselect_options: [],
 					bs_panel: 'connect_relations_panel'
 				},
-				{type: 'multiselect-input', relation: '', placeholder: 'Choose a Relation', input_name: 'add_relation-name', label: 'Relation',
+				{type: 'multiselect-input', relation_name: '', placeholder: 'Choose a Relation', input_name: 'add_relation-name', label: 'Relation',
 					multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
 					bs_panel: 'connect_relations_panel'
 				},
-				{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'}
+				{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'},
+				{type: 'submit-button', button_message: 'Save Details', button_name: 'add_personal-details', bs_panel: 'personal_details_panel', button_class: 'btn btn-lg btn-success btn-block'},
+				{type: 'submit-button', button_message: 'Save Relation', button_name: 'add_connect-relations', bs_panel: 'connect_relations_panel', button_class: 'btn btn-lg btn-success btn-block'}
+
 			]
 		}
 	}

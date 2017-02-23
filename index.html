@@ -222,9 +222,11 @@
         </ul>
         <div class="panel-collapse collapse" :class="{in: bs_panel.open}">
           <div class="panel-body">
-            <div v-for="field in form" v-if="field.bs_panel == bs_panel.name">
-              <component :is="field.type" :placeholder="field.placeholder" :input_name="field.input_name" :label="field.label" :options="field.multiselect_options" :label="field.label"></component>
-            </div>
+            <form v-on:submit.prevent="submitForm">
+              <div v-for="field in form" v-if="field.bs_panel == bs_panel.name" class="form-group">
+                <component :is="field.type" :placeholder="field.placeholder" :input_name="field.input_name" :label="field.label" :options="field.multiselect_options" :label="field.label" :button_class="field.button_class" :button_message="field.button_message"></component>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -262,9 +264,11 @@
             <h4 class="modal-title" v-once>{{form.first_name.value}} {{form.last_name.value}}</h4>
           </div>
           <div class="modal-body">
-            <div v-for="field in form">
-              <component :is="field.type" :placeholder="field.value != null ? field.value : ''" :input_name="field.input_name" :label="field.label"></component>
-            </div>
+            <form v-on:submit.prevent="submitForm($event)">
+              <div v-for="field in form" class="form-group">
+                <component :is="field.type" :placeholder="field.value != null ? field.value : ''" :input_name="field.input_name" :label="field.label"></component>
+              </div>
+            </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
@@ -276,21 +280,21 @@
   </template>
 
   <template id="alpha-input">
-    <form class="form-group">
+    <div>
       <label>{{label}}</label>
       <input type="text" class="form-control" :placeholder="placeholder" :name="input_name" v-on:input="alphaChanged(input_name, $event.target.value)">
-    </form>
+    </div>
   </template>
 
   <template id="email-input">
-    <form class="form-group">
+    <div>
       <label>{{label}}</label>
       <input type="text" class="form-control" :placeholder="placeholder" :name="input_name" v-on:input="emailChanged(input_name, $event.target.value)">
-    </form>
+    </div>
   </template>
 
   <template id="pikaday-input">
-    <form class="form-group">
+    <div>
       <label>{{label}}</label>
       <div class="input-group">
         <input type="text" class="form-control" :ref="input_name" :value="placeholder" readonly>
@@ -300,28 +304,32 @@
           </button>
         </span>
       </div>
-    </form>
+    </div>
   </template>
 
   <template id="hidden-input">
-    <form class="form-group" style="display: none;">
+    <div style="display: none;">
       <label>{{label}}</label>
       <input type="hidden" class="form-control" :name="input_name" :value="placeholder">
-    </form>
+    </div>
   </template>
 
   <template id="multiselect-input">
-    <form class="form-group">
+    <div>
       <label>{{label}}</label>
       <multiselect :options="options" :placeholder="placeholder" deselect-label="Remove" select-label="Select" v-on:input="updateSelected(input_name, $event)"></multiselect>
-    </form>
+    </div>
   </template>
 
   <template id="search-input">
-    <form class="form-group">
+    <div>
       <label>{{label}}</label>
       <multiselect :internal-search="false" id="input_name" :options="people" :placeholder="placeholder"  :loading="isLoading" :limit="3" v-on:search-change="asyncFind"></multiselect>
-    </form>
+    </div>
+  </template>
+
+  <template id="submit-button">
+    <button type="submit" :class="button_class">{{ button_message }}</button>
   </template>
 
 </body>
