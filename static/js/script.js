@@ -88,8 +88,8 @@ Vue.component('app-sidebar', {
 	}
 })
 
-Vue.component('panel-header', {
-	template: '#panel-header',
+Vue.component('app-header', {
+	template: '#app-header',
 	props: {
 		panels: {
 			type: Array,
@@ -113,8 +113,8 @@ Vue.component('panel-header', {
 	}
 })
 
-Vue.component('panel-subnav', {
-	template: '#panel-subnav',
+Vue.component('app-subnav', {
+	template: '#app-subnav',
 	props: {
 		subnav_menus: {
 			type: Array,
@@ -132,8 +132,8 @@ Vue.component('panel-subnav', {
 	}
 })
 
-Vue.component('panel-form', {
-	template: '#panel-form',
+Vue.component('app-form', {
+	template: '#app-form',
 	props: {
 		form : {
 			type: Array,
@@ -153,7 +153,15 @@ Vue.component('panel-form', {
 	validations: {},
 	methods: {
 		bs_panel_selected: function(bs_panel) {
-			bus.$emit('bs-panel-selected', bs_panel)
+			this.updatedFields = {}
+			for (bs_panel_object in this.bs_panels) {
+				if (this.bs_panels[bs_panel_object].name == bs_panel) {
+					this.bs_panels[bs_panel_object].open = !this.bs_panels[bs_panel_object].open
+				} else {
+					this.bs_panels[bs_panel_object].open = false
+				}
+
+			}
 		},
 		submitForm: function() {
 			var self = this
@@ -168,27 +176,18 @@ Vue.component('panel-form', {
 				}
 			)
 		},
-		updateField: function(command, input_name, value) {
-			if (command == 'add') {
-				for (index in this.form) {
-					if (this.form[index].input_name == input_name) {
-						field_name = this.form[index].field_name
-						if (this.form[index][field_name] != value) {
-							this.updatedFields.task = command
-							this.updatedFields[field_name] = value
-						}
+		updateField: function(command, field_name, value) {
+			if (this.updatedFields.task != command) {
+				this.updatedFields = {}
+			}
+			for (index in this.form) {
+				if (this.form[index].field_name == field_name) {
+					if (this.form[index][field_name] != value) {
+						this.updatedFields.task = command
+						this.updatedFields[field_name] = value
+						this.form_object[field_name] = value
 					}
 				}
-			} else if (command == 'mod') {
-				// for (index in this.form) {
-				// 	if (this.form[index].input_name == input_name) {
-				// 		field_name = this.form[index].field_name
-				// 		if (this.form[index][field_name] != value) {
-				// 			this.updatedFields.task = command
-				// 			this.updatedFields[field_name] = value
-				// 		}
-				// 	}
-				// }
 			}
 		},
 		createFormObject: function() {
@@ -200,43 +199,30 @@ Vue.component('panel-form', {
 					}
 				}
 			}
+		},
+		parseInputs: function(form_data) {
+			command = form_data[0].toString().split('_')[0]
+			field_name = form_data[0].toString().split('_')[1].replace('-','_')
+			value = form_data[1]
+			this.updateField(command, field_name, value)
 		}
 	},
 	created: function() {
 		this.createFormObject()
-		bus.$on('bs-panel-selected', function(bs_panel) {
-			for (bs_panel_object in this.bs_panels) {
-				if (this.bs_panels[bs_panel_object].name == bs_panel) {
-					this.bs_panels[bs_panel_object].open = !this.bs_panels[bs_panel_object].open
-				} else {
-					this.bs_panels[bs_panel_object].open = false
-				}
-
-			}
-		}.bind(this))
 		bus.$on('alpha-changed', function(form_data) {
-			var command = form_data[0].toString().split('_')[0]
-			var input_name = form_data[0].toString()
-			var value = form_data[1]
-			this.updateField(command, input_name, value)
+			this.parseInputs(form_data)
 		}.bind(this))
 		bus.$on('email-changed', function(form_data) {
-			var command = form_data[0].toString().split('_')[0]
-			var input_name = form_data[0].toString()
-			var value = form_data[1]
-			this.updateField(command, input_name, value)
+			this.parseInputs(form_data)
 		}.bind(this))
 		bus.$on('multi-selected', function(selection_data) {
-			var command = selection_data[0].toString().split('_')[0]
-			var input_name = selection_data[0].toString()
-			var value = selection_data[1]
-			this.updateField(command, input_name, value)
+			this.parseInputs(selection_data)
 		}.bind(this))
 		bus.$on('date-selected', function(selection_data) {
-			var command = selection_data[0].toString().split('_')[0]
-			var input_name = selection_data[0].toString()
-			var value = selection_data[1]
-			this.updateField(command, input_name, value)
+			this.parseInputs(selection_data)
+		}.bind(this))
+		bus.$on('modal-submit', function() {
+			this.submitForm()
 		}.bind(this))
 	},
 	computed: {
@@ -263,8 +249,8 @@ Vue.component('panel-form', {
 	}
 })
 
-Vue.component('panel-table', {
-	template: '#panel-table',
+Vue.component('app-table', {
+	template: '#app-table',
 	props: {
 		list: {
 			type: Array,
@@ -296,6 +282,9 @@ Vue.component('modal-window', {
 	methods: {
 		closeModal: function() {
 			bus.$emit('close-modal')
+		},
+		submitForm: function() {
+			bus.$emit('modal-submit')
 		}
 	}
 })

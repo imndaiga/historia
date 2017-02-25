@@ -32,7 +32,7 @@
       <app-navbar :title="title" :nav_menus="nav_menus"></app-navbar>
       <app-sidebar :panels="panels"></app-sidebar>
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
-        <panel-header :panels="panels"></panel-header>
+        <app-header :panels="panels"></app-header>
       </div>
       <router-view></router-view>
     </div>
@@ -44,13 +44,13 @@
 
   <template id="add-relationships-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <panel-form :form="form_data" :bs_panels="bs_panels"></panel-form>
+      <app-form :form="form_data" :bs_panels="bs_panels"></app-form>
     </div>
   </template>
 
   <template id="list-relationships-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <panel-table :list="table_data" :table_headers="table_Headers"></panel-table>
+      <app-table :list="table_data" :table_headers="table_Headers"></app-table>
       <modal-window v-if="open_modal_state" :form="modal_Form"></modal-window>
     </div>
   </template>
@@ -173,7 +173,7 @@
     </div>
   </template>
 
-  <template id="panel-header">
+  <template id="app-header">
     <div>
       <div class="row center-block hidden-xs panel-header">
         <h1>{{current_Panel}}</h1>
@@ -202,7 +202,7 @@
     </div>
   </template>
 
-  <template id="panel-subnav">
+  <template id="app-subnav">
     <div class="btn-group btn-group-justified panel-menu" v-if="subnav_menus.length > 0">
       <div :class="panel_menu.bs_grid_length" v-for="panel_menu in subnav_menus">
         <button :class="[panel_menu.bs_button, {'active': panel_menu.title == current_panel_view}]" :title="panel_menu.info" v-on:click="panelViewSelected(panel_menu.title)">
@@ -212,7 +212,7 @@
     </div>
   </template>
 
-  <template id="panel-form">
+  <template id="app-form">
     <div class="panel-group">
       <div class="panel panel-default" v-for="bs_panel in bs_panels">
         <ul class="nav panel-heading">
@@ -235,7 +235,7 @@
     </div>
   </template>
 
-  <template id="panel-table">
+  <template id="app-table">
     <div class="table-responsive">
       <table v-if="list.length > 0" class="table table-hover">
         <thead>
@@ -266,7 +266,7 @@
             <h4 class="modal-title" v-once>{{form.first_name.value}} {{form.last_name.value}}</h4>
           </div>
           <div class="modal-body">
-            <form v-on:submit.prevent="submitForm($event)">
+            <form>
               <div v-for="field in form" class="form-group">
                 <component :is="field.type" :placeholder="field.value != null ? field.value : ''" :input_name="field.input_name" :label="field.label"></component>
               </div>
@@ -274,7 +274,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="submit" class="btn btn-primary" v-on:click="submitForm">Save changes</button>
           </div>
         </div>
       </div>
