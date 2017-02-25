@@ -3,6 +3,10 @@ var HTTP = axios.create({
 	baseURL: ''
 })
 
+var required = validators.required
+var email = validators.email
+var alpha = validators.alpha
+
 // Set up axios interceptors to error responses
 HTTP.interceptors.response.use(
 function(response) {
@@ -142,9 +146,11 @@ Vue.component('panel-form', {
 	},
 	data: function() {
 		return {
-			updatedFields: {}
+			updatedFields: {},
+			form_object: {}
 		}
 	},
+	validations: {},
 	methods: {
 		bs_panel_selected: function(bs_panel) {
 			bus.$emit('bs-panel-selected', bs_panel)
@@ -166,7 +172,7 @@ Vue.component('panel-form', {
 			if (command == 'add') {
 				for (index in this.form) {
 					if (this.form[index].input_name == input_name) {
-						field_name = input_name.split('_')[1].replace('-','_')
+						field_name = this.form[index].field_name
 						if (this.form[index][field_name] != value) {
 							this.updatedFields.task = command
 							this.updatedFields[field_name] = value
@@ -176,7 +182,7 @@ Vue.component('panel-form', {
 			} else if (command == 'mod') {
 				// for (index in this.form) {
 				// 	if (this.form[index].input_name == input_name) {
-				// 		field_name = input_name.split('_')[1].replace('-','_')
+				// 		field_name = this.form[index].field_name
 				// 		if (this.form[index][field_name] != value) {
 				// 			this.updatedFields.task = command
 				// 			this.updatedFields[field_name] = value
@@ -184,9 +190,20 @@ Vue.component('panel-form', {
 				// 	}
 				// }
 			}
+		},
+		createFormObject: function() {
+			for (index in this.form) {
+				for (field in this.form[index]) {
+					if (field == 'field_name') {
+						key = this.form[index][field]
+						this.form_object[key] = ''
+					}
+				}
+			}
 		}
 	},
 	created: function() {
+		this.createFormObject()
 		bus.$on('bs-panel-selected', function(bs_panel) {
 			for (bs_panel_object in this.bs_panels) {
 				if (this.bs_panels[bs_panel_object].name == bs_panel) {
@@ -221,6 +238,28 @@ Vue.component('panel-form', {
 			var value = selection_data[1]
 			this.updateField(command, input_name, value)
 		}.bind(this))
+	},
+	computed: {
+		form_Validations: function() {
+			validations = {}
+			validations['form_object'] = {}
+			for (index in this.form) {
+				if (Object.keys(this.form[index]).indexOf('input_name') != -1) {
+					input_name = this.form[index].input_name
+					field_name = this.form[index].field_name
+					sel_validators = Object.keys(this.form[index].validators)
+					if (sel_validators.length > 0) {
+						for (val in validators) {
+							if (sel_validators.indexOf(val) != -1) {
+								validators = this.form[index].validators
+								validations['form_object'][field_name] = validators
+							}
+						}
+					}
+				}
+			}
+			return validations
+		}
 	}
 })
 
@@ -600,19 +639,19 @@ const add_relationships = Vue.component('add-relationships-page', {
 				{name: 'personal_details_panel', open: false, label: 'Personal Details'},
 				{name: 'connect_relations_panel', open: false, label: 'Connect Relations'}],
 			form_data: [
-				{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name', label: 'First Name', bs_panel: 'personal_details_panel'},
-				{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name', bs_panel: 'personal_details_panel'},
-				{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name', bs_panel: 'personal_details_panel'},
-				{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email', bs_panel: 'personal_details_panel'},
+				{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name', label: 'First Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'first_name'},
+				{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'ethnic_name'},
+				{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'last_name'},
+				{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email', bs_panel: 'personal_details_panel', validators: { required, email }, field_name: 'email'},
 				{type: 'search-input', relation_person: '', placeholder: 'Search for Relative', input_name: 'add_relation-person', label: 'Relative',
 					multiselect_options: [],
-					bs_panel: 'connect_relations_panel'
+					bs_panel: 'connect_relations_panel', validators: {}, field_name: 'relation_person'
 				},
 				{type: 'multiselect-input', relation_name: '', placeholder: 'Choose a Relation', input_name: 'add_relation-name', label: 'Relation',
 					multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
-					bs_panel: 'connect_relations_panel'
+					bs_panel: 'connect_relations_panel', validators: {}, field_name: 'relation_name'
 				},
-				{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel'},
+				{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel', validators: {}, field_name: 'birth_date'},
 				{type: 'submit-button', button_message: 'Save Details', button_name: 'add_personal-details', bs_panel: 'personal_details_panel', button_class: 'btn btn-lg btn-success btn-block'},
 				{type: 'submit-button', button_message: 'Save Relation', button_name: 'add_connect-relations', bs_panel: 'connect_relations_panel', button_class: 'btn btn-lg btn-success btn-block'}
 
@@ -758,6 +797,8 @@ function autoRoute(to, from, next) {
 		next()
 	}
 }
+
+Vue.use(window.vuelidate.default)
 
 var vm = new Vue({
 	el: '#app',

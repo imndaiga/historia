@@ -14,7 +14,8 @@
     "pikaday": "^1.5.1",
     "vue": "^2.1.10",
     "vue-multiselect": "^2.0.0-beta.13",
-    "vue-router": "^2.2.1"
+    "vue-router": "^2.2.1",
+    "vuelidate": "^0.2.0"
   },
   "devDependencies": {},
   "scripts": {

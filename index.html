@@ -13,6 +13,8 @@
   <script src="node_modules/particles.js/particles.js"></script>
   <script src="https://cdn.auth0.com/js/lock/10.9.1/lock.min.js"></script>
   <script src="node_modules/axios/dist/axios.js"></script>
+  <script src="node_modules/vuelidate/dist/validators.min.js"></script>
+  <script src="node_modules/vuelidate/dist/vuelidate.min.js"></script>
   <link rel="stylesheet" href="node_modules/pikaday/css/pikaday.css" />
   <link rel="stylesheet" href="node_modules/bootstrap-css-only/css/bootstrap.css" />
   <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css" />
@@ -223,7 +225,7 @@
         <div class="panel-collapse collapse" :class="{in: bs_panel.open}">
           <div class="panel-body">
             <form v-on:submit.prevent="submitForm">
-              <div v-for="field in form" v-if="field.bs_panel == bs_panel.name" class="form-group">
+              <div v-for="field in form" v-if="field.bs_panel == bs_panel.name" :class="['form-group']">
                 <component :is="field.type" :placeholder="field.placeholder" :input_name="field.input_name" :label="field.label" :options="field.multiselect_options" :label="field.label" :button_class="field.button_class" :button_message="field.button_message"></component>
               </div>
             </form>
