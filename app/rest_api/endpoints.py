@@ -27,31 +27,41 @@ class relationshipsAPI(Resource):
     decorators = [requires_auth]
 
     def format_response(self, nodes, user_id):
-        relations = []
+        relatives = []
         for node in nodes:
             if node != user_id:
                 relation = Person.query.get(node)
-                relations.append({
-                    'id': {'value': relation.id, 'type': 'hidden-input',
-                           'input_name': 'data_id', 'label': 'ID'},
-                    'first_name': {'value': relation.baptism_name,
-                                   'type': 'alpha-input',
-                                   'input_name': 'mod_first-name',
-                                   'label': 'First Name'},
-                    'ethnic_name': {'value': relation.ethnic_name,
-                                    'type': 'alpha-input',
-                                    'input_name': 'mod_ethnic-name',
-                                    'label': 'Ethnic Name'},
-                    'last_name': {'value': relation.surname,
-                                  'type': 'alpha-input',
-                                  'input_name': 'mod_last-name',
-                                  'label': 'Last Name'},
-                    'email': {'value': relation.email,
-                              'type': 'email-input',
-                              'input_name': 'mod_email',
-                              'label': 'Email'}
-                })
-        return relations
+                relatives.append([
+                    {
+                        'type': 'hidden-input', 'value': relation.id or '',
+                        'label': 'ID', 'field_name': 'id'
+                    },
+                    {
+                        'type': 'alpha-input',
+                        'value': relation.baptism_name or '',
+                        'label': 'First Name',
+                        'validators': ['required', 'alpha'],
+                        'field_name': 'first_name'
+                    },
+                    {
+                        'type': 'alpha-input',
+                        'value': relation.ethnic_name or '',
+                        'label': 'Ethnic Name',
+                        'validators': ['required', 'alpha'],
+                        'field_name': 'ethnic_name'},
+                    {
+                        'type': 'alpha-input', 'value': relation.surname or '',
+                        'label': 'Last Name',
+                        'validators': ['required', 'alpha'],
+                        'field_name': 'last_name'
+                    },
+                    {
+                        'type': 'email-input', 'value': relation.email or '',
+                        'label': 'Email', 'validators': ['required', 'email'],
+                        'field_name': 'email'
+                    }
+                ])
+        return relatives
 
     def get(self):
         user_email = _app_ctx_stack.top.current_user['email']
