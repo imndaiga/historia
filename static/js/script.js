@@ -29,6 +29,15 @@ function(error) {
 	return Promise.reject(error)
 })
 
+function extendDict(obj, src) {
+	for (key in src) {
+		if (src.hasOwnProperty(key)) {
+			obj[key] = src[key]
+		}
+		return obj
+	}
+}
+
 Vue.component('app-navbar', {
 	template: '#app-navbar',
 	props: {
@@ -145,7 +154,6 @@ Vue.component('app-panel', {
 			bs_panel.open = !bs_panel.open
 		}
 	}
-
 })
 
 Vue.component('app-form', {
@@ -528,14 +536,32 @@ const list_relationships = Vue.component('list-relationships-page', {
 	},
 	computed: {
 		modal_Relativeform: function() {
+			var relative_found = false
 			for (relative in this.relative_data) {
 				for (field in this.relative_data[relative]) {
 					if (this.relative_data[relative][field].field_name == 'id') {
 						if (this.relative_data[relative][field].value == this.open_modal_relationship_id) {
-							return this.relative_data[relative]
+							relative_found = true
 						}
 					}
+					if (relative_found && Object.keys(this.relative_data[relative][field]).indexOf('validators') != -1) {
+						if (this.relative_data[relative][field].validators.length > 0) {
+							validations = {}
+							for (index in this.relative_data[relative][field].validators) {
+								validation = this.relative_data[relative][field].validators[index]
+								if (validation == 'required') {
+									validations = extendDict(validations, {required})
+								} else if (validation == 'email') {
+									validations = extendDict(validations, {email})
+								} else if (validation == 'alpha') {
+									validations = extendDict(validations, {alpha})
+								}
+							}
+						}
+						this.relative_data[relative][field].validators = validations
+					}
 				}
+				return this.relative_data[relative]
 			}
 		},
 		table_Headers: function() {
