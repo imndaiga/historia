@@ -46,7 +46,7 @@
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
       <div class="panel-group">
         <app-panel v-for="panel in bs_panels" :bs_panel="panel">
-          <app-form :form="form_data" :bs_panel="panel"></app-form>
+          <app-form :form="splitPanelForm(form_data, panel.name)"></app-form>
         </app-panel>
       </div>
     </div>
@@ -219,44 +219,27 @@
   </template>
 
   <template id="app-form">
-      <form v-if="bs_panel != null" v-on:submit.prevent="submitForm">
-        <div v-for="field in form" v-if="field.bs_panel == bs_panel.name" class="form-group">
+    <form v-on:submit.prevent="submitForm">
+      <div v-for="field in form" class="form-group">
+        <div v-if="field.type == 'hidden-input'" style="display: none;">
           <label>{{ field.label }}</label>
-          <input v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" type="text" class="form-control" :name="field.field_name" v-model="form_object[field.field_name]">
-          <div v-else-if="field.type == 'pikaday-input'" class="input-group" >
-	          <input type="text" class="form-control" :name="field.field_name" :ref="field.field_name" readonly>
-            <span class="input-group-btn">
-		          <button type="button" class="btn btn-default" :ref="field.field_name+'-btn'">
-		            <i class="fa fa-calendar fa-lg"></i>
-		          </button>
-		        </span>
-		       </div>
-		       <multiselect v-else-if="field.type == 'multiselect-input'" :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name]"></multiselect>
-		       <multiselect v-else-if="field.type == 'search-input'" :id="field.field_name" :options="search_result" :placeholder="field.placeholder" :loading="searching" :limit="3" v-on:search-change="asyncFind" v-model="form_object[field.field_name]"></multiselect>
-		       <button v-else-if="field.type == 'submit-button'" type="submit" :class="field.button_class">{{ field.button_message }}</button>
+          <input type="text" :name="field.field_name" :value="field.placeholder">
         </div>
-      </form>
-      <form v-else>
-        <div v-for="field in form" class="form-group">
-          <div v-if="field.type == 'hidden-input'" style="display: none;">
-            <label>{{ field.label }}</label>
-            <input type="text" :name="field.field_name" :value="field.placeholder">
-          </div>
-          <label v-else>{{ field.label }}</label>
-          <input v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" type="text" class="form-control" :name="field.field_name" v-model="form_object[field.field_name]">
-          <div v-else-if="field.type == 'pikaday-input'" class="input-group" >
-            <input type="text" class="form-control" :name="field.field_name" :ref="field.field_name" readonly>
-            <span class="input-group-btn">
-              <button type="button" class="btn btn-default" :ref="field.field_name+'-btn'">
-                <i class="fa fa-calendar fa-lg"></i>
-              </button>
-            </span>
-           </div>
-           <multiselect v-else-if="field.type == 'multiselect-input'" :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name]"></multiselect>
-           <multiselect v-else-if="field.type == 'search-input'" :id="field.field_name" :options="search_result" :placeholder="field.placeholder" :loading="searching" :limit="3" v-on:search-change="asyncFind" v-model="form_object[field.field_name]"></multiselect>
-           <button v-else-if="field.type == 'submit-button'" type="submit" :class="field.button_class">{{ field.button_message }}</button>
-        </div>
-      </form>
+        <label v-else>{{ field.label }}</label>
+        <input v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" type="text" class="form-control" :name="field.field_name" v-model="form_object[field.field_name]" :placeholder="field.placeholder">
+        <div v-else-if="field.type == 'pikaday-input'" class="input-group" >
+          <input type="text" class="form-control" :name="field.field_name" :ref="field.field_name" readonly>
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" :ref="field.field_name+'-btn'">
+              <i class="fa fa-calendar fa-lg"></i>
+            </button>
+          </span>
+         </div>
+         <multiselect v-else-if="field.type == 'multiselect-input'" :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name]"></multiselect>
+         <multiselect v-else-if="field.type == 'search-input'" :id="field.field_name" :options="search_result" :placeholder="field.placeholder" :loading="searching" :limit="3" v-on:search-change="asyncFind" v-model="form_object[field.field_name]"></multiselect>
+         <button v-else-if="field.type == 'submit-button'" type="submit" :class="field.button_class">{{ field.button_message }}</button>
+      </div>
+    </form>
   </template>
 
   <template id="app-panel">

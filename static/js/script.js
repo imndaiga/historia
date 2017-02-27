@@ -154,10 +154,6 @@ Vue.component('app-form', {
 		form : {
 			type: Array,
 			required: true
-		},
-		bs_panel: {
-			type: Object,
-			required: false
 		}
 	},
 	data: function() {
@@ -493,6 +489,17 @@ const add_relationships = Vue.component('add-relationships-page', {
 				{type: 'submit-button', button_message: 'Save Relation', button_name: 'add_connect-relations', bs_panel: 'connect_relations_panel', button_class: 'btn btn-lg btn-success btn-block'}
 
 			]
+		}
+	},
+	methods: {
+		splitPanelForm: function(form_data, bs_panel) {
+			split_form = []
+			for (index in form_data) {
+				if (form_data[index].bs_panel == bs_panel) {
+					split_form.push(form_data[index])
+				}
+			}
+			return split_form
 		}
 	}
 })
