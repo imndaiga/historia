@@ -44,14 +44,20 @@
 
   <template id="add-relationships-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <app-form :form="form_data" :bs_panels="bs_panels"></app-form>
+      <div class="panel-group">
+        <app-panel v-for="panel in bs_panels" :bs_panel="panel">
+          <app-form :form="form_data" :bs_panel="panel"></app-form>
+        </app-panel>
+      </div>
     </div>
   </template>
 
   <template id="list-relationships-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <app-table :list="table_data" :table_headers="table_Headers"></app-table>
-      <modal-window v-if="open_modal_state" :form="modal_Form"></modal-window>
+      <app-table :list="table_Data" :table_headers="table_Headers"></app-table>
+      <modal-window v-if="open_modal_state">
+        <app-form :form="modal_Relativeform"></app-form>
+      </modal-window>
     </div>
   </template>
 
@@ -89,7 +95,7 @@
               <h3>Start Your Story!</h3>
               <hr>
               <div v-for="field in form">
-                <component :is="field.type" :placeholder="field.placeholder" :input_name="field.input_name" :label="field.label" :options="field.multiselect_options" :label="field.label"></component>
+                <component :is="field.type" :placeholder="field.placeholder" :field_name="field.field_name" :label="field.label" :options="field.multiselect_options" :label="field.label"></component>
               </div>
               <br>
               <button class="btn btn-primary btn-block" v-on:click="login()" v-if="!authentication">Login</button>
@@ -213,23 +219,58 @@
   </template>
 
   <template id="app-form">
-    <div class="panel-group">
-      <div class="panel panel-default" v-for="bs_panel in bs_panels">
-        <ul class="nav panel-heading">
-          <li :class="['panel-title', {active: bs_panel.open}]">
-            <a v-on:click.stop="bs_panel_selected(bs_panel.name)">
-              {{bs_panel.label}}
-            </a>
-          </li>
-        </ul>
-        <div class="panel-collapse collapse" :class="{in: bs_panel.open}">
-          <div class="panel-body">
-            <form v-on:submit.prevent="submitForm">
-              <div v-for="field in form" v-if="field.bs_panel == bs_panel.name" :class="['form-group']">
-                <component :is="field.type" :placeholder="field.placeholder" :input_name="field.input_name" :label="field.label" :options="field.multiselect_options" :label="field.label" :button_class="field.button_class" :button_message="field.button_message"></component>
-              </div>
-            </form>
+      <form v-if="bs_panel != null" v-on:submit.prevent="submitForm">
+        <div v-for="field in form" v-if="field.bs_panel == bs_panel.name" class="form-group">
+          <label>{{ field.label }}</label>
+          <input v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" type="text" class="form-control" :name="field.field_name" v-model="form_object[field.field_name]">
+          <div v-else-if="field.type == 'pikaday-input'" class="input-group" >
+	          <input type="text" class="form-control" :name="field.field_name" :ref="field.field_name" readonly>
+            <span class="input-group-btn">
+		          <button type="button" class="btn btn-default" :ref="field.field_name+'-btn'">
+		            <i class="fa fa-calendar fa-lg"></i>
+		          </button>
+		        </span>
+		       </div>
+		       <multiselect v-else-if="field.type == 'multiselect-input'" :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name]"></multiselect>
+		       <multiselect v-else-if="field.type == 'search-input'" :id="field.field_name" :options="search_result" :placeholder="field.placeholder" :loading="searching" :limit="3" v-on:search-change="asyncFind" v-model="form_object[field.field_name]"></multiselect>
+		       <button v-else-if="field.type == 'submit-button'" type="submit" :class="field.button_class">{{ field.button_message }}</button>
+        </div>
+      </form>
+      <form v-else>
+        <div v-for="field in form" class="form-group">
+          <div v-if="field.type == 'hidden-input'" style="display: none;">
+            <label>{{ field.label }}</label>
+            <input type="text" :name="field.field_name" :value="field.placeholder">
           </div>
+          <label v-else>{{ field.label }}</label>
+          <input v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" type="text" class="form-control" :name="field.field_name" v-model="form_object[field.field_name]">
+          <div v-else-if="field.type == 'pikaday-input'" class="input-group" >
+            <input type="text" class="form-control" :name="field.field_name" :ref="field.field_name" readonly>
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default" :ref="field.field_name+'-btn'">
+                <i class="fa fa-calendar fa-lg"></i>
+              </button>
+            </span>
+           </div>
+           <multiselect v-else-if="field.type == 'multiselect-input'" :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name]"></multiselect>
+           <multiselect v-else-if="field.type == 'search-input'" :id="field.field_name" :options="search_result" :placeholder="field.placeholder" :loading="searching" :limit="3" v-on:search-change="asyncFind" v-model="form_object[field.field_name]"></multiselect>
+           <button v-else-if="field.type == 'submit-button'" type="submit" :class="field.button_class">{{ field.button_message }}</button>
+        </div>
+      </form>
+  </template>
+
+  <template id="app-panel">
+    <div class="panel panel-default">
+      <ul class="nav panel-heading">
+        <li :class="['panel-title', {active: bs_panel.open}]">
+          <a v-on:click.stop="bs_panel_selected(bs_panel)">
+            {{bs_panel.label}}
+          </a>
+        </li>
+      </ul>
+      <div class="panel-collapse collapse" :class="{in: bs_panel.open}">
+        <div class="panel-body">
+          <slot></slot>
         </div>
       </div>
     </div>
@@ -246,10 +287,10 @@
         </thead>
         <tbody>
           <tr v-for="relation in list">
-            <td class="center-content" v-for="(detail, key) in relation" v-if="key != 'id'">{{ detail.value }}</td>
+            <td class="center-content" v-for="(value, key) in relation" v-if="key != 'id'">{{ value }}</td>
             <td class="center-content">
-              <button type="button" v-on:click="openRelation(relation.id.value)" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-pencil-square-o fa-lg"></i></button>
-              <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRelation(relation.id.value)" title="Delete"><i class="fa fa-trash-o fa-lg"></i></button>
+              <button type="button" v-on:click="openRelation(relation.id)" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-pencil-square-o fa-lg"></i></button>
+              <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRelation(relation.id)" title="Delete"><i class="fa fa-trash-o fa-lg"></i></button>
             </td>
           </tr>
         </tbody>
@@ -263,14 +304,10 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title" v-once>{{form.first_name.value}} {{form.last_name.value}}</h4>
+            <h4 class="modal-title" v-once>Edit Relationship</h4>
           </div>
           <div class="modal-body">
-            <form>
-              <div v-for="field in form" class="form-group">
-                <component :is="field.type" :placeholder="field.value != null ? field.value : ''" :input_name="field.input_name" :label="field.label"></component>
-              </div>
-            </form>
+            <slot></slot>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
@@ -279,59 +316,6 @@
         </div>
       </div>
     </div>
-  </template>
-
-  <template id="alpha-input">
-    <div>
-      <label>{{label}}</label>
-      <input type="text" class="form-control" :placeholder="placeholder" :name="input_name" v-on:input="alphaChanged(input_name, $event.target.value)">
-    </div>
-  </template>
-
-  <template id="email-input">
-    <div>
-      <label>{{label}}</label>
-      <input type="text" class="form-control" :placeholder="placeholder" :name="input_name" v-on:input="emailChanged(input_name, $event.target.value)">
-    </div>
-  </template>
-
-  <template id="pikaday-input">
-    <div>
-      <label>{{label}}</label>
-      <div class="input-group">
-        <input type="text" class="form-control" :ref="input_name" :value="placeholder" readonly>
-        <span class="input-group-btn">
-          <button type="button" class="btn btn-default" :ref="input_name+'-btn'">
-            <i class="fa fa-calendar fa-lg"></i>
-          </button>
-        </span>
-      </div>
-    </div>
-  </template>
-
-  <template id="hidden-input">
-    <div style="display: none;">
-      <label>{{label}}</label>
-      <input type="hidden" class="form-control" :name="input_name" :value="placeholder">
-    </div>
-  </template>
-
-  <template id="multiselect-input">
-    <div>
-      <label>{{label}}</label>
-      <multiselect :options="options" :placeholder="placeholder" deselect-label="Remove" select-label="Select" v-on:input="updateSelected(input_name, $event)"></multiselect>
-    </div>
-  </template>
-
-  <template id="search-input">
-    <div>
-      <label>{{label}}</label>
-      <multiselect :internal-search="false" id="input_name" :options="people" :placeholder="placeholder"  :loading="isLoading" :limit="3" v-on:search-change="asyncFind"></multiselect>
-    </div>
-  </template>
-
-  <template id="submit-button">
-    <button type="submit" :class="button_class">{{ button_message }}</button>
   </template>
 
 </body>

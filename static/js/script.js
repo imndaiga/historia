@@ -132,6 +132,22 @@ Vue.component('app-subnav', {
 	}
 })
 
+Vue.component('app-panel', {
+	template: '#app-panel',
+	props: {
+		bs_panel: {
+			type: Object,
+			required: true
+		}
+	},
+	methods: {
+		bs_panel_selected: function(bs_panel) {
+			bs_panel.open = !bs_panel.open
+		}
+	}
+
+})
+
 Vue.component('app-form', {
 	template: '#app-form',
 	props: {
@@ -139,34 +155,25 @@ Vue.component('app-form', {
 			type: Array,
 			required: true
 		},
-		bs_panels: {
-			type: Array,
-			required: true
+		bs_panel: {
+			type: Object,
+			required: false
 		}
 	},
 	data: function() {
 		return {
-			updatedFields: {},
-			form_object: {}
+			form_object: {},
+			picker: '',
+			search_result: [],
+			searching: false
 		}
 	},
 	validations: {},
 	methods: {
-		bs_panel_selected: function(bs_panel) {
-			this.updatedFields = {}
-			for (bs_panel_object in this.bs_panels) {
-				if (this.bs_panels[bs_panel_object].name == bs_panel) {
-					this.bs_panels[bs_panel_object].open = !this.bs_panels[bs_panel_object].open
-				} else {
-					this.bs_panels[bs_panel_object].open = false
-				}
-
-			}
-		},
 		submitForm: function() {
 			var self = this
 			HTTP.put('/api/relationships', {
-				data: JSON.stringify(this.updatedFields)
+				data: JSON.stringify(this.form_object)
 			}).then(
 				function(response) {
 					console.log(response)
@@ -176,54 +183,28 @@ Vue.component('app-form', {
 				}
 			)
 		},
-		updateField: function(command, field_name, value) {
-			if (this.updatedFields.task != command) {
-				this.updatedFields = {}
-			}
-			for (index in this.form) {
-				if (this.form[index].field_name == field_name) {
-					if (this.form[index][field_name] != value) {
-						this.updatedFields.task = command
-						this.updatedFields[field_name] = value
-						this.form_object[field_name] = value
-					}
-				}
-			}
-		},
 		createFormObject: function() {
 			for (index in this.form) {
 				for (field in this.form[index]) {
 					if (field == 'field_name') {
 						key = this.form[index][field]
-						this.form_object[key] = ''
+						if (Object.keys(this.form[index]).indexOf('value') != -1) {
+							this.form_object[key] = this.form[index].value
+						} else {
+							this.form_object[key] = ''
+						}
 					}
 				}
 			}
 		},
-		parseInputs: function(form_data) {
-			command = form_data[0].toString().split('_')[0]
-			field_name = form_data[0].toString().split('_')[1].replace('-','_')
-			value = form_data[1]
-			this.updateField(command, field_name, value)
+		asyncFind: function(query) {
+			this.isLoading = true
+			console.log('Searching...')
+			this.isLoading = false
 		}
 	},
 	created: function() {
 		this.createFormObject()
-		bus.$on('alpha-changed', function(form_data) {
-			this.parseInputs(form_data)
-		}.bind(this))
-		bus.$on('email-changed', function(form_data) {
-			this.parseInputs(form_data)
-		}.bind(this))
-		bus.$on('multi-selected', function(selection_data) {
-			this.parseInputs(selection_data)
-		}.bind(this))
-		bus.$on('date-selected', function(selection_data) {
-			this.parseInputs(selection_data)
-		}.bind(this))
-		bus.$on('modal-submit', function() {
-			this.submitForm()
-		}.bind(this))
 	},
 	computed: {
 		form_Validations: function() {
@@ -245,6 +226,40 @@ Vue.component('app-form', {
 				}
 			}
 			return validations
+		},
+		pikaday_Hooks: function() {
+			hooks = []
+			if (Object.keys(this.$refs).length == 2) {
+				for (ref in this.$refs) {
+					if (ref.indexOf('-btn') == -1) {
+						hooks.push(ref)
+					}
+					hooks.push(this.$refs[ref])
+				}
+			} else {
+				return false
+			}
+			return hooks
+		}
+	},
+	mounted: function() {
+		var self = this
+		if (this.pikaday_Hooks) {
+			for (index in this.pikaday_Hooks) {
+				if (typeof this.pikaday_Hooks[index] === 'string') {
+					var pikaday_field_name = this.pikaday_Hooks[index]
+					this.pikaday_Hooks.splice(index, 1)
+				}
+			}
+			this.picker = new Pikaday({
+				ref: this.base_ref,
+				field: this.pikaday_Hooks[0][0],
+				trigger: this.pikaday_Hooks[1][0],
+				onSelect: function() {
+					date = this.getMoment().format('Do MMMM YYYY')
+					self.form_object[pikaday_field_name] = date
+				}
+			})
 		}
 	}
 })
@@ -273,184 +288,17 @@ Vue.component('app-table', {
 
 Vue.component('modal-window', {
 	template: '#modal-window',
-	props: {
-		form: {
-			type: Object,
-			required: true
-		}
-	},
 	methods: {
 		closeModal: function() {
 			bus.$emit('close-modal')
 		},
 		submitForm: function() {
-			bus.$emit('modal-submit')
+			this.$children[0].submitForm()
 		}
 	}
 })
 
 Vue.component('multiselect', VueMultiselect.default)
-
-Vue.component('alpha-input', {
-	template: '#alpha-input',
-	props: {
-		placeholder: {
-			type: String,
-			required: true
-		},
-		input_name: {
-			type: String,
-			required: true
-		},
-		label: {
-			type: String,
-			required: true
-		}
-	},
-	methods: {
-		alphaChanged: function(field_name, value) {
-			bus.$emit('alpha-changed', [field_name, value])
-		}
-	}
-})
-
-Vue.component('email-input', {
-	template: '#email-input',
-	props: {
-		placeholder: {
-			type: String,
-			required: true
-		},
-		input_name: {
-			type: String,
-			required: true
-		},
-		label: {
-			type: String,
-			required: true
-		}
-	},
-	methods: {
-		emailChanged: function(field_name, value) {
-			bus.$emit('email-changed', [field_name, value])
-		}
-	}
-})
-
-Vue.component('pikaday-input', {
-	template: '#pikaday-input',
-	props: {
-		placeholder: {
-			type: String,
-			required: true
-		},
-		input_name: {
-			type: String,
-			required: true
-		},
-		label: {
-			type: String,
-			required: true
-		}
-	},
-	data: function() {
-		return {
-			picker: '',
-			base_ref: this.input_name
-		}
-	},
-	mounted: function() {
-		this.picker = new Pikaday({
-			ref: this.base_ref,
-			field: this.$refs[this.base_ref],
-			trigger: this.$refs[this.base_ref+'-btn'],
-			onSelect: function() {
-				date = this.getMoment().format('Do MMMM YYYY')
-				bus.$emit('date-selected', [this._o.ref, date])
-			}
-		})
-	}
-})
-
-Vue.component('hidden-input', {
-	template: '#hidden-input',
-	props: {
-		input_name: {
-			type: String,
-			required: true
-		},
-		placeholder: {
-			type: Number,
-			required: true
-		},
-		label: {
-			type: String,
-			required: true
-		}
-	}
-})
-
-Vue.component('multiselect-input', {
-	template: '#multiselect-input',
-	mixins: [window.VueMultiselect.multiselectMixin, window.VueMultiselect.pointerMixin],
-	props: {
-		label: {
-			type: String,
-			required: true
-		},
-		input_name: {
-			type: String,
-			required: true
-		}
-	},
-	methods: {
-		updateSelected: function(field_name, value) {
-			bus.$emit('multi-selected', [field_name, value])
-		}
-	}
-})
-
-Vue.component('search-input', {
-	template: '#search-input',
-	mixins: [window.VueMultiselect.multiselectMixin, window.VueMultiselect.pointerMixin],
-	props: {
-		label: {
-			type: String,
-			required: true
-		},
-		input_name: {
-			type: String,
-			required: true
-		}
-	},
-	data: function() {
-		return {
-			people: [],
-			isLoading: false
-		}
-	},
-	methods: {
-		asyncFind: function(query) {
-			this.isLoading = true
-			console.log('Searching...')
-			this.isLoading = false
-		}
-	}
-})
-
-Vue.component('submit-button', {
-	template: '#submit-button',
-	props: {
-		button_class: {
-			type: String,
-			required: true
-		},
-		button_message: {
-			type: String,
-			required: true
-		}
-	}
-})
 
 const dashboard = Vue.component('dashboard-page', {
 	template: '#dashboard-page',
@@ -628,19 +476,19 @@ const add_relationships = Vue.component('add-relationships-page', {
 				{name: 'personal_details_panel', open: false, label: 'Personal Details'},
 				{name: 'connect_relations_panel', open: false, label: 'Connect Relations'}],
 			form_data: [
-				{type: 'alpha-input', first_name: '', placeholder: 'Enter First Name', input_name: 'add_first-name', label: 'First Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'first_name'},
-				{type: 'alpha-input', ethnic_name: '', placeholder: 'Enter Ethnic Name', input_name: 'add_ethnic-name', label: 'Ethnic Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'ethnic_name'},
-				{type: 'alpha-input', last_name: '', placeholder: 'Enter Last Name', input_name: 'add_last-name', label: 'Last Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'last_name'},
-				{type: 'email-input', email: '', placeholder: 'Enter Email Address', input_name: 'add_email', label: 'Email', bs_panel: 'personal_details_panel', validators: { required, email }, field_name: 'email'},
-				{type: 'search-input', relation_person: '', placeholder: 'Search for Relative', input_name: 'add_relation-person', label: 'Relative',
+				{type: 'alpha-input', placeholder: 'Enter First Name', label: 'First Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'first_name'},
+				{type: 'alpha-input', placeholder: 'Enter Ethnic Name', label: 'Ethnic Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'ethnic_name'},
+				{type: 'alpha-input', placeholder: 'Enter Last Name', label: 'Last Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'last_name'},
+				{type: 'email-input', placeholder: 'Enter Email Address', label: 'Email', bs_panel: 'personal_details_panel', validators: { required, email }, field_name: 'email'},
+				{type: 'search-input', placeholder: 'Search for Relative', label: 'Relative',
 					multiselect_options: [],
 					bs_panel: 'connect_relations_panel', validators: {}, field_name: 'relation_person'
 				},
-				{type: 'multiselect-input', relation_name: '', placeholder: 'Choose a Relation', input_name: 'add_relation-name', label: 'Relation',
+				{type: 'multiselect-input', placeholder: 'Choose a Relation', label: 'Relation',
 					multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
 					bs_panel: 'connect_relations_panel', validators: {}, field_name: 'relation_name'
 				},
-				{type: 'pikaday-input', birth_date: '', placeholder: 'Select Birth Date', input_name: 'add_birth-date', label: 'Date of Birth', bs_panel: 'personal_details_panel', validators: {}, field_name: 'birth_date'},
+				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'personal_details_panel', validators: {}, field_name: 'birth_date'},
 				{type: 'submit-button', button_message: 'Save Details', button_name: 'add_personal-details', bs_panel: 'personal_details_panel', button_class: 'btn btn-lg btn-success btn-block'},
 				{type: 'submit-button', button_message: 'Save Relation', button_name: 'add_connect-relations', bs_panel: 'connect_relations_panel', button_class: 'btn btn-lg btn-success btn-block'}
 
@@ -655,7 +503,7 @@ const list_relationships = Vue.component('list-relationships-page', {
 		return {
 			open_modal_state: false,
 			open_modal_relationship_id: '',
-			table_data: []
+			relative_data: []
 		}
 	},
 	methods: {
@@ -663,7 +511,7 @@ const list_relationships = Vue.component('list-relationships-page', {
 			var self = this
 			HTTP.get('/api/relationships').then(
 				function(response) {
-					self.table_data = response.data
+					self.relative_data = response.data
 				},
 				function(response) {
 					console.log(response)
@@ -672,24 +520,42 @@ const list_relationships = Vue.component('list-relationships-page', {
 		}
 	},
 	computed: {
-		modal_Form: function() {
-			for (i=0; i<this.table_data.length; i++) {
-				if (this.table_data[i].id.value == this.open_modal_relationship_id) {
-					return this.table_data[i]
+		modal_Relativeform: function() {
+			for (relative in this.relative_data) {
+				for (field in this.relative_data[relative]) {
+					if (this.relative_data[relative][field].field_name == 'id') {
+						if (this.relative_data[relative][field].value == this.open_modal_relationship_id) {
+							return this.relative_data[relative]
+						}
+					}
 				}
 			}
 		},
 		table_Headers: function() {
 			headers = []
-			for (entry in this.table_data) {
-				for (field in this.table_data[entry]) {
-					header = this.table_data[entry][field].label
+			for (relative in this.relative_data) {
+				for (field in this.relative_data[relative]) {
+					header = this.relative_data[relative][field].label
 					if (headers.indexOf(header) == -1 && header != 'ID') {
-						headers.push(this.table_data[entry][field].label)
+						headers.push(this.relative_data[relative][field].label)
 					}
 				}
 			}
 			return headers
+		},
+		table_Data: function() {
+			relations = []
+			entry = {}
+			for (relative in this.relative_data) {
+				for (field in this.relative_data[relative]) {
+					field_name = this.relative_data[relative][field].field_name
+					field_value = this.relative_data[relative][field].value
+					entry[field_name] = field_value
+				}
+				relations.push(entry)
+				entry = {}
+			}
+			return relations
 		}
 	},
 	mounted: function() {
