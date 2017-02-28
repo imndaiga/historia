@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lan="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0 user-scalable=no">
+  <title>MIMINANI</title>
+  <script src="node_modules/vue/dist/vue.js"></script>
+  <script src="node_modules/moment/moment.js"></script>
+  <script src="node_modules/pikaday/pikaday.js"></script>
+  <script src="node_modules/vue-multiselect/lib/vue-multiselect.min.js"></script>
+  <script src="node_modules/vue-router/dist/vue-router.js"></script>
+  <script src="node_modules/particles.js/particles.js"></script>
+  <script src="https://cdn.auth0.com/js/lock/10.9.1/lock.min.js"></script>
+  <script src="node_modules/axios/dist/axios.js"></script>
+  <script src="node_modules/vuelidate/dist/validators.min.js"></script>
+  <script src="node_modules/vuelidate/dist/vuelidate.min.js"></script>
+  <link rel="stylesheet" href="node_modules/pikaday/css/pikaday.css" />
+  <link rel="stylesheet" href="node_modules/bootstrap-css-only/css/bootstrap.css" />
+  <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css" />
+  <link rel="stylesheet" href="node_modules/npm-font-open-sans/open-sans.css" />
+  <link rel="stylesheet" href="static/css/styles.css">
+</head>
+
+<body>
+  <div id="app">
+    <router-view></router-view>
+  </div>
+
+  <template id="dashboard-page">
+    <div>
+      <app-navbar :title="title" :nav_menus="nav_menus"></app-navbar>
+      <app-sidebar :panels="panels"></app-sidebar>
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
+        <app-header :panels="panels"></app-header>
+      </div>
+      <router-view></router-view>
+    </div>
+  </template>
+
+  <template id="relationships-page">
+    <router-view></router-view>
+  </template>
+
+  <template id="add-relationships-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+      <div class="panel-group">
+        <app-panel v-for="panel in bs_panels" :bs_panel="panel">
+          <app-form :form="splitPanelForm(form_data, panel.name)"></app-form>
+        </app-panel>
+      </div>
+    </div>
+  </template>
+
+  <template id="list-relationships-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+      <app-table :list="table_Data" :table_headers="table_Headers"></app-table>
+      <modal-window v-if="open_modal_state">
+        <app-form :form="modal_Relativeform"></app-form>
+      </modal-window>
+    </div>
+  </template>
+
+  <template id="visualisation-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+    </div>
+  </template>
+
+  <template id="share-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+    </div>
+  </template>
+
+  <template id="overview-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+    </div>
+  </template>
+
+  <template id="welcome-page">
+    <div>
+      <app-navbar :title="title" :nav_menus="nav_menus"></app-navbar>
+      <div class="jumbotron" style="margin-top: 51px">
+        <div id="particlesjs"></div>
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6 col-sm-6">
+              <div class="page-header" style="padding-left: 30px; padding-bottom: 50px;">
+                <h1><strong>Connecting</strong> African Histories.</h1>
+                <h3>One family story at a time.</h3>
+                <br>
+                <p><a class="btn btn-info btn-lg" href="#">Learn More</a></p>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-md-push-1 col-sm-push-1 well well-lg center-block" style="width: 354px;">
+              <h3>Start Your Story!</h3>
+              <hr>
+              <div v-for="field in form">
+                <component :is="field.type" :placeholder="field.placeholder" :field_name="field.field_name" :label="field.label" :options="field.multiselect_options" :label="field.label"></component>
+              </div>
+              <br>
+              <button class="btn btn-primary btn-block" v-on:click="login()" v-if="!authentication">Login</button>
+              <hr>
+              <small>We respect your privacy.</small><br>
+              <small>Please read our privacy policy <a href="#">here</a>.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="app-navbar">
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" v-on:click="toggleMainMenu">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <router-link to="#" v-on:click.native="testSecured"><a class="navbar-brand">{{title}}</a></router-link>
+        </div>
+        <div class="collapse navbar-collapse" :class="{'in': open_main_dropdown}">
+          <ul class="nav navbar-nav navbar-right">
+            <li :class="item.class" v-for="item in nav_menus" :title="item.reference">
+              <a v-if="item.class.includes('external')" :href="item.link" class="anchor-button">
+                <i :class="item.icon"></i>
+                <small class="hidden-md hidden-sm hidden-lg nav-menu-caption">
+                  {{item.caption}}
+                </small>
+              </a>
+              <router-link v-else-if="item.class.includes('internal')" :to="item.link">
+                <i :class="item.icon"></i>
+                <small class="hidden-md hidden-sm hidden-lg nav-menu-caption">
+                  {{item.caption}}
+                </small>
+              </router-link>
+              <router-link v-else-if="item.class.includes('dropdown')" :to="item.link" v-on:click.native="toggleSubMenu(item.caption)">
+                <a class="dropdown-toggle"></a>
+                <i :class="item.icon"></i>
+                <small class="nav-menu-caption">{{item.caption}}</small>
+                <i class='fa fa-angle-down fa-lg'></i>
+              </router-link>
+              <div v-if="item.class.includes('dropdown')" :class="['dropdown', {'open': item.caption == sub_menu_dropdown_name}]">
+                <ul class="dropdown-menu">
+                  <li v-for="submenu in item.dropdown" :class="submenu.class">
+                    <router-link v-if="submenu.class.includes('logout')" :to="submenu.link" v-on:click.native="logout">{{submenu.caption}}</router-link>
+                    <router-link v-else :to="submenu.link">{{submenu.caption}}</router-link>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </template>
+
+  <template id="app-sidebar">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 hidden-xs sidebar">
+          <ul v-for="panel in panels" class="nav nav-sidebar">
+            <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active">
+              <a>{{panel.name}}</a>
+            </router-link>
+            <router-link  v-else-if="panel.navs.length > 0" :to="{name: panel.default_view}" tag="li" active-class="active">
+              <a>{{panel.name}}</a>
+            </router-link>
+            <ul v-if="panel.name == current_Panel" class="open nav nav-subnav">
+              <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active">
+                <a>{{menu.title}}</a>
+              </router-link>
+            </ul>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="app-header">
+    <div>
+      <div class="row center-block hidden-xs panel-header">
+        <h1>{{current_Panel}}</h1>
+      </div>
+      <div class="dropdown" :class="{open : open_panel_menu}">
+        <button class="btn btn-default btn-lg btn-group-justified hidden-sm hidden-md hidden-lg button-header" v-on:click="togglePanelMenu">
+          <h3>{{current_Panel}}</h3>
+          <i class="fa fa-angle-down"></i>
+        </button>
+        <ul class="dropdown-menu hidden-sm hidden-md hidden-lg panel-dropdown">
+          <ul v-for="panel in panels" class="nav">
+            <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active" v-on:click.native="togglePanelMenu">
+              <a>{{panel.name}}</a>
+            </router-link>
+            <router-link  v-else-if="panel.navs.length > 0" :to="{name: panel.default_view}" tag="li" active-class="active">
+              <a>{{panel.name}}</a>
+            </router-link>
+            <ul v-if="panel.name == current_Panel" class="open nav nav-sub-dropdown">
+              <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" v-on:click.native="togglePanelMenu">
+                <a>{{menu.title}}</a>
+              </router-link>
+            </ul>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </template>
+
+  <template id="app-subnav">
+    <div class="btn-group btn-group-justified panel-menu" v-if="subnav_menus.length > 0">
+      <div :class="panel_menu.bs_grid_length" v-for="panel_menu in subnav_menus">
+        <button :class="[panel_menu.bs_button, {'active': panel_menu.title == current_panel_view}]" :title="panel_menu.info" v-on:click="panelViewSelected(panel_menu.title)">
+          <i :class="panel_menu.fa_icon"></i>
+        </button>
+      </div>
+    </div>
+  </template>
+
+  <template id="app-form">
+    <form v-on:submit.prevent="submitForm">
+      <div v-for="field in form">
+        <div v-if="$v.form_object[field.field_name] != null" :class="['form-group', {'has-error': $v.form_object[field.field_name].$error}]">
+          <div v-if="field.type == 'hidden-input'" style="display: none;">
+            <label>{{ field.label }}</label>
+            <input type="text" :name="field.field_name" :value="field.placeholder" readonly>
+          </div>
+          <label v-else>{{ field.label }}</label>
+          <input v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" type="text" class="form-control" :name="field.field_name" v-model.trim="form_object[field.field_name]" :placeholder="field.placeholder" v-on:input="$v.form_object[field.field_name].$touch()">
+          <div v-else-if="field.type == 'pikaday-input'" class="input-group" >
+            <input type="text" class="form-control" :name="field.field_name" :ref="field.field_name"  v-model.trim="form_object[field.field_name]" v-on:input="$v.form_object[field.field_name].$touch()" readonly>
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default" :ref="field.field_name+'-btn'">
+                <i class="fa fa-calendar fa-lg"></i>
+              </button>
+            </span>
+           </div>
+           <multiselect v-else-if="field.type == 'multiselect-input'" :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name]" v-on:input="$v.form_object[field.field_name].$touch()"></multiselect>
+           <multiselect v-else-if="field.type == 'search-input'" :id="field.field_name" :options="search_result" :placeholder="field.placeholder" :loading="searching" :limit="3" v-on:search-change="asyncFind" v-model="form_object[field.field_name]" v-on:input="$v.form_object[field.field_name].$touch()"></multiselect>
+        </div>
+        <div v-else class="form-group">
+          <button v-if="field.type == 'submit-button'" type="submit" :class="field.button_class">{{ field.button_message }}</button>
+        </div>
+      </div>
+    </form>
+  </template>
+
+  <template id="app-panel">
+    <div class="panel panel-default">
+      <ul class="nav panel-heading">
+        <li :class="['panel-title', {active: bs_panel.open}]">
+          <a v-on:click.stop="bs_panel_selected(bs_panel)">
+            {{bs_panel.label}}
+          </a>
+        </li>
+      </ul>
+      <div class="panel-collapse collapse" :class="{in: bs_panel.open}">
+        <div class="panel-body">
+          <slot></slot>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="app-table">
+    <div class="table-responsive">
+      <table v-if="list.length > 0" class="table table-hover">
+        <thead>
+          <tr>
+            <th class="center-content" v-for="header in table_headers">{{header}}</th>
+            <th class="center-content">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="relation in list">
+            <td class="center-content" v-for="(value, key) in relation" v-if="key != 'id'">{{ value }}</td>
+            <td class="center-content">
+              <button type="button" v-on:click="openRelation(relation.id)" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-pencil-square-o fa-lg"></i></button>
+              <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRelation(relation.id)" title="Delete"><i class="fa fa-trash-o fa-lg"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <h3 class="text-center" v-else>No Relationship Data Available</h3>
+    </div>
+  </template>
+
+  <template id="modal-window">
+    <div class="modal-mask">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" v-once>Edit Relationship</h4>
+          </div>
+          <div class="modal-body">
+            <slot></slot>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
+            <button type="submit" class="btn btn-primary" v-on:click="submitForm">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</body>
+
+<script src="static/js/script.js"></script>
+
+</html>
