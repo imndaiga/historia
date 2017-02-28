@@ -38,6 +38,69 @@ function extendDict(obj, src) {
 	}
 }
 
+function checkAuth() {
+	return !!localStorage.getItem('id_token')
+}
+
+function requireAuth(to, from, next) {
+	if (!checkAuth()) {
+		console.log('authorisation required')
+		var path = '/'
+		next({ path: path })
+	} else {
+		next()
+	}
+}
+
+function autoRoute(to, from, next) {
+	if (checkAuth()) {
+		var path = 'dashboard/overview'
+		next({ path: path })
+	} else {
+		next()
+	}
+}
+
+var SetUpForm = {
+	props: {
+		form : {
+			type: Array,
+			required: true
+		}
+	},
+	data: function() {
+		return {
+			form_object: {}
+		}
+	},
+	created: function() {
+		for (index in this.form) {
+			for (field in this.form[index]) {
+				if (field == 'field_name') {
+					key = this.form[index][field]
+					if (Object.keys(this.form[index]).indexOf('value') != -1) {
+						this.form_object[key] = this.form[index].value
+					} else {
+						this.form_object[key] = ''
+					}
+				}
+			}
+		}
+	},
+	beforeCreate: function() {
+		this.form = (typeof this.$options.propsData.form !== 'undefined') ? this.$options.propsData.form : {}
+		validations = this.$options.validations
+		validations.form_object = {}
+		for (index in this.form) {
+			if (Object.keys(this.form[index]).indexOf('validators') != -1) {
+				field_name = this.form[index].field_name
+				validators = this.form[index].validators
+				validations.form_object[field_name] = validators
+			}
+		}
+	}
+}
+
 Vue.component('app-navbar', {
 	template: '#app-navbar',
 	props: {
@@ -158,21 +221,17 @@ Vue.component('app-panel', {
 
 Vue.component('app-form', {
 	template: '#app-form',
-	props: {
-		form : {
-			type: Array,
-			required: true
-		}
+	mixins: [SetUpForm],
+	validations: {
+		form_object: {}
 	},
 	data: function() {
 		return {
-			form_object: {},
 			picker: '',
 			search_result: [],
 			searching: false
 		}
 	},
-	validations: {},
 	methods: {
 		submitForm: function() {
 			var self = this
@@ -187,50 +246,13 @@ Vue.component('app-form', {
 				}
 			)
 		},
-		createFormObject: function() {
-			for (index in this.form) {
-				for (field in this.form[index]) {
-					if (field == 'field_name') {
-						key = this.form[index][field]
-						if (Object.keys(this.form[index]).indexOf('value') != -1) {
-							this.form_object[key] = this.form[index].value
-						} else {
-							this.form_object[key] = ''
-						}
-					}
-				}
-			}
-		},
 		asyncFind: function(query) {
 			this.isLoading = true
 			console.log('Searching...')
 			this.isLoading = false
 		}
 	},
-	created: function() {
-		this.createFormObject()
-	},
 	computed: {
-		form_Validations: function() {
-			validations = {}
-			validations['form_object'] = {}
-			for (index in this.form) {
-				if (Object.keys(this.form[index]).indexOf('input_name') != -1) {
-					input_name = this.form[index].input_name
-					field_name = this.form[index].field_name
-					sel_validators = Object.keys(this.form[index].validators)
-					if (sel_validators.length > 0) {
-						for (val in validators) {
-							if (sel_validators.indexOf(val) != -1) {
-								validators = this.form[index].validators
-								validations['form_object'][field_name] = validators
-							}
-						}
-					}
-				}
-			}
-			return validations
-		},
 		pikaday_Hooks: function() {
 			hooks = []
 			if (Object.keys(this.$refs).length == 2) {
@@ -483,16 +505,16 @@ const add_relationships = Vue.component('add-relationships-page', {
 				{type: 'alpha-input', placeholder: 'Enter First Name', label: 'First Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'first_name'},
 				{type: 'alpha-input', placeholder: 'Enter Ethnic Name', label: 'Ethnic Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'ethnic_name'},
 				{type: 'alpha-input', placeholder: 'Enter Last Name', label: 'Last Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'last_name'},
-				{type: 'email-input', placeholder: 'Enter Email Address', label: 'Email', bs_panel: 'personal_details_panel', validators: { required, email }, field_name: 'email'},
+				{type: 'email-input', placeholder: 'Enter Email Address', label: 'Email', bs_panel: 'personal_details_panel', validators: { email }, field_name: 'email'},
 				{type: 'search-input', placeholder: 'Search for Relative', label: 'Relative',
 					multiselect_options: [],
-					bs_panel: 'connect_relations_panel', validators: {}, field_name: 'relation_person'
+					bs_panel: 'connect_relations_panel', validators: {required}, field_name: 'relation_person'
 				},
 				{type: 'multiselect-input', placeholder: 'Choose a Relation', label: 'Relation',
 					multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
-					bs_panel: 'connect_relations_panel', validators: {}, field_name: 'relation_name'
+					bs_panel: 'connect_relations_panel', validators: {required}, field_name: 'relation_name'
 				},
-				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'personal_details_panel', validators: {}, field_name: 'birth_date'},
+				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'personal_details_panel', validators: {required}, field_name: 'birth_date'},
 				{type: 'submit-button', button_message: 'Save Details', button_name: 'add_personal-details', bs_panel: 'personal_details_panel', button_class: 'btn btn-lg btn-success btn-block'},
 				{type: 'submit-button', button_message: 'Save Relation', button_name: 'add_connect-relations', bs_panel: 'connect_relations_panel', button_class: 'btn btn-lg btn-success btn-block'}
 
@@ -662,29 +684,6 @@ router.beforeEach(function(to, from, next) {
 })
 
 var bus = new Vue()
-
-function checkAuth() {
-	return !!localStorage.getItem('id_token')
-}
-
-function requireAuth(to, from, next) {
-	if (!checkAuth()) {
-		console.log('authorisation required')
-		var path = '/'
-		next({ path: path })
-	} else {
-		next()
-	}
-}
-
-function autoRoute(to, from, next) {
-	if (checkAuth()) {
-		var path = 'dashboard/overview'
-		next({ path: path })
-	} else {
-		next()
-	}
-}
 
 Vue.use(window.vuelidate.default)
 
