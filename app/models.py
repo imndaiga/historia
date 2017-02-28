@@ -1,9 +1,5 @@
 from . import db, graph
 from datetime import date
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask import current_app
-from flask_login import UserMixin
-from . import login_manager
 
 
 class Link(db.Model):
@@ -32,7 +28,7 @@ class Link(db.Model):
                                     self.link_label)
 
 
-class Person(db.Model, UserMixin):
+class Person(db.Model):
     """all miminani subscribed Nodes"""
     __tablename__ = 'persons'
 
@@ -56,23 +52,6 @@ class Person(db.Model, UserMixin):
                                       'descendant', lazy='joined'),
                                   lazy='dynamic',
                                   cascade='all, delete-orphan')
-
-    def generate_login_token(self, email, remember_me=False,
-                             next_url=None, expiration=300):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'login': self.id, 'remember_me': remember_me,
-                        'next_url': next_url, 'email': email})
-
-    def confirm_login(self, token):
-        s = Serializer(current_app.config['SECRET_KEY'])
-        try:
-            data = s.loads(token)
-        except:
-            return False
-        if data.get('login') != self.id:
-            return False
-        return {'remember_me': data.get('remember_me'),
-                'next_url': data.get('next_url')}
 
     def link_ascends(self, person):
         return self.descended_by.filter_by(
@@ -107,23 +86,5 @@ class Person(db.Model, UserMixin):
         elif person is not None and email is not None:
             return person
 
-    @staticmethod
-    def person_from_token(token):
-        s = Serializer(current_app.config['SECRET_KEY'])
-        try:
-            data = s.loads(token)
-        except:
-            return {'sig': False, 'person': None}
-        if data.get('email'):
-            return {'sig': True, 'person': Person.query.filter_by(
-                email=data.get('email')).first()}
-        else:
-            return {'sig': False, 'person': None}
-
     def __repr__(self):
         return 'Person: <%s:%s>' % (self.id, self.baptism_name)
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return Person.query.get(int(user_id))

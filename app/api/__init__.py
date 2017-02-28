@@ -6,4 +6,4 @@ api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
 CORS(api_bp)
 
-from . import endpoints, forms
+from . import views

@@ -2,7 +2,6 @@ import unittest
 from app import create_app, db, seed
 from app.models import Person
 from app.seed import fake
-import time
 
 
 class ModelsTestCase(unittest.TestCase):
@@ -85,32 +84,3 @@ class ModelsTestCase(unittest.TestCase):
 
     def test_invalid_person_self_loop(self):
         self.assertFalse(self.p1._change_link_label(self.p1, 1))
-
-    def test_valid_person_from_token(self):
-        token = self.p1.generate_login_token(email=self.p1.email)
-        sig_data = Person.person_from_token(token)
-        self.assertTrue(sig_data['person'].email == self.p1.email)
-
-    def test_invalid_person_from_token(self):
-        token = self.p1.generate_login_token(email=self.p1.email)
-        sig_data = Person.person_from_token(token)
-        self.assertFalse(sig_data['person'].email == self.p2.email)
-
-    def test_expired_person_from_token(self):
-        token = self.p1.generate_login_token(email=self.p1.email, expiration=1)
-        time.sleep(2)
-        sig_data = Person.person_from_token(token)
-        self.assertFalse(sig_data['sig'])
-
-    def test_valid_login_token(self):
-        token = self.p1.generate_login_token(email=self.p1.email)
-        self.assertTrue(self.p1.confirm_login(token))
-
-    def test_invalid_login_token(self):
-        token = self.p1.generate_login_token(email=self.p1.email)
-        self.assertFalse(self.p2.confirm_login(token))
-
-    def test_expired_login_token(self):
-        token = self.p1.generate_login_token(expiration=1, email=self.p1.email)
-        time.sleep(2)
-        self.assertFalse(self.p1.confirm_login(token))
