@@ -8,7 +8,7 @@
   <script src="node_modules/vue/dist/vue.js"></script>
   <script src="node_modules/moment/moment.js"></script>
   <script src="node_modules/pikaday/pikaday.js"></script>
-  <script src="node_modules/vue-multiselect/lib/vue-multiselect.min.js"></script>
+  <script src="node_modules/vue-multiselect/dist/vue-multiselect.min.js"></script>
   <script src="node_modules/vue-router/dist/vue-router.js"></script>
   <script src="node_modules/particles.js/particles.js"></script>
   <script src="https://cdn.auth0.com/js/lock/10.9.1/lock.min.js"></script>
@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="node_modules/bootstrap-css-only/css/bootstrap.css" />
   <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css" />
   <link rel="stylesheet" href="node_modules/npm-font-open-sans/open-sans.css" />
+  <link rel="stylesheet" href="node_modules/vue-multiselect/dist/vue-multiselect.min.css" />
   <link rel="stylesheet" href="static/css/styles.css">
 </head>
 
@@ -94,11 +95,10 @@
             <div class="col-md-6 col-sm-6 col-md-push-1 col-sm-push-1 well well-lg center-block" style="width: 354px;">
               <h3>Start Your Story!</h3>
               <hr>
-              <div v-for="field in form">
-                <component :is="field.type" :placeholder="field.placeholder" :field_name="field.field_name" :label="field.label" :options="field.multiselect_options" :label="field.label"></component>
-              </div>
+              <app-form :form="form"></app-form>
               <br>
               <button class="btn btn-primary btn-block" v-on:click="login()" v-if="!authentication">Login</button>
+              <br>
               <hr>
               <small>We respect your privacy.</small><br>
               <small>Please read our privacy policy <a href="#">here</a>.</small>
@@ -307,6 +307,6 @@
 
 </body>
 
-<script src="static/js/script.js"></script>
+<script src="scripts/main.js"></script>
 
 </html>

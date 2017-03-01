@@ -139,6 +139,10 @@ th {
   border-radius: 3px 3px 0px 0px
 }
 
+.btn-margin {
+  margin-top: 40px
+}
+
 /*
 * Navbar specific
 */

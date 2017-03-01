@@ -86,9 +86,6 @@ var SetUpForm = {
 				}
 			}
 		}
-	},
-	beforeCreate: function() {
-		this.form = (typeof this.$options.propsData.form !== 'undefined') ? this.$options.propsData.form : {}
 		validations = this.$options.validations
 		validations.form_object = {}
 		for (index in this.form) {
@@ -428,8 +425,9 @@ const welcome = Vue.component('welcome-page', {
 				}
 			],
 			form: [
-				{type: 'multiselect-input', residence: '', placeholder: 'Select Country', input_name: 'reg_residence', label: 'Country of Origin',
-					multiselect_options: ['Kenya', 'Uganda', 'Tanzania']}
+				{type: 'multiselect-input', placeholder: 'Select Country', label: 'Country of Origin',
+					multiselect_options: ['Kenya', 'Uganda', 'Tanzania'],
+					validators: {required}, field_name: 'origin_country'}
 			],
 			particlesjs_data : {
 				"particles": {
@@ -515,8 +513,8 @@ const add_relationships = Vue.component('add-relationships-page', {
 					bs_panel: 'connect_relations_panel', validators: {required}, field_name: 'relation_name'
 				},
 				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'personal_details_panel', validators: {required}, field_name: 'birth_date'},
-				{type: 'submit-button', button_message: 'Save Details', button_name: 'add_personal-details', bs_panel: 'personal_details_panel', button_class: 'btn btn-lg btn-success btn-block'},
-				{type: 'submit-button', button_message: 'Save Relation', button_name: 'add_connect-relations', bs_panel: 'connect_relations_panel', button_class: 'btn btn-lg btn-success btn-block'}
+				{type: 'submit-button', button_message: 'Save Details', button_name: 'add_personal-details', bs_panel: 'personal_details_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin'},
+				{type: 'submit-button', button_message: 'Save Relation', button_name: 'add_connect-relations', bs_panel: 'connect_relations_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin'}
 
 			]
 		}
