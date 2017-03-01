@@ -4,6 +4,7 @@ from flask_script import Command, Option
 from faker import Factory
 from faker.providers import BaseProvider
 from datetime import datetime
+import os
 
 fake = Factory.create('en_GB')
 
@@ -46,7 +47,8 @@ class Seed(Command):
     option_list = (
         Option('--units', '-u', dest='family_units'),
         Option('--fsize', '-fs', dest='family_size'),
-        Option('--verbose', '-v', dest='verbose', required=False)
+        Option('--verbose', '-v', dest='verbose', required=False),
+        Option('--test', '-t', dest='test', required=False)
     )
 
     def init_app(self, app, auto):
@@ -60,59 +62,76 @@ class Seed(Command):
         if app.config['DEBUG'] or app.config['TESTING']:
             self.testing = True
 
-    def run(self, family_units, family_size, verbose='False'):
+    def run(self, family_units, family_size, verbose='False', test='False'):
         if self.testing is True:
-            parents = []
-            children = []
             fake_index = 1
-            for i in range(0, int(family_units)):
-                family_unit = fake.family(seed=i, size=int(family_size))
-                if verbose == 'True':
-                        print('============================================')
-                for relation in family_unit:
-                    for relative in family_unit[relation]:
-                        created_status = False
-                        while created_status is False:
-                            person = self.Person(
-                                baptism_name=relative['name'].split()[0],
-                                surname=relative['name'].split()[1],
-                                sex=relative['sex'],
-                                dob=relative['birthdate'],
-                                email=relative['mail'],
-                                confirmed=True
-                            )
-                            if verbose == 'True':
-                                print(
-                                    '{0} Validating: {1} ...'.format(
-                                        fake_index, person.email), end="")
-                            (created_person,
-                                created_status) = self._get_or_create_one(
-                                    session=self.db.session,
-                                    model=self.Person,
-                                    create_method='auto',
-                                    create_method_kwargs={'person': person},
-                                    email=person.email)
-                            if created_status is True:
-                                if verbose == 'True':
-                                    print('Success! --> ', end="")
-                                self.db.session.commit()
-                                stored_person = self.Person.query.filter_by(
-                                    email=person.email).first()
-                                if verbose == 'True':
-                                    print('ID = {}'.format(stored_person.id))
-                                fake_index += 1
-                                if relation == 'parents':
-                                    parents.append(created_person)
-                                elif relation == 'children':
-                                    children.append(created_person)
-                            else:
-                                if verbose == 'True':
-                                    print('Failed!')
-                                sex = relative['sex']
-                                relative = fake.family_member(sex)
+            if test == 'True':
+                family_unit = fake.family(seed=4321, size=5)
+                for parent in family_unit['parents']:
+                    if parent['sex'] == 'M':
+                        parent['mail'] = os.environ.get('MIMINANI_ADMIN')
+                (parents, children, fake_index) = self._faker_iterator(
+                    family_unit, verbose, fake_index)
+                result = self.relate(parents=parents, children=children)
+            else:
+                for i in range(0, int(family_units)):
+                    family_unit = fake.family(seed=i, size=int(family_size))
+                    (parents, children, fake_index) = self._faker_iterator(
+                        family_unit, verbose, fake_index)
                 result = self.relate(parents=parents, children=children)
         self._graph_update(self.auto)
         return result
+
+    def _faker_iterator(self, family_unit, verbose, fake_index):
+        parents = []
+        children = []
+        if verbose == 'True':
+            print('============================================')
+        for relation in family_unit:
+            for relative in family_unit[relation]:
+                created_status = False
+                while created_status is False:
+                    person = self.Person(
+                        baptism_name=relative['name'].split()[0],
+                        surname=relative['name'].split()[1],
+                        sex=relative['sex'],
+                        dob=relative['birthdate'],
+                        email=relative['mail'],
+                        confirmed=True
+                    )
+                    if verbose == 'True':
+                        print(
+                            '{0} Validating: {1} ...'.format(
+                                fake_index, person.email), end="")
+                    (created_person,
+                        created_status) = self._get_or_create_one(
+                            session=self.db.session,
+                            model=self.Person,
+                            create_method='auto',
+                            create_method_kwargs={
+                                'person': person
+                            },
+                            email=person.email)
+                    if created_status is True:
+                        if verbose == 'True':
+                            print('Success! --> ', end="")
+                        self.db.session.commit()
+                        store_person = self.Person.query.filter_by(
+                            email=person.email).first()
+                        if verbose == 'True':
+                            print('ID = {}'.format(
+                                store_person.id))
+                        fake_index += 1
+                        if relation == 'parents':
+                            parents.append(created_person)
+                        elif relation == 'children':
+                            children.append(created_person)
+                    else:
+                        if verbose == 'True':
+                            print('Failed!')
+                        sex = relative['sex']
+                        relative = fake.family_member(sex)
+        return (parents, children, fake_index)
 
     def relate(self, partners=None, parents=None, children=None):
         result_dict = {}
