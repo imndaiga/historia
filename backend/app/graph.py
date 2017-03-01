@@ -52,11 +52,14 @@ class Graph:
     def get_subgraph(self, source, gtype=nx.Graph):
         subgraph = gtype()
         MDG = self.current
-        weighted_edge_list = self._resolve_edge_list_from_mdg(
-            source=source,
-            MDG=MDG)
-        subgraph.add_weighted_edges_from(weighted_edge_list)
-        return subgraph
+        if MDG.has_node(source.id):
+            weighted_edge_list = self._resolve_edge_list_from_mdg(
+                source=source,
+                MDG=MDG)
+            subgraph.add_weighted_edges_from(weighted_edge_list)
+            return subgraph
+        else:
+            return nx.Graph()
 
     def get_relation(self, source, target, computed=False):
         if computed:
