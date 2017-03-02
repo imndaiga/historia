@@ -46,7 +46,7 @@
   <template id="add-relationships-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
       <div class="panel-group">
-        <app-panel v-for="panel in bs_panels" :bs_panel="panel">
+        <app-panel v-for="panel in bs_panels" :bs_panel="panel" :key="panel.id">
           <app-form :form="splitPanelForm(form_data, panel.name)"></app-form>
         </app-panel>
       </div>
@@ -169,7 +169,7 @@
               <a>{{panel.name}}</a>
             </router-link>
             <ul v-if="panel.name == current_Panel" class="open nav nav-subnav">
-              <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active">
+              <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.id">
                 <a>{{menu.title}}</a>
               </router-link>
             </ul>
@@ -198,7 +198,7 @@
               <a>{{panel.name}}</a>
             </router-link>
             <ul v-if="panel.name == current_Panel" class="open nav nav-sub-dropdown">
-              <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" v-on:click.native="togglePanelMenu">
+              <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" v-on:click.native="togglePanelMenu" :key="menu.id">
                 <a>{{menu.title}}</a>
               </router-link>
             </ul>
