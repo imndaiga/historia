@@ -5,6 +5,7 @@ from .. import graph, db
 from ..models import Person, Link
 from flask import _app_ctx_stack, request
 from sqlalchemy import or_
+from networkx import NetworkXError
 
 
 class pingAPI(Resource):
@@ -78,15 +79,24 @@ class relationshipsAPI(Resource):
         user_email = _app_ctx_stack.top.current_user['email']
         delete_person_id = int(request.data)
         user = Person.query.filter_by(email=user_email).first()
-        Person.query.filter_by(id=delete_person_id).delete()
-        Link.query.filter(
-            or_(Link.ascendant_id == delete_person_id,
-                Link.descendant_id == delete_person_id)).delete()
-        db.session.commit()
-        graph.delete_node(delete_person_id)
-        node_list = graph.get_subgraph(user).nodes()
-        response = self.format_response(node_list, user.id)
-        return response
+        deleted_uid = Person.query.filter_by(id=delete_person_id).delete()
+        if deleted_uid == 1:
+            print('{} deleted from database'.format(delete_person_id))
+            try:
+                Link.query.filter(
+                    or_(Link.ascendant_id == delete_person_id,
+                        Link.descendant_id == delete_person_id)).delete()
+                db.session.commit()
+                graph.delete_node(delete_person_id)
+                node_list = graph.get_subgraph(user).nodes()
+                response = self.format_response(node_list, user.id)
+                print('{} deleted from graph'.format(delete_person_id))
+                return response
+            except NetworkXError:
+                print('{} does not exist in graph'.format(delete_person_id))
+                return {}
+        print('{} does not exist in database'.format(delete_person_id))
+        return {}
 
 
 api.add_resource(relationshipsAPI, '/relationships', endpoint='relationships')
