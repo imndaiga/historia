@@ -75,14 +75,17 @@ var SetUpForm = {
 	},
 	created: function() {
 		for (index in this.form) {
-			for (field in this.form[index]) {
-				if (field == 'field_name') {
-					key = this.form[index][field]
-					if (Object.keys(this.form[index]).indexOf('value') != -1) {
-						this.form_object[key] = this.form[index].value
-					} else {
-						this.form_object[key] = ''
-					}
+			key = this.form[index].field_name
+			if (this.form[index].type != 'submit-button') {
+				this.form_object[key] = {}
+				if (this.form[index].type == 'search-input') {
+					this.form_object[key]['loading'] = false
+					this.form_object[key]['options'] = []
+				}
+				if (Object.keys(this.form[index]).indexOf('value') != -1) {
+					this.form_object[key]['value'] = this.form[index].value
+				} else {
+					this.form_object[key]['value'] = ''
 				}
 			}
 		}
@@ -224,9 +227,7 @@ Vue.component('app-form', {
 	},
 	data: function() {
 		return {
-			picker: '',
-			search_result: [],
-			searching: false
+			picker: ''
 		}
 	},
 	methods: {
@@ -255,10 +256,10 @@ Vue.component('app-form', {
 				}
 			)
 		},
-		asyncFind: function(query) {
-			this.isLoading = true
-			console.log('Searching...')
-			this.isLoading = false
+		asyncFind: function(field_name, value) {
+			this.form_object[field_name].loading = true
+			this.$forceUpdate()
+			// API request here
 		}
 	},
 	computed: {
@@ -272,10 +273,11 @@ Vue.component('app-form', {
 					hooks.push(this.$refs[ref])
 				}
 			} else {
-				return false
+				return null
 			}
 			return hooks
-		}
+		},
+
 	},
 	mounted: function() {
 		var self = this
@@ -340,22 +342,24 @@ const dashboard = Vue.component('dashboard-page', {
 	data: function() {
 		return {
 			panels : [
-				{ name: 'Overview', navs: []},
-				{ name: 'Visualisation', navs: []},
-				{ name: 'Share', navs: []},
+				{ name: 'Overview', navs: [], id: 1},
+				{ name: 'Visualisation', navs: [], id: 2},
+				{ name: 'Share', navs: [], id: 3},
 				{ name: 'Relationships',
 					navs: [
 						{
 							title: 'List Relationships',
 							info: 'List all your relationships',
-							view: 'List_Relationships'
+							view: 'List_Relationships',
+							id: 1
 						},{
 							title: 'Add Relationships',
 							info: 'Add a relationship to your tree',
-							view: 'Add_Relationships'
+							view: 'Add_Relationships',
+							id: 2
 						}
 					],
-					default_view: 'List_Relationships'
+					default_view: 'List_Relationships', id: 4
 				}
 			],
 			title: 'MIMINANI',
@@ -512,21 +516,21 @@ const add_relationships = Vue.component('add-relationships-page', {
 				{name: 'personal_details_panel', open: false, label: 'Personal Details'},
 				{name: 'connect_relations_panel', open: false, label: 'Connect Relations'}],
 			form_data: [
-				{type: 'alpha-input', placeholder: 'Enter First Name', label: 'First Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'first_name'},
-				{type: 'alpha-input', placeholder: 'Enter Ethnic Name', label: 'Ethnic Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'ethnic_name'},
-				{type: 'alpha-input', placeholder: 'Enter Last Name', label: 'Last Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'last_name'},
-				{type: 'email-input', placeholder: 'Enter Email Address', label: 'Email', bs_panel: 'personal_details_panel', validators: { email }, field_name: 'email'},
+				{type: 'alpha-input', placeholder: 'Enter First Name', label: 'First Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'first_name', id: 1},
+				{type: 'alpha-input', placeholder: 'Enter Ethnic Name', label: 'Ethnic Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'ethnic_name', id: 2},
+				{type: 'alpha-input', placeholder: 'Enter Last Name', label: 'Last Name', bs_panel: 'personal_details_panel', validators: { required, alpha }, field_name: 'last_name', id: 3},
+				{type: 'email-input', placeholder: 'Enter Email Address', label: 'Email', bs_panel: 'personal_details_panel', validators: { email }, field_name: 'email', id: 4},
 				{type: 'search-input', placeholder: 'Search for Relative', label: 'Relative',
 					multiselect_options: [],
-					bs_panel: 'connect_relations_panel', validators: {required}, field_name: 'relation_person'
+					bs_panel: 'connect_relations_panel', validators: {required}, field_name: 'relation_person', id: 4
 				},
 				{type: 'multiselect-input', placeholder: 'Choose a Relation', label: 'Relation',
-					multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother'],
-					bs_panel: 'connect_relations_panel', validators: {required}, field_name: 'relation_name'
+					multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother', 'Daughter', 'Son'],
+					bs_panel: 'connect_relations_panel', validators: {required}, field_name: 'relation_name', id: 5
 				},
-				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'personal_details_panel', validators: {required}, field_name: 'birth_date'},
-				{type: 'submit-button', button_message: 'Save Details', button_name: 'add_personal-details', bs_panel: 'personal_details_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin'},
-				{type: 'submit-button', button_message: 'Save Relation', button_name: 'add_connect-relations', bs_panel: 'connect_relations_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin'}
+				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'personal_details_panel', validators: {required}, field_name: 'birth_date', id: 6},
+				{type: 'submit-button', button_message: 'Save Details', button_name: 'add_personal-details', bs_panel: 'personal_details_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 7},
+				{type: 'submit-button', button_message: 'Save Relation', button_name: 'add_connect-relations', bs_panel: 'connect_relations_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 8}
 
 			]
 		}
