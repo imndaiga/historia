@@ -99,13 +99,7 @@ th {
 .panel {
   padding-top: 50px
 }
-@media (min-width:@screen-md-min) {
-  .panel {
-    padding-top: 50px;
-    padding-right: 20px;
-    padding-left: 20px
-  }
-}
+
 .button-header {
   margin-top: 20px;
   margin-bottom: 20px
@@ -199,6 +193,18 @@ th {
 
 .jumbotron {
   position: relative;
+  height: 100vh;
+  margin-top: 51px;
+  margin-bottom: 0px
+}
+
+.login-well {
+  width: 30%;
+  min-width: 320px
+}
+
+.welcome-components {
+  padding-top: 8%
 }
 
 #particlesjs {
@@ -209,8 +215,9 @@ th {
   bottom: 0;
   background-color: rgba(217, 237, 247, 1);
   z-index: 0;
+  height: 100%;
 }
 
 .well {
-  background-color: rgba(245, 245, 245, 0.8);
+  background-color: rgba(245, 245, 245, 0.8)
 }

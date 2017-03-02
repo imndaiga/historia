@@ -82,19 +82,19 @@
   <template id="welcome-page">
     <div>
       <app-navbar :title="title" :nav_menus="nav_menus"></app-navbar>
-      <div class="jumbotron" style="margin-top: 51px">
+      <div class="jumbotron">
         <div id="particlesjs"></div>
         <div class="container">
-          <div class="row">
-            <div class="col-md-6 col-sm-6">
-              <div class="page-header" style="padding-left: 30px; padding-bottom: 50px;">
+          <div class="row welcome-components">
+            <div class="col-md-6 col-sm-6 col-md-push-1">
+              <div>
                 <h1><strong>Connecting</strong> African Histories.</h1>
                 <h3>One family story at a time.</h3>
                 <br>
                 <p><a class="btn btn-info btn-lg" href="#">Learn More</a></p>
               </div>
             </div>
-            <div class="col-md-6 col-sm-6 col-md-push-1 col-sm-push-1 well well-lg center-block" style="width: 354px;">
+            <div class="col-md-6 col-sm-6 col-md-push-1 col-sm-push-1 well well-lg center-block login-well">
               <h3>Start Your Story!</h3>
               <hr>
               <app-form :form="form"></app-form>
