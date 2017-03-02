@@ -237,9 +237,21 @@ Vue.component('app-form', {
 			}).then(
 				function(response) {
 					console.log(response)
+					swal({
+						title: 'Success',
+						text: '',
+						type: 'success',
+						timer: 1500,
+						showConfirmButton: false
+					})
 				},
 				function(response) {
 					console.log(response)
+					swal({
+						title: 'Ooops...',
+						text: 'An error occured',
+						type: 'error'
+					})
 				}
 			)
 		},
@@ -625,17 +637,39 @@ const list_relationships = Vue.component('list-relationships-page', {
 		}.bind(this))
 		bus.$on('delete-relation', function(relationship_id) {
 			var self = this
-			HTTP.delete('/api/relationships', {
-				data: relationship_id
-			}).then(
-				function(response) {
-					console.log('record deleted')
-					self.table_data = response.data
-				},
-				function(response) {
-					console.log(response)
-				}
-			)
+			swal({
+				title: 'Are you sure?',
+				text: 'Deleted relations cannot be recovered!',
+				type: 'warning',
+				showCancelButton: true,
+				confirmButtonText: 'Delete',
+				closeOnConfirm: false
+			},
+			function() {
+				HTTP.delete('/api/relationships', {
+					data: relationship_id
+				}).then(
+					function(response) {
+						self.relative_data = response.data
+						swal({
+							title: 'Deleted',
+							text: 'Relation has successfully been deleted',
+							type: 'success',
+							timer: 1500,
+							showConfirmButton: false,
+							customClass: 'message-height'
+						})
+					},
+					function(response) {
+						console.log(response)
+						swal({
+							title: 'Ooops...',
+							text: 'An error occured',
+							type: 'error'
+						})
+					}
+				)
+			})
 		}.bind(this))
 	}
 })
