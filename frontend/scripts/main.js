@@ -66,11 +66,48 @@ var SetUpForm = {
 		form : {
 			type: Array,
 			required: true
+		},
+		submit_type: {
+			type: String,
+			required: true
 		}
 	},
 	data: function() {
 		return {
-			form_object: {}
+			form_object: {},
+			sub_type: this.submit_type
+		}
+	},
+	methods: {
+		submitForm: function() {
+			this.form_object['submit_type'] = this.sub_type
+			HTTP.put('/api/relationships', {
+				data: JSON.stringify(this.form_object)
+			}).then(
+				function(response) {
+					console.log(response)
+					swal({
+						title: 'Success',
+						text: '',
+						type: 'success',
+						timer: 1500,
+						showConfirmButton: false
+					})
+				},
+				function(response) {
+					console.log(response)
+					swal({
+						title: 'Ooops...',
+						text: 'An error occured',
+						type: 'error'
+					})
+				}
+			)
+		},
+		asyncFind: function(field_name, value) {
+			this.form_object[field_name].loading = true
+			this.$forceUpdate()
+			// API request here
 		}
 	},
 	created: function() {
@@ -228,38 +265,6 @@ Vue.component('app-form', {
 	data: function() {
 		return {
 			picker: ''
-		}
-	},
-	methods: {
-		submitForm: function() {
-			var self = this
-			HTTP.put('/api/relationships', {
-				data: JSON.stringify(this.form_object)
-			}).then(
-				function(response) {
-					console.log(response)
-					swal({
-						title: 'Success',
-						text: '',
-						type: 'success',
-						timer: 1500,
-						showConfirmButton: false
-					})
-				},
-				function(response) {
-					console.log(response)
-					swal({
-						title: 'Ooops...',
-						text: 'An error occured',
-						type: 'error'
-					})
-				}
-			)
-		},
-		asyncFind: function(field_name, value) {
-			this.form_object[field_name].loading = true
-			this.$forceUpdate()
-			// API request here
 		}
 	},
 	computed: {
