@@ -80,9 +80,15 @@ var SetUpForm = {
 	},
 	methods: {
 		submitForm: function() {
-			this.form_object['submit_type'] = this.sub_type
+			var form_data = {}
+			for (field in this.form_object) {
+				form_data[field] = this.form_object[field].value
+			}
+			form_data['submit_type'] = this.sub_type
 			HTTP.put('/api/relationships', {
-				data: JSON.stringify(this.form_object)
+				data: {
+					form: form_data
+				}
 			}).then(
 				function(response) {
 					console.log(response)
@@ -94,8 +100,8 @@ var SetUpForm = {
 						showConfirmButton: false
 					})
 				},
-				function(response) {
-					console.log(response)
+				function(error) {
+					console.log(error)
 					swal({
 						title: 'Ooops...',
 						text: 'An error occured',
@@ -105,9 +111,32 @@ var SetUpForm = {
 			)
 		},
 		asyncFind: function(field_name, value) {
+			var self = this
+			var field = field_name
+			var value = value
 			this.form_object[field_name].loading = true
 			this.$forceUpdate()
-			// API request here
+			HTTP.get('/api/search', {
+				params: {
+					field: field,
+					value: value
+				}
+			}).then(
+				function(response) {
+					self.form_object[field_name].loading = false
+					self.$forceUpdate()
+					if (Object.keys(response.data).length > 0) {
+						self.form_object[field_name].options = [response.data.fullname]
+					} else {
+						self.form_object[field_name].options = []
+					}
+				},
+				function(error) {
+					self.form_object[field_name].loading = false
+					self.$forceUpdate()
+					console.log(error)
+				}
+			)
 		}
 	},
 	created: function() {
@@ -568,6 +597,7 @@ const list_relationships = Vue.component('list-relationships-page', {
 			HTTP.get('/api/relationships').then(
 				function(response) {
 					self.relative_data = response.data
+					self.$forceUpdate()
 				},
 				function(response) {
 					console.log(response)
@@ -656,7 +686,9 @@ const list_relationships = Vue.component('list-relationships-page', {
 			},
 			function() {
 				HTTP.delete('/api/relationships', {
-					data: relationship_id
+					data: {
+						user_id: relationship_id
+					}
 				}).then(
 					function(response) {
 						self.relative_data = response.data

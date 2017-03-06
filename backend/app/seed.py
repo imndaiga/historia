@@ -71,7 +71,7 @@ class Seed(Command):
                     if parent['sex'] == 'M':
                         parent['mail'] = os.environ.get('MIMINANI_ADMIN')
                 (parents, children, fake_index) = self._faker_iterator(
-                    family_unit, verbose, fake_index)
+                    family_unit, verbose, fake_index, True)
                 result = self.relate(parents=parents, children=children)
             else:
                 for i in range(0, int(family_units)):
@@ -82,7 +82,7 @@ class Seed(Command):
         self._graph_update(self.auto)
         return result
 
-    def _faker_iterator(self, family_unit, verbose, fake_index):
+    def _faker_iterator(self, family_unit, verbose, fake_index, force=False):
         parents = []
         children = []
         if verbose == 'True':
@@ -112,9 +112,12 @@ class Seed(Command):
                                 'person': person
                             },
                             email=person.email)
-                    if created_status is True:
+                    if created_status is True or force is True:
                         if verbose == 'True':
                             print('Success! --> ', end="")
+                            if force is True:
+                                print('(FORCED) ', end="")
+                                created_status = True
                         self.db.session.commit()
                         store_person = self.Person.query.filter_by(
                             email=person.email).first()

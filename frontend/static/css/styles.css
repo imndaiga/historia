@@ -2,8 +2,14 @@
 * General
 */
 
+html {
+  position: relative;
+  min-height: 100%;
+}
+
 body {
-  font-family: 'Open Sans', sans-serif
+  font-family: 'Open Sans', sans-serif;
+  margin-bottom: 60px;
 }
 
 label {
@@ -188,23 +194,22 @@ th {
 
 
 /*
-* ParticleJS Hero
+* Welcome Page
 */
 
 .jumbotron {
   position: relative;
   height: 100vh;
-  margin-top: 51px;
-  margin-bottom: 0px
+  min-height: 700px
 }
 
 .login-well {
-  width: 30%;
+  width: 20%;
   min-width: 320px
 }
 
 .welcome-components {
-  padding-top: 8%
+  padding-top: 5%
 }
 
 #particlesjs {
@@ -214,10 +219,19 @@ th {
   right: 0;
   bottom: 0;
   background-color: rgba(217, 237, 247, 1);
-  z-index: 0;
-  height: 100%;
+  z-index: 0
 }
 
 .well {
   background-color: rgba(245, 245, 245, 0.8)
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  line-height: 60px; /* Vertically center the text there */
+  background-color: #f5f5f5
 }
