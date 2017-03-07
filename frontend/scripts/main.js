@@ -155,13 +155,17 @@ var SetUpForm = {
 				}
 			}
 		}
-		validations = this.$options.validations
+	},
+	beforeCreate: function() {
+		var form = this.$options.propsData.form
+		let validations = this.$options.validations
 		validations.form_object = {}
-		for (index in this.form) {
-			if (Object.keys(this.form[index]).indexOf('validators') != -1) {
-				field_name = this.form[index].field_name
-				validators = this.form[index].validators
-				validations.form_object[field_name] = validators
+		for (index in form) {
+			key = form[index].field_name
+			validations.form_object[key] = {}
+			if (Object.keys(form[index]).indexOf('validators') != -1) {
+				validators = form[index].validators
+				validations.form_object[key].value = validators
 			}
 		}
 	}

@@ -227,27 +227,31 @@
   <template id="app-form">
     <form v-on:submit.prevent="submitForm">
       <div v-for="field in form">
-        <div v-if="$v.form_object[field.field_name] != null" :class="['form-group', {'has-error': $v.form_object[field.field_name].$error}]">
-          <div v-if="field.type == 'hidden-input'" style="display: none;" :key="field.id">
-            <label>{{ field.label }}</label>
-            <input type="text" :name="field.field_name" :value="field.placeholder" readonly>
+        <div v-if="$v.form_object[field.field_name] != null">
+          <div :class="['form-group', {'has-error': $v.form_object[field.field_name].$error}]">
+            <div v-if="field.type == 'hidden-input'" style="display: none;" :key="field.id">
+              <label>{{ field.label }}</label>
+              <input type="text" :name="field.field_name" :value="field.placeholder" readonly>
+            </div>
+            <label v-else>{{ field.label }}</label>
+            <input v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" type="text" class="form-control" :name="field.field_name" v-model.trim="form_object[field.field_name].value" :placeholder="field.placeholder" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id">
+            <div v-else-if="field.type == 'pikaday-input'" class="input-group">
+              <input type="text" class="form-control" :name="field.field_name" :ref="field.field_name"  v-model.trim="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" readonly :key="field.id">
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-default" :ref="field.field_name+'-btn'">
+                  <i class="fa fa-calendar fa-lg"></i>
+                </button>
+              </span>
+             </div>
+             <multiselect v-else-if="field.type == 'multiselect-input'" :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id"></multiselect>
+             <multiselect v-else-if="field.type == 'search-input'" :options="form_object[field.field_name].options" :placeholder="field.placeholder" :loading="form_object[field.field_name].loading" :options-limit="10" :searchable="true" :internal-search="false" v-on:search-change="asyncFind(field.field_name, $event)" v-model="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id">
+               <span slot="noResult">Oops! No person found under that name.</span>
+             </multiselect>
           </div>
-          <label v-else>{{ field.label }}</label>
-          <input v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" type="text" class="form-control" :name="field.field_name" v-model.trim="form_object[field.field_name].value" :placeholder="field.placeholder" v-on:input="$v.form_object[field.field_name].$touch()" :key="field.id">
-          <div v-else-if="field.type == 'pikaday-input'" class="input-group">
-            <input type="text" class="form-control" :name="field.field_name" :ref="field.field_name"  v-model.trim="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].$touch()" readonly :key="field.id">
-            <span class="input-group-btn">
-              <button type="button" class="btn btn-default" :ref="field.field_name+'-btn'">
-                <i class="fa fa-calendar fa-lg"></i>
-              </button>
-            </span>
-           </div>
-           <multiselect v-else-if="field.type == 'multiselect-input'" :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].$touch()" :key="field.id"></multiselect>
-           <multiselect v-else-if="field.type == 'search-input'" :options="form_object[field.field_name].options" :placeholder="field.placeholder" :loading="form_object[field.field_name].loading" :options-limit="10" :searchable="true" :internal-search="false" v-on:search-change="asyncFind(field.field_name, $event)" v-model="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].$touch()" :key="field.id">
-             <span slot="noResult">Oops! No person found under that name.</span>
-           </multiselect>
+          <!-- <pre>{{$v.form_object[field.field_name].value}}</pre> -->
+          <!-- <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.required">Field is required</span> -->
         </div>
-        <div v-else class="form-group">
+        <div v-if class="form-group">
           <button v-if="field.type == 'submit-button'" type="submit" :class="field.button_class">{{ field.button_message }}</button>
         </div>
       </div>

@@ -40,6 +40,16 @@ th {
 }
 
 /*
+* Forms
+*/
+
+.form-group__message {
+  color: red;
+  font-weight: 100;
+  font-size: 80%;
+}
+
+/*
  * Sidebar
  */
 .sidebar {
