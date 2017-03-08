@@ -603,8 +603,8 @@ const list_relationships = Vue.component('list-relationships-page', {
 					self.relative_data = response.data
 					self.$forceUpdate()
 				},
-				function(response) {
-					console.log(response)
+				function(error) {
+					console.log(error)
 				}
 			)
 		}
@@ -720,7 +720,36 @@ const list_relationships = Vue.component('list-relationships-page', {
 })
 
 const visualisation = Vue.component('visualisation-page', {
-	template: '#visualisation-page'
+	template: '#visualisation-page',
+	data: function() {
+		return {
+			graph: {}
+		}
+	},
+	methods: {
+		renderGraph: function() {
+			var s = new sigma({
+				graph: this.graph,
+				container: 'sigma-container',
+				settings: {
+		            defaultNodeColor: '#5c61ad'
+		        }
+			})
+		}
+	},
+	created: function() {
+		var self = this
+		HTTP.get('/api/graph').then(
+			function(response) {
+				self.graph = response.data.graph
+				self.renderGraph()
+				self.$forceUpdate()
+			},
+			function(error) {
+				console.log(error)
+			}
+		)
+	}
 })
 
 const share = Vue.component('share-page', {

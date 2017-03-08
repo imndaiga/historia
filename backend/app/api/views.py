@@ -6,6 +6,8 @@ from ..models import Person, Link
 from flask import _app_ctx_stack
 from sqlalchemy import or_
 from networkx import NetworkXError
+from networkx.readwrite import json_graph
+import random
 
 
 class pingAPI(Resource):
@@ -19,6 +21,52 @@ class pingAPI(Resource):
 
     def delete(self):
         return 'Here is a ping'
+
+
+class graphAPI(Resource):
+    decorators = [requires_auth]
+
+    def format_response(self, current_user_graph):
+        # The NetworkX JSON-transform maps zero-indexed node references in the
+        # links list by default. A list comprehension is necessary to map
+        # actual node ids for sigmajs to utilise json graph.
+        # http://stackoverflow.com/a/38765461
+        serialised_graph = json_graph.node_link_data(current_user_graph)
+        serialised_graph.pop('graph', None)
+        serialised_graph.pop('multigraph', None)
+        serialised_graph.pop('directed', None)
+        serialised_graph['links'] = [
+            {
+                'source': serialised_graph['nodes'][link['source']]['id'],
+                'target': serialised_graph['nodes'][link['target']]['id'],
+                'weight': link['weight']
+            }
+            for link in serialised_graph['links']
+        ]
+        serialised_graph['nodes'] = [
+            {
+                'id': node['id'],
+                'label': Person.query.filter_by(
+                    id=node['id']).first().baptism_name,
+                'x': random.randrange(1, 10),
+                'y': random.randrange(1, 10),
+                'size': 2
+            }
+            for node in serialised_graph['nodes']
+        ]
+        serialised_graph['edges'] = serialised_graph.pop('links', None)
+        for count, edge in enumerate(serialised_graph['edges']):
+            edge['id'] = count
+        return serialised_graph
+
+    def get(self):
+        current_user_email = _app_ctx_stack.top.current_user['email']
+        current_user = Person.query.filter_by(
+            email=current_user_email).first()
+        print('Returning graph for node {}'.format(current_user.id))
+        current_user_graph = graph.get_subgraph(current_user)
+        json_graph = self.format_response(current_user_graph)
+        return {'graph': json_graph}
 
 
 class searchAPI(Resource):
@@ -50,12 +98,6 @@ class searchAPI(Resource):
             return {'fullname': person_fullname,
                     'id': found_person.id}
         return {}
-
-    def put(self):
-        pass
-
-    def delete(self):
-        pass
 
 # relation_name:{value:'Father', type:'multiselect-input'},
 # birth_date:{value:'2017-02-15', type:'pikaday-input'}
@@ -147,4 +189,5 @@ class relationshipsAPI(Resource):
 
 api.add_resource(relationshipsAPI, '/relationships', endpoint='relationships')
 api.add_resource(searchAPI, '/search', endpoint='search')
+api.add_resource(graphAPI, '/graph', endpoint='graph')
 api.add_resource(pingAPI, '/ping', endpoint='ping')

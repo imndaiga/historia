@@ -16,6 +16,7 @@
   <script src="node_modules/vuelidate/dist/validators.min.js"></script>
   <script src="node_modules/vuelidate/dist/vuelidate.min.js"></script>
   <script src="node_modules/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="node_modules/sigma/build/sigma.min.js"></script>
   <link rel="stylesheet" href="node_modules/pikaday/css/pikaday.css" />
   <link rel="stylesheet" href="node_modules/bootstrap-css-only/css/bootstrap.css" />
   <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css" />
@@ -65,7 +66,9 @@
   </template>
 
   <template id="visualisation-page">
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+    <div id="sigma-parent" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+      <div id="sigma-container">
+      </div>
     </div>
   </template>
 
