@@ -46,9 +46,8 @@ class Seed(Command):
 
     option_list = (
         Option('--units', '-u', dest='family_units'),
-        Option('--fsize', '-fs', dest='family_size'),
-        Option('--verbose', '-v', dest='verbose', required=False),
-        Option('--test', '-t', dest='test', required=False)
+        Option('--size', '-s', dest='family_size'),
+        Option('--verbose', '-v', dest='verbose', required=False)
     )
 
     def init_app(self, app, auto):
@@ -62,27 +61,32 @@ class Seed(Command):
         if app.config['DEBUG'] or app.config['TESTING']:
             self.testing = True
 
-    def run(self, family_units, family_size, verbose='False', test='False'):
-        if self.testing is True:
-            fake_index = 1
-            if test == 'True':
-                family_unit = fake.family(seed=4321, size=5)
-                for parent in family_unit['parents']:
-                    if parent['sex'] == 'M':
-                        parent['mail'] = os.environ.get('MIMINANI_ADMIN')
-                (parents, children, fake_index) = self._faker_iterator(
-                    family_unit, verbose, fake_index, True)
-                result = self.relate(parents=parents, children=children)
-            else:
-                for i in range(0, int(family_units)):
-                    family_unit = fake.family(seed=i, size=int(family_size))
-                    (parents, children, fake_index) = self._faker_iterator(
-                        family_unit, verbose, fake_index)
-                result = self.relate(parents=parents, children=children)
+    def run(self, family_units, family_size, verbose='False'):
+        faker_index = 1
+        for i in range(0, int(family_units)):
+            size = int(family_size)
+            seed = i
+            self.generate_tree(
+                seed=seed,
+                size=size,
+                verbose=verbose,
+                faker_index=faker_index
+            )
         self._graph_update(self.auto)
-        return result
 
-    def _faker_iterator(self, family_unit, verbose, fake_index, force=False):
+    def generate_tree(self, seed, size, verbose, faker_index, rings=0):
+        admin_email = os.environ.get('MIMINANI_ADMIN')
+        admin_person = self.Person.query.filter_by(
+            email=admin_email).first()
+        family_unit = fake.family(seed=seed, size=size)
+        if admin_email is not None and admin_person is None:
+            family_unit['parents'][1]['mail'] = admin_email
+            print('NOTICE: Admin added')
+        (parents, children, fake_index) = self._faker_iterator(
+            family_unit, verbose, faker_index)
+        self.relate(parents=parents, children=children)
+
+    def _faker_iterator(self, family_unit, verbose, fake_index):
         parents = []
         children = []
         if verbose == 'True':
@@ -112,12 +116,9 @@ class Seed(Command):
                                 'person': person
                             },
                             email=person.email)
-                    if created_status is True or force is True:
+                    if created_status is True:
                         if verbose == 'True':
                             print('Success! --> ', end="")
-                            if force is True:
-                                print('(FORCED) ', end="")
-                                created_status = True
                         self.db.session.commit()
                         store_person = self.Person.query.filter_by(
                             email=person.email).first()
