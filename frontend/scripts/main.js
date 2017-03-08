@@ -735,6 +735,7 @@ const visualisation = Vue.component('visualisation-page', {
 		            defaultNodeColor: '#5c61ad'
 		        }
 			})
+			var dragListener = sigma.plugins.dragNodes(s, s.renderers[0])
 		}
 	},
 	created: function() {

@@ -261,3 +261,41 @@ th {
   line-height: 60px; /* Vertically center the text there */
   background-color: #f5f5f5
 }
+
+/*
+* Media queries
+*/
+
+/* Large desktops and laptops */
+@media (min-width: 1200px) {
+  #sigma-parent {
+    height: 450px;
+    width: 1100px;
+  }
+}
+
+/* Landscape tablets and medium desktops */
+@media (min-width: 992px) and (max-width: 1199px) {
+    #sigma-parent {
+      height: 470px;
+      width: 900px;
+    }
+}
+
+/* Portrait tablets and small desktops */
+@media (min-width: 768px) and (max-width: 991px) {
+    #sigma-parent {
+      height: 470px;
+      width: 650px;
+    }
+}
+
+/* Landscape phones and portrait tablets */
+@media (max-width: 767px) {
+
+}
+
+/* Portrait phones and smaller */
+@media (max-width: 480px) {
+
+}
