@@ -10,14 +10,37 @@ fake = Factory.create('en_GB')
 
 
 class FamilyProvider(BaseProvider):
-    def family(self, seed, size):
+    def family(self, seed, size, injection=[]):
         fake.seed(seed)
-        parents = [self.family_member(sex='M'),
-                   self.family_member(sex='F')]
-        children = []
-        for _ in range(0, size - 2):
-            a_child = self.family_member(sex=fake.random.choice(['M', 'F']))
-            children.append(a_child)
+        if len(injection) == 0:
+            parents = [self.family_member(sex='M'),
+                       self.family_member(sex='F')]
+            children = []
+            for _ in range(0, size - 2):
+                a_child = self.family_member(
+                    sex=fake.random.choice(['M', 'F']))
+                children.append(a_child)
+        else:
+            if injection[0] == 'parents':
+                parents = [self.family_member(sex='M'),
+                           self.family_member(sex='F')]
+                children = [injection[1]]
+                for _ in range(0, size - 3):
+                    a_child = self.family_member(
+                        sex=fake.random.choice(['M', 'F']))
+                    children.append(a_child)
+            else:
+                if injection[1]['sex'] == 'M':
+                    parents = [injection[1],
+                               self.family_member(sex='F')]
+                else:
+                    parents = [injection[1],
+                               self.family_member(sex='M')]
+                children = []
+                for _ in range(0, size - 2):
+                    a_child = self.family_member(
+                        sex=fake.random.choice(['M', 'F']))
+                    children.append(a_child)
         a_family = {'parents': parents, 'children': children}
         return a_family
 
@@ -47,7 +70,8 @@ class Seed(Command):
     option_list = (
         Option('--units', '-u', dest='family_units'),
         Option('--size', '-s', dest='family_size'),
-        Option('--verbose', '-v', dest='verbose', required=False)
+        Option('--layers', '-l', dest='layers', default=0),
+        Option('--verbose', '-v', dest='verbose', action='store_true')
     )
 
     def init_app(self, app, auto):
@@ -61,35 +85,71 @@ class Seed(Command):
         if app.config['DEBUG'] or app.config['TESTING']:
             self.testing = True
 
-    def run(self, family_units, family_size, verbose='False'):
+    def run(self, family_units, family_size, layers, verbose):
         faker_index = 1
-        for i in range(0, int(family_units)):
-            size = int(family_size)
-            seed = i
-            self.generate_tree(
-                seed=seed,
-                size=size,
-                verbose=verbose,
-                faker_index=faker_index
-            )
-        self._graph_update(self.auto)
+        units = int(family_units)
+        size = int(family_size)
+        tree_layers = int(layers)
+        self.generate_trees(
+            size=size,
+            units=units,
+            verbose=verbose,
+            faker_index=faker_index,
+            layers=tree_layers
+        )
 
-    def generate_tree(self, seed, size, verbose, faker_index, rings=0):
-        admin_email = os.environ.get('MIMINANI_ADMIN')
-        admin_person = self.Person.query.filter_by(
-            email=admin_email).first()
-        family_unit = fake.family(seed=seed, size=size)
-        if admin_email is not None and admin_person is None:
-            family_unit['parents'][1]['mail'] = admin_email
-            print('NOTICE: Admin added')
-        (parents, children, fake_index) = self._faker_iterator(
-            family_unit, verbose, faker_index)
-        self.relate(parents=parents, children=children)
+    def generate_trees(self, size, units, verbose, faker_index, layers):
+        for i in range(1, units + 1):
+            admin_email = os.environ.get('MIMINANI_ADMIN')
+            admin_person = self.Person.query.filter_by(
+                email=admin_email).first()
+            family_unit = fake.family(seed=i, size=size)
+            if admin_email is not None and admin_person is None:
+                family_unit['parents'][1]['mail'] = admin_email
+                print('NOTICE: Admin added')
+            (parents, children, _) = self._faker_iterator(
+                family_unit, verbose, faker_index)
+            self.relate(parents=parents, children=children)
+            remainders = []
+            for layer in range(1, layers + 1):
+                if len(remainders) == 0:
+                    remainders = self._add_layer(
+                        family_unit, layer, i, size, verbose, faker_index)
+                else:
+                    for rem_unit in remainders:
+                        remainders = self._add_layer(
+                            rem_unit[0], layer, i, size, verbose, faker_index)
 
-    def _faker_iterator(self, family_unit, verbose, fake_index):
+    def _add_layer(self, family_unit, layer, unit, size, verbose, faker_index):
+        created_units = []
+        if verbose:
+            print('************* LAYER {} ON UNIT {} '
+                  '************'.format(layer, unit))
+        for relation in family_unit:
+            for relative in family_unit[relation]:
+                new_family_unit = fake.family(
+                    seed=layer + 4321,
+                    size=size,
+                    injection=[relation, relative]
+                )
+                (parents, children, fakers) = self._faker_iterator(
+                    new_family_unit,
+                    verbose,
+                    faker_index,
+                    superimpose_fake=relative
+                )
+                self.relate(parents=parents, children=children)
+                created_units.append([fakers])
+        if verbose:
+            print('********************************************')
+        return created_units
+
+    def _faker_iterator(
+            self, family_unit, verbose, faker_index, superimpose_fake={}):
         parents = []
         children = []
-        if verbose == 'True':
+        successful_fakers = {'parents': [], 'children': []}
+        if verbose:
             print('============================================')
         for relation in family_unit:
             for relative in family_unit[relation]:
@@ -103,10 +163,10 @@ class Seed(Command):
                         email=relative['mail'],
                         confirmed=True
                     )
-                    if verbose == 'True':
+                    if verbose:
                         print(
                             '{0} Validating: {1} ...'.format(
-                                fake_index, person.email), end="")
+                                faker_index, person.email), end="")
                     (created_person,
                         created_status) = self._get_or_create_one(
                             session=self.db.session,
@@ -117,25 +177,36 @@ class Seed(Command):
                             },
                             email=person.email)
                     if created_status is True:
-                        if verbose == 'True':
-                            print('Success! --> ', end="")
+                        faker_index += 1
                         self.db.session.commit()
-                        store_person = self.Person.query.filter_by(
-                            email=person.email).first()
-                        if verbose == 'True':
-                            print('ID = {}'.format(
-                                store_person.id))
-                        fake_index += 1
+                        if verbose:
+                            print('Success! --> ID = {}'.format(
+                                created_person.id))
                         if relation == 'parents':
                             parents.append(created_person)
+                            successful_fakers['parents'].append(relative)
                         elif relation == 'children':
                             children.append(created_person)
+                            successful_fakers['children'].append(relative)
                     else:
-                        if verbose == 'True':
-                            print('Failed!')
-                        sex = relative['sex']
-                        relative = fake.family_member(sex)
-        return (parents, children, fake_index)
+                        if superimpose_fake.get(
+                           'mail', 'None') == created_person.email:
+                            faker_index += 1
+                            created_status = True
+                            if verbose:
+                                print('Superimposed! -->', end="")
+                            if verbose:
+                                print('ID = {}'.format(created_person.id))
+                            if relation == 'parents':
+                                parents.append(created_person)
+                            elif relation == 'children':
+                                children.append(created_person)
+                        else:
+                            if verbose:
+                                print('Failed!')
+                            sex = relative['sex']
+                            relative = fake.family_member(sex)
+        return (parents, children, successful_fakers)
 
     def relate(self, partners=None, parents=None, children=None):
         result_dict = {}
