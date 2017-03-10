@@ -61,11 +61,9 @@ class Graph:
         else:
             return nx.Graph()
 
-    def get_relation(self, source, target, computed=False):
-        if computed:
-            raise NotImplementedError
-        else:
-            return self._relations_list(source=source, target=target)
+    def get_relation_tree(self, source, target):
+        relation_list = self._relations_list(source=source, target=target)
+        return relation_list
 
     def span_mdg(self, MDG, source, mutate=False):
         '''
@@ -122,11 +120,14 @@ class Graph:
                 (node_id, weight) = edge_tuple
                 for relation_key in self.Relations['all_types']:
                     if weight == relation_key:
-                        if readable is True:
+                        if readable:
                             relation_list.append(
-                                self.Relations['all_types'][relation_key])
+                                [
+                                    node_id,
+                                    self.Relations['all_types'][relation_key]
+                                ])
                         else:
-                            relation_list.append(relation_key)
+                            relation_list.append([node_id, relation_key])
             return relation_list
         else:
             return None
