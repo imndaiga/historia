@@ -26,10 +26,17 @@ class pingAPI(Resource):
 class graphAPI(Resource):
     decorators = [requires_auth]
 
-    def format_response(self, current_user_graph):
+    def getNodeColor(self, node_id):
+        current_user_email = _app_ctx_stack.top.current_user['email']
+        current_user = Person.query.filter_by(email=current_user_email).first()
+        if current_user.id == node_id:
+            return '#f96060'
+        return '#5c61ad'
+
+    def formatResponse(self, current_user_graph):
         # The NetworkX JSON-transform maps zero-indexed node references in the
-        # links list by default. A list comprehension is necessary to map
-        # actual node ids for sigmajs to utilise json graph.
+        # links list by default. A mapping is necessary to populate json graph
+        # with actual node ids for sigmajs to utilise json graph.
         # http://stackoverflow.com/a/38765461
         serialised_graph = json_graph.node_link_data(current_user_graph)
         serialised_graph.pop('graph', None)
@@ -50,6 +57,7 @@ class graphAPI(Resource):
                     id=node['id']).first().baptism_name,
                 'x': random.randrange(1, 10),
                 'y': random.randrange(1, 10),
+                'color': self.getNodeColor(node['id']),
                 'size': 2
             }
             for node in serialised_graph['nodes']
@@ -65,7 +73,7 @@ class graphAPI(Resource):
             email=current_user_email).first()
         print('Returning graph for node {}'.format(current_user.id))
         current_user_graph = graph.get_subgraph(current_user)
-        json_graph = self.format_response(current_user_graph)
+        json_graph = self.formatResponse(current_user_graph)
         return {'graph': json_graph}
 
 
@@ -112,7 +120,7 @@ class relationshipsAPI(Resource):
         self.reqparse.add_argument('user_id', type=int, location='json')
         super(relationshipsAPI, self).__init__()
 
-    def format_response(self, nodes, user_id):
+    def formatResponse(self, nodes, user_id):
         relatives = []
         for node in nodes:
             if node != user_id:
@@ -153,7 +161,7 @@ class relationshipsAPI(Resource):
         user_email = _app_ctx_stack.top.current_user['email']
         user = Person.query.filter_by(email=user_email).first()
         node_list = graph.get_subgraph(user).nodes()
-        response = self.format_response(node_list, user.id)
+        response = self.formatResponse(node_list, user.id)
         return response
 
     def put(self):
@@ -177,7 +185,7 @@ class relationshipsAPI(Resource):
                 db.session.commit()
                 graph.delete_node(delete_person_id)
                 node_list = graph.get_subgraph(user).nodes()
-                response = self.format_response(node_list, user.id)
+                response = self.formatResponse(node_list, user.id)
                 print('{} deleted from graph'.format(delete_person_id))
                 return response
             except NetworkXError:
