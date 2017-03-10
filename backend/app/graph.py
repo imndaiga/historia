@@ -123,14 +123,27 @@ class Graph:
                         if readable:
                             relation_list.append(
                                 [
-                                    node_id,
+                                    self._getTreeNodeId(
+                                        source, target, node_id),
                                     self.Relations['all_types'][relation_key]
                                 ])
                         else:
-                            relation_list.append([node_id, relation_key])
+                            relation_list.append(
+                                [
+                                    self._getTreeNodeId(
+                                        source, target, node_id),
+                                    relation_key
+                                ])
             return relation_list
         else:
             return None
+
+    @staticmethod
+    def _getTreeNodeId(source, target, node_id):
+        if source.id == node_id:
+            return target.id
+        else:
+            return node_id
 
     def _resolve_edge_list_from_mdg(self, MDG, source):
         '''
