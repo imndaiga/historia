@@ -3,9 +3,23 @@ var HTTP = axios.create({
 	baseURL: ''
 })
 
-var required = validators.required
-var email = validators.email
-var alpha = validators.alpha
+var required = function(value) {
+	if (Array.isArray(value)) return !!value.length
+	return value === undefined || value === null ? false : !!String(value).length
+}
+var email = function(value) {
+	if (typeof value === 'undefined' || value === null || value === '') {
+		return true
+	}
+	var reg = /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/
+	return reg.test(value)
+}
+var alpha = function(value) {
+	if (typeof value === 'undefined' || value === null || value === '') {
+		return true
+	}
+	return (/^[a-zA-Z]*$/.test(value))
+}
 
 // Set up axios interceptors to error responses
 HTTP.interceptors.response.use(
@@ -58,116 +72,6 @@ function autoRoute(to, from, next) {
 		next({ path: path })
 	} else {
 		next()
-	}
-}
-
-var SetUpForm = {
-	props: {
-		form : {
-			type: Array,
-			required: true
-		},
-		submit_type: {
-			type: String,
-			required: true
-		}
-	},
-	data: function() {
-		return {
-			form_object: {},
-			sub_type: this.submit_type
-		}
-	},
-	methods: {
-		submitForm: function() {
-			var form_data = {}
-			for (field in this.form_object) {
-				form_data[field] = this.form_object[field].value
-			}
-			form_data['submit_type'] = this.sub_type
-			HTTP.put('/api/relationships', {
-				data: {
-					form: form_data
-				}
-			}).then(
-				function(response) {
-					console.log(response)
-					swal({
-						title: 'Success',
-						text: '',
-						type: 'success',
-						timer: 1500,
-						showConfirmButton: false
-					})
-				},
-				function(error) {
-					console.log(error)
-					swal({
-						title: 'Ooops...',
-						text: 'An error occured',
-						type: 'error'
-					})
-				}
-			)
-		},
-		asyncFind: function(field_name, value) {
-			var self = this
-			var field = field_name
-			var value = value
-			this.form_object[field_name].loading = true
-			this.$forceUpdate()
-			HTTP.get('/api/search', {
-				params: {
-					field: field,
-					value: value
-				}
-			}).then(
-				function(response) {
-					self.form_object[field_name].loading = false
-					self.$forceUpdate()
-					if (Object.keys(response.data).length > 0) {
-						self.form_object[field_name].options = [response.data.fullname]
-					} else {
-						self.form_object[field_name].options = []
-					}
-				},
-				function(error) {
-					self.form_object[field_name].loading = false
-					self.$forceUpdate()
-					console.log(error)
-				}
-			)
-		}
-	},
-	created: function() {
-		for (index in this.form) {
-			key = this.form[index].field_name
-			if (this.form[index].type != 'submit-button') {
-				this.form_object[key] = {}
-				if (this.form[index].type == 'search-input') {
-					this.form_object[key]['loading'] = false
-					this.form_object[key]['options'] = []
-				}
-				if (Object.keys(this.form[index]).indexOf('value') != -1) {
-					this.form_object[key]['value'] = this.form[index].value
-				} else {
-					this.form_object[key]['value'] = ''
-				}
-			}
-		}
-	},
-	beforeCreate: function() {
-		var form = this.$options.propsData.form
-		let validations = this.$options.validations
-		validations.form_object = {}
-		for (index in form) {
-			key = form[index].field_name
-			validations.form_object[key] = {}
-			if (Object.keys(form[index]).indexOf('validators') != -1) {
-				validators = form[index].validators
-				validations.form_object[key].value = validators
-			}
-		}
 	}
 }
 
@@ -291,13 +195,115 @@ Vue.component('app-panel', {
 
 Vue.component('app-form', {
 	template: '#app-form',
-	mixins: [SetUpForm],
-	validations: {
-		form_object: {}
+	props: {
+		form : {
+			type: Array,
+			required: true
+		},
+		submit_type: {
+			type: String,
+			required: true
+		}
 	},
 	data: function() {
 		return {
+			form_object: this.createFormObject(),
+			sub_type: this.submit_type,
 			picker: ''
+		}
+	},
+	validations: function() {
+		validations_dict = {}
+		validations_dict['form_object'] = {}
+		for (index in this.form) {
+			key = this.form[index].field_name
+			validations_dict.form_object[key] = {}
+			validations_dict.form_object[key].value = {}
+			if (Object.keys(this.form[index]).indexOf('validators') != -1) {
+				validators = this.form[index].validators
+				validations_dict.form_object[key].value = validators
+			}
+		}
+		return validations_dict
+	},
+	methods: {
+		submitForm: function() {
+			var form_data = {}
+			for (field in this.form_object) {
+				form_data[field] = this.form_object[field].value
+			}
+			form_data['submit_type'] = this.sub_type
+			HTTP.put('/api/relationships', {
+				data: {
+					form: form_data
+				}
+			}).then(
+				function(response) {
+					console.log(response)
+					swal({
+						title: 'Success',
+						text: '',
+						type: 'success',
+						timer: 1500,
+						showConfirmButton: false
+					})
+				},
+				function(error) {
+					console.log(error)
+					swal({
+						title: 'Ooops...',
+						text: 'An error occured',
+						type: 'error'
+					})
+				}
+			)
+		},
+		asyncFind: function(field_name, value) {
+			var self = this
+			var field = field_name
+			var value = value
+			this.form_object[field_name].loading = true
+			this.$forceUpdate()
+			HTTP.get('/api/search', {
+				params: {
+					field: field,
+					value: value
+				}
+			}).then(
+				function(response) {
+					self.form_object[field_name].loading = false
+					self.$forceUpdate()
+					if (Object.keys(response.data).length > 0) {
+						self.form_object[field_name].options = [response.data.fullname]
+					} else {
+						self.form_object[field_name].options = []
+					}
+				},
+				function(error) {
+					self.form_object[field_name].loading = false
+					self.$forceUpdate()
+					console.log(error)
+				}
+			)
+		},
+		createFormObject: function() {
+			var form_object = {}
+			for (index in this.form) {
+				key = this.form[index].field_name
+				if (this.form[index].type != 'submit-button') {
+					form_object[key] = {}
+					if (this.form[index].type == 'search-input') {
+						form_object[key]['loading'] = false
+						form_object[key]['options'] = []
+					}
+					if (Object.keys(this.form[index]).indexOf('value') != -1) {
+						form_object[key]['value'] = this.form[index].value
+					} else {
+						form_object[key]['value'] = ''
+					}
+				}
+			}
+			return form_object
 		}
 	},
 	computed: {
@@ -732,7 +738,9 @@ const visualisation = Vue.component('visualisation-page', {
 				graph: this.graph,
 				container: 'sigma-container',
 				settings: {
-		            defaultNodeColor: '#5c61ad'
+		            defaultLabelSize: 20,
+		            font: 'Open Sans',
+		            labelThreshold: 12
 		        }
 			})
 			var dragListener = sigma.plugins.dragNodes(s, s.renderers[0])

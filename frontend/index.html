@@ -13,7 +13,7 @@
   <script src="node_modules/particles.js/particles.js"></script>
   <script src="https://cdn.auth0.com/js/lock/10.9.1/lock.min.js"></script>
   <script src="node_modules/axios/dist/axios.js"></script>
-  <script src="node_modules/vuelidate/dist/validators.min.js"></script>
+  <!-- <script src="node_modules/vuelidate/dist/validators.min.js"></script> -->
   <script src="node_modules/vuelidate/dist/vuelidate.min.js"></script>
   <script src="node_modules/sweetalert/dist/sweetalert.min.js"></script>
   <script src="node_modules/sigma/build/sigma.min.js"></script>
@@ -254,7 +254,7 @@
                <span slot="noResult">Oops! No person found under that name.</span>
              </multiselect>
           </div>
-          <!-- <pre>{{$v.form_object[field.field_name].value}}</pre> -->
+          <!-- <pre v-if="!!$v.form_object[field.field_name].value">{{$v.form_object[field.field_name].value}}</pre> -->
           <!-- <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.required">Field is required</span> -->
         </div>
         <div v-if class="form-group">
