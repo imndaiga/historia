@@ -255,7 +255,11 @@
              </multiselect>
           </div>
           <!-- <pre v-if="!!$v.form_object[field.field_name].value">{{$v.form_object[field.field_name].value}}</pre> -->
-          <!-- <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.required">Field is required</span> -->
+          <div v-if="$v.form_object[field.field_name].$error" class="form-group__field">
+            <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.required && Object.keys($v.form_object[field.field_name].value).indexOf('required') != -1">{{ field.label }} is required</span>
+            <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.alpha  && Object.keys($v.form_object[field.field_name].value).indexOf('alpha') != -1">{{ field.label }} is not valid</span>
+            <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.email && Object.keys($v.form_object[field.field_name].value).indexOf('email') != -1">Invalid email address</span>
+          </div>
         </div>
         <div v-if class="form-group">
           <button v-if="field.type == 'submit-button'" type="submit" :class="field.button_class">{{ field.button_message }}</button>

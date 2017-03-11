@@ -217,11 +217,13 @@ Vue.component('app-form', {
 		validations_dict['form_object'] = {}
 		for (index in this.form) {
 			key = this.form[index].field_name
-			validations_dict.form_object[key] = {}
-			validations_dict.form_object[key].value = {}
-			if (Object.keys(this.form[index]).indexOf('validators') != -1) {
-				validators = this.form[index].validators
-				validations_dict.form_object[key].value = validators
+			if (key != undefined) {
+				validations_dict.form_object[key] = {}
+				validations_dict.form_object[key].value = {}
+				if (Object.keys(this.form[index]).indexOf('validators') != -1) {
+					validators = this.form[index].validators
+					validations_dict.form_object[key].value = validators
+				}
 			}
 		}
 		return validations_dict
@@ -338,7 +340,7 @@ Vue.component('app-form', {
 				trigger: this.pikaday_Hooks[1][0],
 				onSelect: function() {
 					date = this.getMoment().format('Do MMMM YYYY')
-					self.form_object[pikaday_field_name] = date
+					self.form_object[pikaday_field_name].value = date
 				}
 			})
 		}
