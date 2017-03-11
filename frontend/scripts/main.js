@@ -68,7 +68,7 @@ function requireAuth(to, from, next) {
 
 function autoRoute(to, from, next) {
 	if (checkAuth()) {
-		var path = 'dashboard/overview'
+		var path = 'dashboard/visualisation'
 		next({ path: path })
 	} else {
 		next()
@@ -397,9 +397,7 @@ const dashboard = Vue.component('dashboard-page', {
 	data: function() {
 		return {
 			panels : [
-				{ name: 'Overview', navs: [], id: 1},
-				{ name: 'Visualisation', navs: [], id: 2},
-				{ name: 'Share', navs: [], id: 3},
+				{ name: 'Visualisation', navs: [], id: 1},
 				{ name: 'Relationships',
 					navs: [
 						{
@@ -414,7 +412,7 @@ const dashboard = Vue.component('dashboard-page', {
 							id: 2
 						}
 					],
-					default_view: 'List_Relationships', id: 4
+					default_view: 'List_Relationships', id: 2
 				}
 			],
 			title: 'MIMINANI',
@@ -457,7 +455,7 @@ const dashboard = Vue.component('dashboard-page', {
 						{
 							caption:'Settings',
 							link: '#',
-							class: ''
+							class: 'disabled'
 						},
 						{
 							caption:'Sign Out',
@@ -465,7 +463,7 @@ const dashboard = Vue.component('dashboard-page', {
 							class: 'logout'
 						}
 					],
-					reference: 'Manage your profile'
+					reference: 'Your Profile'
 				}
 			]
 		}
@@ -496,9 +494,9 @@ const welcome = Vue.component('welcome-page', {
 				}
 			],
 			form: [
-				{type: 'multiselect-input', placeholder: 'Select Country', label: 'Country of Origin',
-					multiselect_options: ['Kenya', 'Uganda', 'Tanzania'],
-					validators: {required}, field_name: 'origin_country'}
+				// {type: 'multiselect-input', placeholder: 'Select Country', label: 'Country of Origin',
+				// 	multiselect_options: ['Kenya', 'Uganda', 'Tanzania'],
+				// 	validators: {required}, field_name: 'origin_country'}
 			],
 			particlesjs_data : {
 				"particles": {
@@ -772,19 +770,10 @@ const visualisation = Vue.component('visualisation-page', {
 	}
 })
 
-const share = Vue.component('share-page', {
-	template: '#share-page'
-})
-
-const overview = Vue.component('overview-page', {
-	template: '#overview-page'
-})
-
 const routes = [
 	{ path: '/', component: welcome, beforeEnter: autoRoute},
 	{ path: '/dashboard', component: dashboard, beforeEnter: requireAuth,
 		children: [
-			{path: 'overview', name: 'Overview', component: overview, beforeEnter: requireAuth},
 			{path: 'relationships', component: relationships, beforeEnter: requireAuth,
 				children: [
 					{path: 'list', name: 'List_Relationships', component: list_relationships, beforeEnter: requireAuth},
@@ -794,8 +783,7 @@ const routes = [
 				]
 			},
 			{path: 'visualisation', name: 'Visualisation',component: visualisation, beforeEnter: requireAuth},
-			{path: 'share', name: 'Share', component: share, beforeEnter: requireAuth},
-			{path: '*', redirect: 'overview', beforeEnter: requireAuth}
+			{path: '*', redirect: 'visualisation', beforeEnter: requireAuth}
 		]
 	}
 ]

@@ -75,16 +75,6 @@
     </div>
   </template>
 
-  <template id="share-page">
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-    </div>
-  </template>
-
-  <template id="overview-page">
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-    </div>
-  </template>
-
   <template id="welcome-page">
     <div>
       <div class="jumbotron">
@@ -104,8 +94,7 @@
               <h3>Start Your Story!</h3>
               <hr>
               <app-form :form="form" submit_type="none"></app-form>
-              <br>
-              <button class="btn btn-primary btn-block" v-on:click="login()" v-if="!authentication">Login</button>
+              <button class="btn btn-success btn-block" v-on:click="login()" v-if="!authentication">Login</button>
               <hr>
               <small>We respect your privacy.</small><br>
               <small>Please read our privacy policy <a href="#">here</a>.</small>
