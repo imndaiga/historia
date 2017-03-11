@@ -230,35 +230,44 @@ Vue.component('app-form', {
 	},
 	methods: {
 		submitForm: function() {
-			var form_data = {}
-			for (field in this.form_object) {
-				form_data[field] = this.form_object[field].value
+			if (!this.$v.$invalid) {
+				var form_data = {}
+				for (field in this.form_object) {
+					form_data[field] = this.form_object[field].value
+				}
+				form_data['submit_type'] = this.sub_type
+				HTTP.put('/api/relationships', {
+					data: {
+						form: form_data
+					}
+				}).then(
+					function(response) {
+						console.log(response)
+						swal({
+							title: 'Success',
+							text: '',
+							type: 'success',
+							timer: 1500,
+							showConfirmButton: false
+						})
+					},
+					function(error) {
+						console.log(error)
+						swal({
+							title: 'Ooops...',
+							text: 'An error occured',
+							type: 'error'
+						})
+					}
+				)
+			} else {
+				this.$v.$touch()
+				swal({
+					title: 'Ooops...',
+					text: 'Form not filled in correctly',
+					type: 'error'
+				})
 			}
-			form_data['submit_type'] = this.sub_type
-			HTTP.put('/api/relationships', {
-				data: {
-					form: form_data
-				}
-			}).then(
-				function(response) {
-					console.log(response)
-					swal({
-						title: 'Success',
-						text: '',
-						type: 'success',
-						timer: 1500,
-						showConfirmButton: false
-					})
-				},
-				function(error) {
-					console.log(error)
-					swal({
-						title: 'Ooops...',
-						text: 'An error occured',
-						type: 'error'
-					})
-				}
-			)
 		},
 		asyncFind: function(field_name, value) {
 			var self = this
