@@ -7,18 +7,20 @@
 Submitted data can used for statistical research into social genealogical structures. The project can also be extended to enable for varied social network analyses e.g. an Electronic Medical Record ([EMR](https://en.wikipedia.org/wiki/Electronic_health_record)) System.
 
 ####Feature pipeline:
-- [x] Integrate with [Auth0](https://auth0.com/) for frictionless sign-up and registration.
-- [ ] Powered by restful APIs in the backend. :construction:
+- [ ] Integrate with [Auth0](https://auth0.com/) for frictionless sign-up and registration. :tada:
+- [ ] Powered by restful APIs in the backend. :fist:
 - [ ] Progressive web app client on the frontend. :construction:
-- [ ] Integrate social graph search strategies with [networkx](https://networkx.github.io/). :construction:
+- [ ] Integrate social graph search strategies with [networkx](https://networkx.github.io/). :tada:
 - [ ] [Docker](https://www.docker.com/) powered development and deployment workflow.
 - [ ] Integrate with [Facebook's Social Graph API](https://developers.facebook.com/docs/graph-api).
 - [ ] Permissions-based modification of social graph.
-- [ ] Generate social graph visualisations with [sigmajs](http://sigmajs.org/).
+- [ ] Generate social graph visualisations with [sigmajs](http://sigmajs.org/). :fist:
 
 Key | Description
 --- | -----------
-:construction: | _under development_
+:construction: | _currently under development_
+:fist:         | _progressive development_
+:tada:      | _feature complete_
 
 ## Usage
 Developer usage is simple enough and powered by docker. Currently, this app is client rendered with the [VueJS](https://vuejs.org/) framework, with the backend APIs powered by [Flask](http://flask.pocoo.org/). The only requirement for any host developer environment (Windows, Linux or MacOS) is to have a running installation of [docker](http://www.docker.com/).
@@ -35,3 +37,8 @@ Instructions on how to locally run, develop or test your own app instance coming
 #### Version 0.2
  - VueJS frontend client.
  - Restful API powered backend.
+
+#### Version 0.3
+- Form validations implemented.
+- Graph rendering with sigmaJS.
+- Mock data capability in backend.
