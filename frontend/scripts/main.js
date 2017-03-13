@@ -3,23 +3,9 @@ var HTTP = axios.create({
 	baseURL: ''
 })
 
-var required = function(value) {
-	if (Array.isArray(value)) return !!value.length
-	return value === undefined || value === null ? false : !!String(value).length
-}
-var email = function(value) {
-	if (typeof value === 'undefined' || value === null || value === '') {
-		return true
-	}
-	var reg = /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/
-	return reg.test(value)
-}
-var alpha = function(value) {
-	if (typeof value === 'undefined' || value === null || value === '') {
-		return true
-	}
-	return (/^[a-zA-Z]*$/.test(value))
-}
+ var required = validators.required
+ var email = validators.email
+ var alpha = validators.alpha
 
 // Set up axios interceptors to error responses
 HTTP.interceptors.response.use(
@@ -265,7 +251,9 @@ Vue.component('app-form', {
 				swal({
 					title: 'Ooops...',
 					text: 'Form not filled in correctly',
-					type: 'error'
+					type: 'error',
+					timer: 2000,
+					showConfirmButton: false
 				})
 			}
 		},
@@ -686,10 +674,12 @@ const list_relationships = Vue.component('list-relationships-page', {
 	},
 	created: function() {
 		bus.$on('open-relation-modal', function(relationship_id) {
+			document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
 			this.open_modal_state = true
 			this.open_modal_relationship_id = relationship_id
 		}.bind(this))
 		bus.$on('close-modal', function() {
+			document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
 			this.open_modal_state = false
 			this.open_modal_relationship_id = ''
 		}.bind(this))
