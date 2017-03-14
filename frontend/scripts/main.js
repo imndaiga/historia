@@ -54,51 +54,12 @@ function requireAuth(to, from, next) {
 
 function autoRoute(to, from, next) {
 	if (checkAuth()) {
-		var path = 'dashboard/visualisation'
+		var path = 'dashboard/user'
 		next({ path: path })
 	} else {
 		next()
 	}
 }
-
-Vue.component('app-navbar', {
-	template: '#app-navbar',
-	props: {
-		title: {
-			type: String,
-			required: true
-		},
-		nav_menus: {
-			type: Array,
-			required: true
-		},
-
-	},
-	data: function() {
-		return {
-			open_main_dropdown: false,
-			sub_menu_dropdown_name: ''
-		}
-	},
-	methods: {
-		toggleMainMenu: function() {
-			this.open_main_dropdown = !this.open_main_dropdown
-		},
-		toggleSubMenu: function(submenu) {
-			if (submenu == this.sub_menu_dropdown_name) {
-				this.sub_menu_dropdown_name = ''
-			} else {
-				this.sub_menu_dropdown_name = submenu
-			}
-		},
-		logout: function() {
-			this.$parent.$parent.logout()
-		},
-		testSecured: function() {
-			this.$parent.$parent.testSecured()
-		}
-	}
-})
 
 Vue.component('app-sidebar', {
 	template: "#app-sidebar",
@@ -106,11 +67,24 @@ Vue.component('app-sidebar', {
 		panels: {
 			type: Array,
 			required: true
+		},
+		header: {
+			type: Object,
+			required: true
+		},
+		footer: {
+			type: Array,
+			required: true
 		}
 	},
 	methods: {
 		panelViewSelected: function(panel_view) {
 			bus.$emit('panel-view-selected', panel_view)
+		},
+		performAction: function(action) {
+			if (action == 'logout') {
+				this.$parent.$parent.logout()
+			}
 		}
 	},
 	computed: {
@@ -384,9 +358,33 @@ const dashboard = Vue.component('dashboard-page', {
 	template: '#dashboard-page',
 	data: function() {
 		return {
-			panels : [
-				{ name: 'Visualisation', navs: [], id: 1},
-				{ name: 'Relationships',
+			sidebar_header: {
+				title: 'MIMINANI',
+				logo: 'fa fa-tree fa-lg'
+			},
+			sidebar_panels : [
+				{
+					name: 'User',
+					navs: [
+						{
+							title: 'Profile',
+							info: 'Your profile',
+							view: 'User',
+							id: 1
+						},
+						{
+							title: 'Settings',
+							info: 'Configure your profile settings',
+							view: 'User',
+							id: 2
+						}
+					],
+					default_view: 'User',
+					id: 1
+				},
+				{ name: 'Visualisation', navs: [], id: 2},
+				{
+					name: 'Relationships',
 					navs: [
 						{
 							title: 'List Relationships',
@@ -400,59 +398,34 @@ const dashboard = Vue.component('dashboard-page', {
 							id: 2
 						}
 					],
-					default_view: 'List_Relationships', id: 2
+					default_view: 'List_Relationships',
+					id: 3
 				}
 			],
-			title: 'MIMINANI',
-			nav_menus: [
+			sidebar_footer: [
 				{
+					type: 'footer_button',
+					caption:'Log Out',
+					action: 'logout',
+					class: 'btn btn-block btn-warning',
+					reference: 'Your Profile'
+				},
+				{
+					type: 'footer_link',
+					path_type: 'internal',
 					caption: 'Info',
 					icon: 'fa fa-info-circle fa-lg',
-					link: '#',
-					class: 'internal',
-					dropdown: [],
+					link: 'List_Relationships',
 					reference: 'Read more about the miminani project'
 				},
 				{
+					type: 'footer_link',
+					path_type: 'external',
 					caption: 'Github',
-					icon: 'fa fa-github fa-lg',
-					link: 'http://github.com/squarenomad/miminani',
-					class: 'external',
-					dropdown: [],
+					icon: 'fa fa-github-alt fa-lg',
+					link: 'https://github.com/squarenomad/miminani',
 					reference: 'View our open source code'
 				},
-				{
-					caption: 'Messages',
-					icon: 'fa fa-inbox fa-lg',
-					link: '#',
-					class: 'internal',
-					dropdown: [],
-					reference: 'Notifications and alerts'
-				},
-				{
-					caption: 'User',
-					icon: 'fa fa-user-circle fa-lg',
-					link: '#',
-					class: 'dropdown active',
-					dropdown: [
-						{
-							caption:'Profile',
-							link: '#',
-							class: 'disabled'
-						},
-						{
-							caption:'Settings',
-							link: '#',
-							class: 'disabled'
-						},
-						{
-							caption:'Sign Out',
-							link: '#',
-							class: 'logout'
-						}
-					],
-					reference: 'Your Profile'
-				}
 			]
 		}
 	}
@@ -760,6 +733,10 @@ const visualisation = Vue.component('visualisation-page', {
 	}
 })
 
+const user = Vue.component('user-page', {
+	template: '#user-page'
+})
+
 const routes = [
 	{ path: '/', component: welcome, beforeEnter: autoRoute},
 	{ path: '/dashboard', component: dashboard, beforeEnter: requireAuth,
@@ -772,8 +749,9 @@ const routes = [
 					{path: '*', redirect: 'list', beforeEnter: requireAuth}
 				]
 			},
-			{path: 'visualisation', name: 'Visualisation',component: visualisation, beforeEnter: requireAuth},
-			{path: '*', redirect: 'visualisation', beforeEnter: requireAuth}
+			{path: 'visualisation', name: 'Visualisation', component: visualisation, beforeEnter: requireAuth},
+			{path: 'user', name: 'User', component: user, beforeEnter: requireAuth},
+			{path: '*', redirect: 'User', beforeEnter: requireAuth}
 		]
 	}
 ]

@@ -34,10 +34,9 @@
 
   <template id="dashboard-page">
     <div>
-      <app-navbar :title="title" :nav_menus="nav_menus"></app-navbar>
-      <app-sidebar :panels="panels"></app-sidebar>
+      <app-sidebar :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer"></app-sidebar>
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
-        <app-header :panels="panels"></app-header>
+        <app-header :panels="sidebar_panels"></app-header>
       </div>
       <router-view></router-view>
     </div>
@@ -110,58 +109,14 @@
     </div>
   </template>
 
-  <template id="app-navbar">
-    <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" v-on:click="toggleMainMenu">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <router-link to="#" v-on:click.native="testSecured"><a class="navbar-brand">{{title}}</a></router-link>
-        </div>
-        <div class="collapse navbar-collapse" :class="{'in': open_main_dropdown}">
-          <ul class="nav navbar-nav navbar-right">
-            <li :class="item.class" v-for="item in nav_menus" :title="item.reference">
-              <a v-if="item.class.includes('external')" :href="item.link" class="anchor-button">
-                <i :class="item.icon"></i>
-                <small class="hidden-md hidden-sm hidden-lg nav-menu-caption">
-                  {{item.caption}}
-                </small>
-              </a>
-              <router-link v-else-if="item.class.includes('internal')" :to="item.link">
-                <i :class="item.icon"></i>
-                <small class="hidden-md hidden-sm hidden-lg nav-menu-caption">
-                  {{item.caption}}
-                </small>
-              </router-link>
-              <router-link v-else-if="item.class.includes('dropdown')" :to="item.link" v-on:click.native="toggleSubMenu(item.caption)">
-                <a class="dropdown-toggle"></a>
-                <i :class="item.icon"></i>
-                <small class="nav-menu-caption">{{item.caption}}</small>
-                <i class='fa fa-angle-down fa-lg'></i>
-              </router-link>
-              <div v-if="item.class.includes('dropdown')" :class="['dropdown', {'open': item.caption == sub_menu_dropdown_name}]">
-                <ul class="dropdown-menu">
-                  <li v-for="submenu in item.dropdown" :class="submenu.class">
-                    <router-link v-if="submenu.class.includes('logout')" :to="submenu.link" v-on:click.native="logout">{{submenu.caption}}</router-link>
-                    <router-link v-else :to="submenu.link">{{submenu.caption}}</router-link>
-                  </li>
-                </ul>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-  </template>
-
   <template id="app-sidebar">
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-3 col-md-2 hidden-xs sidebar">
+          <ul class="nav nav-sidebar-brand">
+            <i v-once :class="header.logo"></i>
+            <li v-once>{{header.title}}</li>
+          </ul>
           <ul v-for="panel in panels" class="nav nav-sidebar">
             <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active">
               <a>{{panel.name}}</a>
@@ -175,6 +130,19 @@
               </router-link>
             </ul>
           </ul>
+          <div class="sidebar-footer">
+            <button type="button" v-for="item in footer" v-if="item.type == 'footer_button'" :class="item.class" v-on:click="performAction(item.action)">{{item.caption}}</button>
+            <div class="row footer-links">
+              <div class="footer-link-nav" v-if="item.type != 'footer_button'" v-for="item in footer">
+                <router-link v-if="item.type == 'footer_link' && item.path_type == 'internal'" class="col-md-1 col-sm-1 col-xs-1" active-class="active" :to="{name: item.link}">
+                  <i :class="['footer-link-nav', item.icon]"></i>
+                </router-link>
+                <a v-else class="col-md-1 col-sm-1 col-xs-1" :href="item.link">
+                  <i :class="['footer-link-nav', item.icon]"></i>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -313,6 +281,11 @@
           </div>
         </div>
       </div>
+    </div>
+  </template>
+
+  <template id="user-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
     </div>
   </template>
 
