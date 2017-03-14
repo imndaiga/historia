@@ -64,6 +64,10 @@ function autoRoute(to, from, next) {
 Vue.component('app-sidebar', {
 	template: "#app-sidebar",
 	props: {
+		current_panel: {
+			type: String,
+			required: true
+		},
 		panels: {
 			type: Array,
 			required: true
@@ -82,6 +86,10 @@ Vue.component('app-sidebar', {
 Vue.component('app-mobile-menu', {
 	template: "#app-mobile-menu",
 	props: {
+		current_panel: {
+			type: String,
+			required: true
+		},
 		panels: {
 			type: Array,
 			required: true
@@ -96,8 +104,8 @@ Vue.component('app-mobile-menu', {
 		}
 	},
 	methods: {
-		toggleMobileMenu: function() {
-			bus.$emit('toggle-mobile-menu')
+		closeMobileMenu: function() {
+			bus.$emit('close-mobile-menu')
 		}
 	}
 })
@@ -105,19 +113,18 @@ Vue.component('app-mobile-menu', {
 Vue.component('app-header', {
 	template: '#app-header',
 	props: {
+		current_panel: {
+			type: String,
+			required: true
+		},
 		panels: {
 			type: Array,
 			required: true
 		}
 	},
 	methods: {
-		toggleMobileMenu: function() {
-			bus.$emit('toggle-mobile-menu')
-		}
-	},
-	computed: {
-		current_Panel: function() {
-			return this.$route.path.split('/')[2].charAt(0).toUpperCase() + this.$route.path.split('/')[2].slice(1)
+		openMobileMenu: function() {
+			bus.$emit('open-mobile-menu')
 		}
 	}
 })
@@ -125,6 +132,10 @@ Vue.component('app-header', {
 Vue.component('app-menu', {
 	template: '#app-menu',
 	props: {
+		current_panel: {
+			type: String,
+			required: true
+		},
 		panels: {
 			type: Array,
 			required: true
@@ -139,20 +150,12 @@ Vue.component('app-menu', {
 		}
 	},
 	methods: {
-		panelViewSelected: function(panel_view) {
-			bus.$emit('panel-view-selected', panel_view)
-		},
 		performAction: function(action) {
 			if (action == 'logout') {
 				this.$parent.$parent.$parent.logout()
 			}
 		}
-	},
-	computed: {
-		current_Panel: function() {
-			return this.$route.path.split('/')[2].charAt(0).toUpperCase() + this.$route.path.split('/')[2].slice(1)
-		}
-	},
+	}
 })
 
 Vue.component('app-panel', {
@@ -400,7 +403,11 @@ const dashboard = Vue.component('dashboard-page', {
 					default_view: 'User',
 					id: 1
 				},
-				{ name: 'Visualisation', navs: [], id: 2},
+				{
+					name: 'Visualisation',
+					navs: [],
+					id: 2
+				},
 				{
 					name: 'Relationships',
 					navs: [
@@ -448,9 +455,17 @@ const dashboard = Vue.component('dashboard-page', {
 		}
 	},
 	created: function() {
-		bus.$on('toggle-mobile-menu', function() {
-			this.open_mobile_menu = !this.open_mobile_menu
+		bus.$on('open-mobile-menu', function() {
+			this.open_mobile_menu = true
 		}.bind(this))
+		bus.$on('close-mobile-menu', function() {
+			this.open_mobile_menu = false
+		}.bind(this))
+	},
+	computed: {
+		current_Panel: function() {
+			return this.$route.path.split('/')[2].charAt(0).toUpperCase() + this.$route.path.split('/')[2].slice(1)
+		}
 	}
 })
 
@@ -774,7 +789,7 @@ const routes = [
 			},
 			{path: 'visualisation', name: 'Visualisation', component: visualisation, beforeEnter: requireAuth},
 			{path: 'user', name: 'User', component: user, beforeEnter: requireAuth},
-			{path: '*', redirect: 'User', beforeEnter: requireAuth}
+			{path: '*', redirect: 'user', beforeEnter: requireAuth}
 		]
 	}
 ]
@@ -785,6 +800,7 @@ const router = new VueRouter({
 
 router.beforeEach(function(to, from, next) {
 	HTTP.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
+	bus.$emit('close-mobile-menu')
 	next()
 })
 

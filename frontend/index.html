@@ -34,10 +34,10 @@
 
   <template id="dashboard-page">
     <div>
-      <app-sidebar :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer"></app-sidebar>
-      <app-mobile-menu :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer" v-if="open_mobile_menu"></app-mobile-menu>
+      <app-sidebar class="hidden-xs" :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer" :current_panel="current_Panel"></app-sidebar>
+      <app-mobile-menu :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer" v-if="open_mobile_menu" :current_panel="current_Panel"></app-mobile-menu>
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
-        <app-header class="hidden-lg hidden-md hidden-sm" :panels="sidebar_panels"></app-header>
+        <app-header class="hidden-lg hidden-md hidden-sm" :panels="sidebar_panels" :current_panel="current_Panel"></app-header>
       </div>
       <router-view></router-view>
     </div>
@@ -113,8 +113,8 @@
   <template id="app-sidebar">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-3 col-md-2 hidden-xs sidebar">
-          <app-menu :panels="panels" :header="header" :footer="footer"></app-menu>
+        <div class="col-sm-3 col-md-2 sidebar">
+          <app-menu :panels="panels" :header="header" :footer="footer" :current_panel="current_panel"></app-menu>
         </div>
       </div>
     </div>
@@ -124,8 +124,8 @@
     <div class="container-fluid">
       <div class="row">
         <div class="hidden-lg hidden-md hidden-sm mobile-menu">
-          <a href="#" class="close-btn" v-on:click="toggleMobileMenu">&times;</a>
-          <app-menu :panels="panels" :header="header" :footer="footer"></app-menu>
+          <a href="#" class="close-btn" v-on:click="closeMobileMenu">&times;</a>
+          <app-menu :panels="panels" :header="header" :footer="footer" :current_panel="current_panel"></app-menu>
         </div>
       </div>
     </div>
@@ -135,10 +135,10 @@
     <div>
       <div class="row center-block panel-header">
         <div class="col-xs-12">
-          <button class="btn btn-default btn-lg mobile-menu-button" v-on:click="toggleMobileMenu">
+          <button class="btn btn-default btn-lg mobile-menu-button" v-on:click="openMobileMenu">
             <span class="fa fa-bars fa-lg"></span>
           </button>
-          <span class="app-header-title">{{current_Panel}}</span>
+          <span class="app-header-title">{{current_panel}}</span>
         </div>
       </div>
     </div>
@@ -248,13 +248,13 @@
         <li v-once>{{header.title}}</li>
       </ul>
       <ul v-for="panel in panels" class="nav nav-app-menu">
-        <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active">
+        <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active" :key="panel.id">
           <a>{{panel.name}}</a>
         </router-link>
-        <router-link  v-else-if="panel.navs.length > 0" :to="{name: panel.default_view}" tag="li" active-class="active">
+        <router-link  v-else-if="panel.navs.length > 0" :to="{name: panel.default_view}" tag="li" active-class="active" :key="panel.id">
           <a>{{panel.name}}</a>
         </router-link>
-        <ul v-if="panel.name == current_Panel" class="open nav nav-app-submenu">
+        <ul v-if="panel.name == current_panel" class="open nav nav-app-submenu">
           <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.id">
             <a>{{menu.title}}</a>
           </router-link>
