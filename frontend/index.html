@@ -35,8 +35,9 @@
   <template id="dashboard-page">
     <div>
       <app-sidebar :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer"></app-sidebar>
+      <app-mobile-menu :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer" v-if="open_mobile_menu"></app-mobile-menu>
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
-        <app-header :panels="sidebar_panels"></app-header>
+        <app-header class="hidden-lg hidden-md hidden-sm" :panels="sidebar_panels"></app-header>
       </div>
       <router-view></router-view>
     </div>
@@ -113,36 +114,18 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-3 col-md-2 hidden-xs sidebar">
-          <ul class="nav nav-sidebar-brand">
-            <i v-once :class="header.logo"></i>
-            <li v-once>{{header.title}}</li>
-          </ul>
-          <ul v-for="panel in panels" class="nav nav-sidebar">
-            <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active">
-              <a>{{panel.name}}</a>
-            </router-link>
-            <router-link  v-else-if="panel.navs.length > 0" :to="{name: panel.default_view}" tag="li" active-class="active">
-              <a>{{panel.name}}</a>
-            </router-link>
-            <ul v-if="panel.name == current_Panel" class="open nav nav-subnav">
-              <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.id">
-                <a>{{menu.title}}</a>
-              </router-link>
-            </ul>
-          </ul>
-          <div class="sidebar-footer">
-            <button type="button" v-for="item in footer" v-if="item.type == 'footer_button'" :class="item.class" v-on:click="performAction(item.action)">{{item.caption}}</button>
-            <div class="row footer-links">
-              <div class="footer-link-nav" v-if="item.type != 'footer_button'" v-for="item in footer">
-                <router-link v-if="item.type == 'footer_link' && item.path_type == 'internal'" class="col-md-1 col-sm-1 col-xs-1" active-class="active" :to="{name: item.link}">
-                  <i :class="['footer-link-nav', item.icon]"></i>
-                </router-link>
-                <a v-else class="col-md-1 col-sm-1 col-xs-1" :href="item.link">
-                  <i :class="['footer-link-nav', item.icon]"></i>
-                </a>
-              </div>
-            </div>
-          </div>
+          <app-menu :panels="panels" :header="header" :footer="footer"></app-menu>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="app-mobile-menu">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="hidden-lg hidden-md hidden-sm mobile-menu">
+          <a href="#" class="close-btn" v-on:click="toggleMobileMenu">&times;</a>
+          <app-menu :panels="panels" :header="header" :footer="footer"></app-menu>
         </div>
       </div>
     </div>
@@ -150,39 +133,13 @@
 
   <template id="app-header">
     <div>
-      <div class="row center-block hidden-xs panel-header">
-        <h1>{{current_Panel}}</h1>
-      </div>
-      <div class="dropdown" :class="{open : open_panel_menu}">
-        <button class="btn btn-default btn-lg btn-group-justified hidden-sm hidden-md hidden-lg button-header" v-on:click="togglePanelMenu">
-          <h3>{{current_Panel}}</h3>
-          <i class="fa fa-angle-down"></i>
-        </button>
-        <ul class="dropdown-menu hidden-sm hidden-md hidden-lg panel-dropdown">
-          <ul v-for="panel in panels" class="nav">
-            <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active" v-on:click.native="togglePanelMenu">
-              <a>{{panel.name}}</a>
-            </router-link>
-            <router-link  v-else-if="panel.navs.length > 0" :to="{name: panel.default_view}" tag="li" active-class="active">
-              <a>{{panel.name}}</a>
-            </router-link>
-            <ul v-if="panel.name == current_Panel" class="open nav nav-sub-dropdown">
-              <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" v-on:click.native="togglePanelMenu" :key="menu.id">
-                <a>{{menu.title}}</a>
-              </router-link>
-            </ul>
-          </ul>
-        </ul>
-      </div>
-    </div>
-  </template>
-
-  <template id="app-subnav">
-    <div class="btn-group btn-group-justified panel-menu" v-if="subnav_menus.length > 0">
-      <div :class="panel_menu.bs_grid_length" v-for="panel_menu in subnav_menus">
-        <button :class="[panel_menu.bs_button, {'active': panel_menu.title == current_panel_view}]" :title="panel_menu.info" v-on:click="panelViewSelected(panel_menu.title)">
-          <i :class="panel_menu.fa_icon"></i>
-        </button>
+      <div class="row center-block panel-header">
+        <div class="col-xs-12">
+          <button class="btn btn-default btn-lg mobile-menu-button" v-on:click="toggleMobileMenu">
+            <span class="fa fa-bars fa-lg"></span>
+          </button>
+          <span class="app-header-title">{{current_Panel}}</span>
+        </div>
       </div>
     </div>
   </template>
@@ -278,6 +235,41 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
             <button type="submit" class="btn btn-primary" v-on:click="submitForm">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="app-menu">
+    <div>
+      <ul class="nav nav-app-brand">
+        <i v-once :class="header.logo"></i>
+        <li v-once>{{header.title}}</li>
+      </ul>
+      <ul v-for="panel in panels" class="nav nav-app-menu">
+        <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active">
+          <a>{{panel.name}}</a>
+        </router-link>
+        <router-link  v-else-if="panel.navs.length > 0" :to="{name: panel.default_view}" tag="li" active-class="active">
+          <a>{{panel.name}}</a>
+        </router-link>
+        <ul v-if="panel.name == current_Panel" class="open nav nav-app-submenu">
+          <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.id">
+            <a>{{menu.title}}</a>
+          </router-link>
+        </ul>
+      </ul>
+      <div class="nav-app-footer">
+        <button type="button" v-for="item in footer" v-if="item.type == 'footer_button'" :class="item.class" v-on:click="performAction(item.action)">{{item.caption}}</button>
+        <div class="row footer-links">
+          <div v-if="item.type != 'footer_button'" v-for="item in footer">
+            <router-link v-if="item.type == 'footer_link' && item.path_type == 'internal'" class="col-md-1 col-sm-1 col-xs-1" active-class="active" :to="{name: item.link}">
+              <i :class="['footer-nav', item.icon]"></i>
+            </router-link>
+            <a v-else class="col-md-1 col-sm-1 col-xs-1" :href="item.link">
+              <i :class="['footer-nav', item.icon]"></i>
+            </a>
           </div>
         </div>
       </div>

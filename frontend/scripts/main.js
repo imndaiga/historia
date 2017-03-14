@@ -76,20 +76,28 @@ Vue.component('app-sidebar', {
 			type: Array,
 			required: true
 		}
-	},
-	methods: {
-		panelViewSelected: function(panel_view) {
-			bus.$emit('panel-view-selected', panel_view)
+	}
+})
+
+Vue.component('app-mobile-menu', {
+	template: "#app-mobile-menu",
+	props: {
+		panels: {
+			type: Array,
+			required: true
 		},
-		performAction: function(action) {
-			if (action == 'logout') {
-				this.$parent.$parent.logout()
-			}
+		header: {
+			type: Object,
+			required: true
+		},
+		footer: {
+			type: Array,
+			required: true
 		}
 	},
-	computed: {
-		current_Panel: function() {
-			return this.$route.path.split('/')[2].charAt(0).toUpperCase() + this.$route.path.split('/')[2].slice(1)
+	methods: {
+		toggleMobileMenu: function() {
+			bus.$emit('toggle-mobile-menu')
 		}
 	}
 })
@@ -102,14 +110,9 @@ Vue.component('app-header', {
 			required: true
 		}
 	},
-	data: function() {
-		return {
-			open_panel_menu: false
-		}
-	},
 	methods: {
-		togglePanelMenu: function() {
-			this.open_panel_menu = !this.open_panel_menu
+		toggleMobileMenu: function() {
+			bus.$emit('toggle-mobile-menu')
 		}
 	},
 	computed: {
@@ -119,23 +122,37 @@ Vue.component('app-header', {
 	}
 })
 
-Vue.component('app-subnav', {
-	template: '#app-subnav',
+Vue.component('app-menu', {
+	template: '#app-menu',
 	props: {
-		subnav_menus: {
+		panels: {
 			type: Array,
 			required: true
 		},
-		current_panel_view: {
-			type: String,
+		header: {
+			type: Object,
+			required: true
+		},
+		footer: {
+			type: Array,
 			required: true
 		}
 	},
 	methods: {
 		panelViewSelected: function(panel_view) {
 			bus.$emit('panel-view-selected', panel_view)
+		},
+		performAction: function(action) {
+			if (action == 'logout') {
+				this.$parent.$parent.$parent.logout()
+			}
 		}
-	}
+	},
+	computed: {
+		current_Panel: function() {
+			return this.$route.path.split('/')[2].charAt(0).toUpperCase() + this.$route.path.split('/')[2].slice(1)
+		}
+	},
 })
 
 Vue.component('app-panel', {
@@ -358,6 +375,7 @@ const dashboard = Vue.component('dashboard-page', {
 	template: '#dashboard-page',
 	data: function() {
 		return {
+			open_mobile_menu: false,
 			sidebar_header: {
 				title: 'MIMINANI',
 				logo: 'fa fa-tree fa-lg'
@@ -407,7 +425,7 @@ const dashboard = Vue.component('dashboard-page', {
 					type: 'footer_button',
 					caption:'Log Out',
 					action: 'logout',
-					class: 'btn btn-block btn-warning',
+					class: 'btn btn-block btn-lg btn-warning',
 					reference: 'Your Profile'
 				},
 				{
@@ -428,6 +446,11 @@ const dashboard = Vue.component('dashboard-page', {
 				},
 			]
 		}
+	},
+	created: function() {
+		bus.$on('toggle-mobile-menu', function() {
+			this.open_mobile_menu = !this.open_mobile_menu
+		}.bind(this))
 	}
 })
 

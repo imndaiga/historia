@@ -71,14 +71,16 @@ th {
   padding-top: 20px
 }
 
-/* Sidebar navigation */
-.nav-sidebar {
+/*
+* App Menu
+*/
+.nav-app-menu {
   margin-right: -21px; /* 20px padding + 1px border */
   margin-bottom: 0px;
   margin-left: -20px;
   border-bottom: 2px solid #eee
 }
-.nav-sidebar > li > a {
+.nav-app-menu > li > a {
   padding-right: 20px;
   padding-left: 20px;
   font-size: 14px;
@@ -86,38 +88,32 @@ th {
   text-transform: uppercase
 
 }
-.nav-sidebar > .active > a,
-.nav-sidebar > .active > a:hover,
-.nav-sidebar > .active > a:focus {
+.nav-app-menu > .active > a,
+.nav-app-menu > .active > a:hover,
+.nav-app-menu > .active > a:focus {
   color: #fff;
   background-color: #428bca
 }
-.nav-subnav {
-  background-color: rgba(214, 214, 214, 1)
+.nav-app-submenu {
+  background-color: #b5afaf
 }
-.nav-subnav > li > a {
+.nav-app-submenu > li > a {
   padding-left: 40px;
   font-size: 13px;
   line-height: 30px
 }
-.nav-subnav > li > a:hover {
+.nav-app-submenu > li > a:hover {
   background-color: #ddd
 }
-.nav-subnav > .active > a,
-.nav-subnav > .active > a:hover,
-.nav-subnav > .active > a:focus {
+.nav-app-submenu > .active > a,
+.nav-app-submenu > .active > a:hover,
+.nav-app-submenu > .active > a:focus {
   color: #fff;
   background-color: #91acc3
 }
-.nav-sub-dropdown {
-  background-color: rgba(214, 214, 214, 1)
-}
-.nav-sub-dropdown > li > a {
-  padding-left: 20px
-}
 
-.nav-sidebar-brand {
-  margin-top: 40px;
+.nav-app-brand {
+  margin-top: 10px;
   margin-bottom: 30px;
   font-size: 150%;
   text-align: center;
@@ -126,7 +122,7 @@ th {
   border-bottom: 1px solid #eee
 }
 
-.sidebar-footer {
+.nav-app-footer {
   position: absolute;
   bottom: 0px;
   width: 100%;
@@ -141,8 +137,42 @@ th {
   margin-left: calc(50% - 40px)
 }
 
-.footer-link-nav {
+.footer-nav {
   color: #525252
+}
+
+
+/*
+* Mobile menu
+*/
+
+.mobile-menu {
+  position: fixed;
+  width: 100vw;
+  top: 0;
+  left: 0;
+  height: 100%;
+  left: 0;
+  z-index: 1000;
+  display: block;
+  padding: 20px;
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  background-color: rgba(214, 214, 214, 0.9);
+  border-right: 1px solid #eee;
+  padding-top: 20px
+}
+
+.mobile-menu .close-btn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px
+}
+
+.mobile-menu a {
+  text-decoration: none
 }
 
 /*
@@ -153,14 +183,6 @@ th {
   margin-bottom: 5%
 }
 
-.button-header {
-  margin-top: 20px;
-  margin-bottom: 20px
-}
-.panel-dropdown {
-  margin-left: calc(50% - 80px);
-  margin-right: calc(50% - 80px)
-}
 .panel-header {
   margin-bottom: 10px;
   padding-bottom: 10px;
@@ -186,16 +208,14 @@ th {
   border-radius: 3px 3px 0px 0px
 }
 
-.btn-margin {
-  margin-top: 40px
+.app-header-title {
+  font-size: 30px;
+  margin-left: 15px
 }
 
-/*
-* Navbar specific
-*/
-.nav-menu-caption {
-  padding-left: 10px;
-  margin-right: 5px
+.mobile-menu-button {
+  margin-top: -10px;
+  margin-left: -50px
 }
 
 /*
@@ -224,13 +244,6 @@ th {
 
 .message-height {
   height: 324px
-}
-
-/*
-* Bootstrap panel CSS fix to override global 50px default
-*/
-.panel-group .panel.panel-default {
-  padding-top: 0px
 }
 
 /*
