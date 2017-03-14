@@ -259,8 +259,8 @@ th {
 
 #sigma-parent {
   position: relative;
-  height: 100vh;
-  width: 100vw
+  height: calc(100vh - 40px);
+  width: 100vw;
 }
 
 #sigma-container {
@@ -320,25 +320,22 @@ th {
 /* Large desktops and laptops */
 @media (min-width: 1200px) {
   #sigma-parent {
-    height: 450px;
-    width: 1100px;
+    width: calc(100vw - 250px)
   }
 }
 
 /* Landscape tablets and medium desktops */
 @media (min-width: 992px) and (max-width: 1199px) {
-    #sigma-parent {
-      height: 470px;
-      width: 900px;
-    }
+  #sigma-parent {
+    width: calc(100vw - 250px)
+  }
 }
 
 /* Portrait tablets and small desktops */
 @media (min-width: 768px) and (max-width: 991px) {
-    #sigma-parent {
-      height: 470px;
-      width: 650px;
-    }
+  #sigma-parent {
+    width: calc(100vw - 250px)
+  }
 }
 
 /* Landscape phones and portrait tablets */
