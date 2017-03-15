@@ -154,6 +154,7 @@
               <input type="text" :name="field.field_name" :value="field.placeholder" readonly>
             </div>
             <label v-else>{{ field.label }}</label>
+            <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.required && Object.keys($v.form_object[field.field_name].value).indexOf('required') != -1"> *</span>
             <input v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" type="text" class="form-control" :name="field.field_name" v-model.trim="form_object[field.field_name].value" :placeholder="field.placeholder" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id">
             <div v-else-if="field.type == 'pikaday-input'" class="input-group">
               <input type="text" class="form-control" :name="field.field_name" :ref="field.field_name"  v-model.trim="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" readonly :key="field.id">
@@ -187,6 +188,7 @@
       <ul class="nav panel-heading">
         <li :class="['panel-title', {active: bs_panel.open}]">
           <a v-on:click.stop="bs_panel_selected(bs_panel)">
+            <i :class="[bs_panel.icon, 'panel-header-icon']"></i>
             {{bs_panel.label}}
           </a>
         </li>
@@ -249,10 +251,16 @@
       </ul>
       <ul v-for="panel in panels" class="nav nav-app-menu">
         <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active" :key="panel.id">
-          <a>{{panel.name}}</a>
+          <a>
+            <i :class="[panel.icon, 'menu-icon']"></i>
+            {{panel.name}}
+          </a>
         </router-link>
         <router-link  v-else-if="panel.navs.length > 0" :to="{name: panel.default_view}" tag="li" active-class="active" :key="panel.id">
-          <a>{{panel.name}}</a>
+          <a>
+            <i :class="[panel.icon, 'menu-icon']"></i>
+            {{panel.name}}
+          </a>
         </router-link>
         <ul v-if="panel.name == current_panel" class="open nav nav-app-submenu">
           <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.id">

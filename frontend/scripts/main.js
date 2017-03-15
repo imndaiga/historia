@@ -401,11 +401,13 @@ const dashboard = Vue.component('dashboard-page', {
 						}
 					],
 					default_view: 'User',
+					icon: 'fa fa-user-circle-o fa-lg',
 					id: 1
 				},
 				{
 					name: 'Visualisation',
 					navs: [],
+					icon: 'fa fa-eye fa-lg',
 					id: 2
 				},
 				{
@@ -424,6 +426,7 @@ const dashboard = Vue.component('dashboard-page', {
 						}
 					],
 					default_view: 'List_Relationships',
+					icon: 'fa fa-globe fa-lg',
 					id: 3
 				}
 			],
@@ -565,8 +568,8 @@ const add_relationships = Vue.component('add-relationships-page', {
 	data: function() {
 		return {
 			bs_panels: [
-				{name: 'add_relative_panel', open: false, label: 'Add Relative'},
-				{name: 'add_relationship_panel', open: false, label: 'Add Relationship'}],
+				{name: 'add_relative_panel', open: false, label: 'Add Relative', icon: 'fa fa-user-plus fa-lg'},
+				{name: 'add_relationship_panel', open: false, label: 'Add Relationship', icon: 'fa fa-link fa-lg'}],
 			form_data: [
 				{type: 'alpha-input', placeholder: 'Enter First Name', label: 'First Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'first_name', id: 1},
 				{type: 'alpha-input', placeholder: 'Enter Ethnic Name', label: 'Ethnic Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'ethnic_name', id: 2},
