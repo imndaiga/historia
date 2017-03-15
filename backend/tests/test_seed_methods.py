@@ -12,15 +12,15 @@ class SeedTestCase(unittest.TestCase):
         db.create_all()
         seed.auto = False
         graph.clear()
-        seed.run(family_units=1, family_size=4)
+        seed.run(family_units=1, family_size=4, layers=0, verbose=False)
         self.p1 = db.session.query(Person).filter_by(
-            baptism_name='Mandy').first()
+            baptism_name='Tina').first()
         self.p2 = db.session.query(Person).filter_by(
-            baptism_name='Laura').first()
+            baptism_name='Patricia').first()
         self.p3 = db.session.query(Person).filter_by(
-            baptism_name='Dawn').first()
+            baptism_name='Paige').first()
         self.p4 = db.session.query(Person).filter_by(
-            baptism_name='Ashley').first()
+            baptism_name='Kerry').first()
 
     def tearDown(self):
         db.session.remove()
@@ -55,7 +55,7 @@ class SeedTestCase(unittest.TestCase):
         db.drop_all()
         db.create_all()
         seed.auto = True
-        seed.run(family_units=1, family_size=4)
+        seed.run(family_units=1, family_size=4, layers=0, verbose=False)
         G = graph.current
         self.assertTrue(G.order() == 4)
         self.assertTrue(G.size() == 12)

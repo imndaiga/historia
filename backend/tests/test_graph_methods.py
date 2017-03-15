@@ -13,15 +13,15 @@ class GraphTestCase(unittest.TestCase):
         self.app_context.push()
         db.create_all()
         self.delete_gpickle_file()
-        seed.run(family_units=1, family_size=4)
+        seed.run(family_units=1, family_size=4, layers=0, verbose=False)
         self.p1 = db.session.query(Person).filter_by(
-            baptism_name='Mandy').first()
+            baptism_name='Tina').first()
         self.p2 = db.session.query(Person).filter_by(
-            baptism_name='Laura').first()
+            baptism_name='Patricia').first()
         self.p3 = db.session.query(Person).filter_by(
-            baptism_name='Dawn').first()
+            baptism_name='Paige').first()
         self.p4 = db.session.query(Person).filter_by(
-            baptism_name='Ashley').first()
+            baptism_name='Kerry').first()
 
     def tearDown(self):
         db.session.remove()
@@ -95,30 +95,42 @@ class GraphTestCase(unittest.TestCase):
         self.assertTrue(n1_subgraph.number_of_nodes() == 4)
 
     def test_subgraph_basic_relations(self):
-        n1_n2_relation = graph._relations_list(source=self.p1, target=self.p2)
-        n1_n3_relation = graph._relations_list(source=self.p1, target=self.p3)
-        n1_n4_relation = graph._relations_list(source=self.p1, target=self.p4)
-        n2_n1_relation = graph._relations_list(source=self.p2, target=self.p1)
-        n2_n3_relation = graph._relations_list(source=self.p2, target=self.p3)
-        n2_n4_relation = graph._relations_list(source=self.p2, target=self.p4)
-        n3_n1_relation = graph._relations_list(source=self.p3, target=self.p1)
-        n3_n2_relation = graph._relations_list(source=self.p3, target=self.p2)
-        n3_n4_relation = graph._relations_list(source=self.p3, target=self.p4)
-        n4_n1_relation = graph._relations_list(source=self.p4, target=self.p1)
-        n4_n2_relation = graph._relations_list(source=self.p4, target=self.p2)
-        n4_n3_relation = graph._relations_list(source=self.p4, target=self.p3)
-        self.assertTrue(n1_n2_relation == ['partner'])
-        self.assertTrue(n1_n3_relation == ['parent'])
-        self.assertTrue(n1_n4_relation == ['parent'])
-        self.assertTrue(n2_n1_relation == ['partner'])
-        self.assertTrue(n2_n3_relation == ['parent'])
-        self.assertTrue(n2_n4_relation == ['parent'])
-        self.assertTrue(n3_n1_relation == ['child'])
-        self.assertTrue(n3_n2_relation == ['child'])
-        self.assertTrue(n3_n4_relation == ['sibling'])
-        self.assertTrue(n4_n1_relation == ['child'])
-        self.assertTrue(n4_n2_relation == ['child'])
-        self.assertTrue(n4_n3_relation == ['sibling'])
+        n1_n2_relation = graph.get_relation_tree(
+            source=self.p1, target=self.p2)
+        n1_n3_relation = graph.get_relation_tree(
+            source=self.p1, target=self.p3)
+        n1_n4_relation = graph.get_relation_tree(
+            source=self.p1, target=self.p4)
+        n2_n1_relation = graph.get_relation_tree(
+            source=self.p2, target=self.p1)
+        n2_n3_relation = graph.get_relation_tree(
+            source=self.p2, target=self.p3)
+        n2_n4_relation = graph.get_relation_tree(
+            source=self.p2, target=self.p4)
+        n3_n1_relation = graph.get_relation_tree(
+            source=self.p3, target=self.p1)
+        n3_n2_relation = graph.get_relation_tree(
+            source=self.p3, target=self.p2)
+        n3_n4_relation = graph.get_relation_tree(
+            source=self.p3, target=self.p4)
+        n4_n1_relation = graph.get_relation_tree(
+            source=self.p4, target=self.p1)
+        n4_n2_relation = graph.get_relation_tree(
+            source=self.p4, target=self.p2)
+        n4_n3_relation = graph.get_relation_tree(
+            source=self.p4, target=self.p3)
+        self.assertTrue(n1_n2_relation == [[2, 'partner']])
+        self.assertTrue(n1_n3_relation == [[3, 'parent']])
+        self.assertTrue(n1_n4_relation == [[4, 'parent']])
+        self.assertTrue(n2_n1_relation == [[1, 'partner']])
+        self.assertTrue(n2_n3_relation == [[3, 'parent']])
+        self.assertTrue(n2_n4_relation == [[4, 'parent']])
+        self.assertTrue(n3_n1_relation == [[1, 'child']])
+        self.assertTrue(n3_n2_relation == [[2, 'child']])
+        self.assertTrue(n3_n4_relation == [[4, 'sibling']])
+        self.assertTrue(n4_n1_relation == [[1, 'child']])
+        self.assertTrue(n4_n2_relation == [[2, 'child']])
+        self.assertTrue(n4_n3_relation == [[3, 'sibling']])
 
     def test_subgraph_null_relations(self):
         relative = fake.family_member(sex='F')
@@ -133,14 +145,14 @@ class GraphTestCase(unittest.TestCase):
         db.session.add(a1)
         db.session.commit()
         with self.assertRaises(KeyError):
-            graph._relations_list(source=a1, target=self.p1)
-            graph._relations_list(source=a1, target=self.p2)
-            graph._relations_list(source=a1, target=self.p3)
-            graph._relations_list(source=a1, target=self.p4)
-            graph._relations_list(source=self.p1, target=a1)
-            graph._relations_list(source=self.p2, target=a1)
-            graph._relations_list(source=self.p3, target=a1)
-            graph._relations_list(source=self.p4, target=a1)
+            graph.get_relation_tree(source=a1, target=self.p1)
+            graph.get_relation_tree(source=a1, target=self.p2)
+            graph.get_relation_tree(source=a1, target=self.p3)
+            graph.get_relation_tree(source=a1, target=self.p4)
+            graph.get_relation_tree(source=self.p1, target=a1)
+            graph.get_relation_tree(source=self.p2, target=a1)
+            graph.get_relation_tree(source=self.p3, target=a1)
+            graph.get_relation_tree(source=self.p4, target=a1)
 
     def test_subgraph_edge_count_parent(self):
         n1_subgraph = graph.get_subgraph(source=self.p1)
