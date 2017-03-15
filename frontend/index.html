@@ -18,6 +18,7 @@
   <script src="node_modules/sweetalert/dist/sweetalert.min.js"></script>
   <script src="node_modules/sigma/build/sigma.min.js"></script>
   <script src="node_modules/sigma/plugins/sigma.plugins.dragNodes/sigma.plugins.dragNodes.js"></script>
+  <script src="node_modules/vuejs-paginator/dist/vuejs-paginator.js"></script>
   <link rel="stylesheet" href="node_modules/pikaday/css/pikaday.css" />
   <link rel="stylesheet" href="node_modules/bootstrap-css-only/css/bootstrap.css" />
   <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css" />
@@ -61,7 +62,11 @@
 
   <template id="list-relationships-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <app-table :list="table_Data" :table_headers="table_Headers"></app-table>
+      <app-table class="app-table" :list="table_Data" :table_headers="table_Headers">
+      </app-table>
+      <div class="row">
+        <v-paginator class="center-block" style="width: 250px;" v-show="table_Data.length > 0" :resource_url="resource_url" v-on:update="updateTable"></v-paginator>
+      </div>
       <modal-window v-if="open_modal_state">
         <app-form :form="modal_Relativeform" submit_type="mod"></app-form>
       </modal-window>

@@ -325,6 +325,15 @@ th {
   background-color: #f5f5f5
 }
 
+
+/*
+* Table
+*/
+
+.app-table {
+  margin-top: 20px
+}
+
 /*
 * Media queries
 */
@@ -352,10 +361,8 @@ th {
 
 /* Landscape phones and portrait tablets */
 @media (max-width: 767px) {
-
 }
 
 /* Portrait phones and smaller */
-@media (max-width: 480px) {
-
+@media (max-width: 480px) {  
 }

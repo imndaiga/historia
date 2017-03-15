@@ -8,6 +8,7 @@ from sqlalchemy import or_
 from networkx import NetworkXError
 from networkx.readwrite import json_graph
 import random
+import math
 
 
 class pingAPI(Resource):
@@ -118,50 +119,78 @@ class relationshipsAPI(Resource):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('data', type=dict, location='json')
         self.reqparse.add_argument('user_id', type=int, location='json')
+        self.reqparse.add_argument('page', type=str, location='args')
+        self.relationships_per_page = 10
         super(relationshipsAPI, self).__init__()
 
-    def formatResponse(self, nodes, user_id):
+    def formatResponse(self, page, nodes):
         relatives = []
         for node in nodes:
-            if node != user_id:
-                relation = Person.query.get(node)
-                relatives.append([
-                    {
-                        'type': 'hidden-input', 'value': relation.id or '',
-                        'label': 'ID', 'field_name': 'id'
-                    },
-                    {
-                        'type': 'alpha-input',
-                        'value': relation.baptism_name or '',
-                        'label': 'First Name',
-                        'validators': ['required', 'alpha'],
-                        'field_name': 'first_name'
-                    },
-                    {
-                        'type': 'alpha-input',
-                        'value': relation.ethnic_name or '',
-                        'label': 'Ethnic Name',
-                        'validators': ['required', 'alpha'],
-                        'field_name': 'ethnic_name'},
-                    {
-                        'type': 'alpha-input', 'value': relation.surname or '',
-                        'label': 'Last Name',
-                        'validators': ['required', 'alpha'],
-                        'field_name': 'last_name'
-                    },
-                    {
-                        'type': 'email-input', 'value': relation.email or '',
-                        'label': 'Email', 'validators': ['required', 'email'],
-                        'field_name': 'email'
-                    }
-                ])
+            relation = Person.query.get(node)
+            relatives.append([
+                {
+                    'type': 'hidden-input', 'value': relation.id or '',
+                    'label': 'ID', 'field_name': 'id'
+                },
+                {
+                    'type': 'alpha-input',
+                    'value': relation.baptism_name or '',
+                    'label': 'First Name',
+                    'validators': ['required', 'alpha'],
+                    'field_name': 'first_name'
+                },
+                {
+                    'type': 'alpha-input',
+                    'value': relation.ethnic_name or '',
+                    'label': 'Ethnic Name',
+                    'validators': ['required', 'alpha'],
+                    'field_name': 'ethnic_name'},
+                {
+                    'type': 'alpha-input', 'value':
+                        relation.surname or '',
+                    'label': 'Last Name',
+                    'validators': ['required', 'alpha'],
+                    'field_name': 'last_name'
+                },
+                {
+                    'type': 'email-input', 'value':
+                        relation.email or '',
+                    'label': 'Email', 'validators':
+                        ['required', 'email'],
+                    'field_name': 'email'
+                }
+            ])
         return relatives
 
     def get(self):
         user_email = _app_ctx_stack.top.current_user['email']
+        args = self.reqparse.parse_args()
+        page = 1 if not args['page'] else int(args['page'])
         user = Person.query.filter_by(email=user_email).first()
         node_list = graph.get_subgraph(user).nodes()
-        response = self.formatResponse(node_list, user.id)
+        for node in node_list:
+            if node == user.id:
+                del node_list[node]
+        max_page = math.ceil(len(node_list) / self.relationships_per_page)
+        max_rows = page * self.relationships_per_page
+        max_index = max_rows \
+            if page < max_page else None
+        min_index = max_rows - self.relationships_per_page \
+            if page < max_page or max_rows == len(node_list) \
+            else len(node_list) - self.relationships_per_page
+        node_list = node_list[min_index: max_index]
+        response = {
+            'current_page': page,
+            'last_page': max_page,
+            'prev_page_url': 'null' if not page
+                             else 'api/relationships?page=' +
+                                  str(int(page) - 1),
+            'next_page_url': 'null' if page == max_page
+                             else 'api/relationships?page=' +
+                                  str(int(page) + 1),
+            'data': []
+        }
+        response['data'] = self.formatResponse(page, node_list)
         return response
 
     def put(self):
@@ -185,7 +214,7 @@ class relationshipsAPI(Resource):
                 db.session.commit()
                 graph.delete_node(delete_person_id)
                 node_list = graph.get_subgraph(user).nodes()
-                response = self.formatResponse(node_list, user.id)
+                response = self.formatResponse(node_list)
                 print('{} deleted from graph'.format(delete_person_id))
                 return response
             except NetworkXError:
@@ -195,7 +224,23 @@ class relationshipsAPI(Resource):
         return {}
 
 
+class personAPI(Resource):
+    decorators = [requires_auth]
+
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('user_id', type=int, location='json')
+        super(personAPI, self).__init__()
+
+    def get(self):
+        pass
+
+    def put(self):
+        pass
+
+
 api.add_resource(relationshipsAPI, '/relationships', endpoint='relationships')
 api.add_resource(searchAPI, '/search', endpoint='search')
 api.add_resource(graphAPI, '/graph', endpoint='graph')
+api.add_resource(personAPI, '/person', endpoint='person')
 api.add_resource(pingAPI, '/ping', endpoint='ping')

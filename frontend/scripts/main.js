@@ -609,21 +609,14 @@ const list_relationships = Vue.component('list-relationships-page', {
 		return {
 			open_modal_state: false,
 			open_modal_relationship_id: '',
-			relative_data: []
+			relative_data: [],
+			resource_url: '/api/relationships'
 		}
 	},
 	methods: {
-		fetchData: function() {
-			var self = this
-			HTTP.get('/api/relationships').then(
-				function(response) {
-					self.relative_data = response.data
-					self.$forceUpdate()
-				},
-				function(error) {
-					console.log(error)
-				}
-			)
+		updateTable: function(data) {
+			this.relative_data = data
+			this.$forceUpdate()
 		}
 	},
 	computed: {
@@ -682,9 +675,6 @@ const list_relationships = Vue.component('list-relationships-page', {
 			}
 			return relations
 		}
-	},
-	mounted: function() {
-		this.fetchData()
 	},
 	created: function() {
 		bus.$on('open-relation-modal', function(relationship_id) {
@@ -776,6 +766,24 @@ const visualisation = Vue.component('visualisation-page', {
 
 const user = Vue.component('user-page', {
 	template: '#user-page'
+})
+
+Vue.component('v-paginator', {
+	mixins: [VuePaginator],
+	methods: {
+		fetchData: function(pageUrl) {
+			pageUrl = pageUrl || this.resource_url
+			var self = this
+			HTTP.get(pageUrl).then(
+				function(response) {
+					self.handleResponseData(response.data)
+				},
+				function (error) {
+					console.log('Fetching data failed.', error)
+				}
+			)
+		}
+	}
 })
 
 const routes = [
