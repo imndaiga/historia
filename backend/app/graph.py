@@ -61,10 +61,6 @@ class Graph:
         else:
             return nx.Graph()
 
-    def get_relation_tree(self, source, target):
-        relation_list = self._relations_list(source=source, target=target)
-        return relation_list
-
     def span_mdg(self, MDG, source, mutate=False):
         '''
         Outputs a perspective-based adjacency list i.e. it traverses the
@@ -104,7 +100,7 @@ class Graph:
         else:
             raise EnvironmentError
 
-    def _relations_list(self, source, target, readable=True):
+    def get_relation_tree(self, source, target, readable=True):
         '''
         Outputs a list of outbound relations from the source
         to the target.

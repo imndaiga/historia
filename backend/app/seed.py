@@ -106,7 +106,8 @@ class Seed(Command):
             family_unit = fake.family(seed=i, size=size)
             if admin_email is not None and admin_person is None:
                 family_unit['parents'][1]['mail'] = admin_email
-                print('NOTICE: Admin added')
+                if verbose:
+                    print('NOTICE: Admin added')
             (parents, children, _) = self._faker_iterator(
                 family_unit, verbose, faker_index)
             self.relate(parents=parents, children=children)
