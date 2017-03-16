@@ -63,8 +63,8 @@ function autoRoute(to, from, next) {
 	}
 }
 
-Vue.component('app-sidebar', {
-	template: "#app-sidebar",
+Vue.component('app-sidebar-menu', {
+	template: "#app-sidebar-menu",
 	props: {
 		current_panel: {
 			type: String,
@@ -344,36 +344,161 @@ Vue.component('app-form', {
 Vue.component('app-table', {
 	template: '#app-table',
 	props: {
-		list: {
-			type: Array,
-			required: true
-		},
-		table_headers: {
-			type: Array,
+		resource_url: {
+			type: String,
 			required: true
 		}
 	},
+	data: function() {
+		return {
+			raw_table_data: [],
+			options: {
+				headers: {
+					'Authorization': 'Bearer ' + localStorage.getItem('id_token')
+				},
+				next_button_text: '',
+				previous_button_text: ''
+			}
+		}
+	},
 	methods: {
-		openRelation: function(person_id) {
+		updateTable: function(data) {
+			this.raw_table_data = data
+			this.$forceUpdate()
+		},
+		openRecordInModal: function(person_id) {
 			bus.$emit('open-modal', person_id)
 		},
-		deleteRelation: function(person_id) {
-			bus.$emit('delete-relation', person_id)
+		deleteRecord: function(record_id) {
+			var self = this
+			swal(
+			{
+				title: 'Are you sure?',
+				text: 'This cannot be undone!',
+				type: 'warning',
+				showCancelButton: true,
+				confirmButtonText: 'Delete',
+				closeOnConfirm: false
+			},
+			function() {
+				self.$http.delete(self.resource_url, {
+					data: {
+						id: record_id
+					}
+				}).then(
+					function(response) {
+						swal({
+							title: 'Complete',
+							text: 'Successfully deleted!',
+							type: 'success',
+							timer: 1500,
+							showConfirmButton: false,
+							customClass: 'message-height'
+						})
+						for (record in self.raw_table_data) {
+							for (field in self.raw_table_data[record]) {
+								if (self.raw_table_data[record][field].field_name == 'id') {
+									if (self.raw_table_data[record][field].value == record_id) {
+										self.raw_table_data.splice(record, 1)
+										self.$forceUpdate()
+									}
+								}
+							}
+						}
+					},
+					function(error) {
+						console.log(error)
+						swal({
+							title: 'Ooops...',
+							text: 'An error occured',
+							type: 'error'
+						})
+					}
+				)
+			})
+		}
+	},
+	computed: {
+		table_Headers: function() {
+			headers = []
+			for (record in this.raw_table_data) {
+				for (field in this.raw_table_data[record]) {
+					header = this.raw_table_data[record][field].label
+					if (headers.indexOf(header) == -1 && header != 'ID') {
+						headers.push(this.raw_table_data[record][field].label)
+					}
+				}
+			}
+			return headers
+		},
+		table_Data: function() {
+			records = []
+			entry = {}
+			for (record in this.raw_table_data) {
+				for (field in this.raw_table_data[record]) {
+					field_name = this.raw_table_data[record][field].field_name
+					field_value = this.raw_table_data[record][field].value
+					entry[field_name] = field_value
+				}
+				records.push(entry)
+				entry = {}
+			}
+			return records
 		}
 	}
 })
 
-Vue.component('modal-window', {
-	template: '#modal-window',
+Vue.component('app-modal-form', {
+	template: '#app-modal-form',
+	props: {
+		resource_url: {
+			type: String,
+			required: true
+		}
+	},
+	data: function() {
+		return {
+			modal_open: false,
+			modal_form_data: []
+		}
+	},
 	methods: {
 		closeModal: function() {
-			bus.$emit('close-modal')
+			self.modal_form_data = []
+			this.modal_open = false
+		},
+		getModalFormData: function(record_id) {
+				var self = this
+				this.$http.get(this.resource_url, {
+					params: {
+						id: record_id
+					}
+				}).then(
+				function(response) {
+					self.modal_form_data = response.data
+					self.$forceUpdate()
+					self.modal_open = true
+				},
+				function(error) {
+					console.log(error)
+				}
+			)
 		},
 		submitForm: function() {
 			this.$children[0].submitForm()
 		}
+	},
+	created: function() {
+		bus.$on('open-modal', function(record_id) {
+			document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
+			this.getModalFormData(record_id)
+		}.bind(this))
 	}
 })
+
+Vue.component('v-paginator', VuePaginator)
+
+Vue.use(window.vuelidate.default)
 
 Vue.component('multiselect', VueMultiselect.default)
 
@@ -610,126 +735,9 @@ const list_relationships = Vue.component('list-relationships-page', {
 	template: '#list-relationships-page',
 	data: function() {
 		return {
-			modal_open: false,
-			modal_form_data: [],
-			relative_data: [],
-			resource_url: '/api/relationships',
-			options: {
-				headers: {
-					'Authorization': 'Bearer ' + localStorage.getItem('id_token')
-				},
-				next_button_text: '',
-				previous_button_text: ''
-			}
+			modal_resource: '/api/person',
+			table_resource: '/api/relationships'
 		}
-	},
-	methods: {
-		updateTable: function(data) {
-			this.relative_data = data
-			this.$forceUpdate()
-		},
-		getModalData: function(person_id) {
-				var self = this
-				this.$http.get('/api/person', {
-					params: {
-						id: person_id
-					}
-				}).then(
-				function(response) {
-					self.modal_form_data = response.data
-					self.$forceUpdate()
-					self.modal_open = true
-				},
-				function(error) {
-					console.log(error)
-				}
-			)
-		}
-	},
-	computed: {
-		table_Headers: function() {
-			headers = []
-			for (relative in this.relative_data) {
-				for (field in this.relative_data[relative]) {
-					header = this.relative_data[relative][field].label
-					if (headers.indexOf(header) == -1 && header != 'ID') {
-						headers.push(this.relative_data[relative][field].label)
-					}
-				}
-			}
-			return headers
-		},
-		table_Data: function() {
-			relations = []
-			entry = {}
-			for (relative in this.relative_data) {
-				for (field in this.relative_data[relative]) {
-					field_name = this.relative_data[relative][field].field_name
-					field_value = this.relative_data[relative][field].value
-					entry[field_name] = field_value
-				}
-				relations.push(entry)
-				entry = {}
-			}
-			return relations
-		}
-	},
-	created: function() {
-		bus.$on('open-modal', function(person_id) {
-			document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
-			this.getModalData(person_id)
-		}.bind(this))
-		bus.$on('close-modal', function() {
-			document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
-			this.modal_open = false
-		}.bind(this))
-		bus.$on('delete-relation', function(person_id) {
-			var self = this
-			swal({
-				title: 'Are you sure?',
-				text: 'Deleted relations cannot be recovered!',
-				type: 'warning',
-				showCancelButton: true,
-				confirmButtonText: 'Delete',
-				closeOnConfirm: false
-			},
-			function() {
-				self.$http.delete('/api/relationships', {
-					data: {
-						user_id: person_id
-					}
-				}).then(
-					function(response) {
-						for (index in self.relative_data) {
-							for (field in self.relative_data[index]) {
-								if (self.relative_data[index][field].field_name == 'id') {
-									if (self.relative_data[index][field].value == person_id) {
-										self.relative_data.splice(index, 1)
-										self.$forceUpdate()
-									}
-								}
-							}
-						}
-						swal({
-							title: 'Deleted',
-							text: 'Relation has successfully been deleted',
-							type: 'success',
-							timer: 1500,
-							showConfirmButton: false,
-							customClass: 'message-height'
-						})
-					},
-					function(response) {
-						console.log(response)
-						swal({
-							title: 'Ooops...',
-							text: 'An error occured',
-							type: 'error'
-						})
-					}
-				)
-			})
-		}.bind(this))
 	}
 })
 
@@ -737,7 +745,8 @@ const visualisation = Vue.component('visualisation-page', {
 	template: '#visualisation-page',
 	data: function() {
 		return {
-			graph: {}
+			graph: {},
+			resource_url: '/api/graph'
 		}
 	},
 	methods: {
@@ -756,7 +765,7 @@ const visualisation = Vue.component('visualisation-page', {
 	},
 	created: function() {
 		var self = this
-		this.$http.get('/api/graph').then(
+		this.$http.get(this.resource_url).then(
 			function(response) {
 				self.graph = response.data.graph
 				self.renderGraph()
@@ -772,8 +781,6 @@ const visualisation = Vue.component('visualisation-page', {
 const user = Vue.component('user-page', {
 	template: '#user-page'
 })
-
-Vue.component('v-paginator', VuePaginator)
 
 const routes = [
 	{ path: '/', component: welcome, beforeEnter: autoRoute},
@@ -806,8 +813,6 @@ router.beforeEach(
 })
 
 var bus = new Vue()
-
-Vue.use(window.vuelidate.default)
 
 var vm = new Vue({
 	el: '#app',

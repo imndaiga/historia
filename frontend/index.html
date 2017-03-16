@@ -35,7 +35,7 @@
 
   <template id="dashboard-page">
     <div>
-      <app-sidebar class="hidden-xs" :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer" :current_panel="current_Panel"></app-sidebar>
+      <app-sidebar-menu class="hidden-xs" :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer" :current_panel="current_Panel"></app-sidebar-menu>
       <app-mobile-menu :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer" v-if="open_mobile_menu" :current_panel="current_Panel"></app-mobile-menu>
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
         <app-header class="hidden-lg hidden-md hidden-sm" :panels="sidebar_panels" :current_panel="current_Panel"></app-header>
@@ -62,14 +62,8 @@
 
   <template id="list-relationships-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <app-table class="app-table" :list="table_Data" :table_headers="table_Headers">
-      </app-table>
-      <div class="row">
-        <v-paginator class="center-block" style="width: 180px;" v-show="table_Data.length > 0" :resource_url="resource_url" v-on:update="updateTable" :options="options"></v-paginator>
-      </div>
-      <modal-window v-if="modal_open">
-        <app-form :form="modal_form_data" submit_type="mod"></app-form>
-      </modal-window>
+      <app-table :resource_url="table_resource" class="app-table"></app-table>
+      <app-modal-form :resource_url="modal_resource"></app-modal-form>
     </div>
   </template>
 
@@ -115,7 +109,7 @@
     </div>
   </template>
 
-  <template id="app-sidebar">
+  <template id="app-sidebar-menu">
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
@@ -207,41 +201,48 @@
   </template>
 
   <template id="app-table">
-    <div class="table-responsive">
-      <table v-if="list.length > 0" class="table table-hover">
-        <thead>
-          <tr>
-            <th class="center-content" v-for="header in table_headers">{{header}}</th>
-            <th class="center-content">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="relation in list">
-            <td class="center-content" v-for="(value, key) in relation" v-if="key != 'id'">{{ value }}</td>
-            <td class="center-content">
-              <button type="button" v-on:click="openRelation(relation.id)" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-pencil-square-o fa-lg"></i></button>
-              <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRelation(relation.id)" title="Delete"><i class="fa fa-trash-o fa-lg"></i></button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <h3 class="text-center" v-else>No Relationship Data Available</h3>
+    <div>
+      <div class="table-responsive">
+        <table v-if="table_Data.length > 0" class="table table-hover">
+          <thead>
+            <tr>
+              <th class="center-content" v-for="header in table_Headers">{{header}}</th>
+              <th class="center-content">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="record in table_Data">
+              <td class="center-content" v-for="(value, key) in record" v-if="key != 'id'">{{ value }}</td>
+              <td class="center-content">
+                <button type="button" v-on:click="openRecordInModal(record.id)" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-pencil-square-o fa-lg"></i></button>
+                <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRecord(record.id)" title="Delete"><i class="fa fa-trash-o fa-lg"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 class="text-center" v-else>No Relationship Data Available</h3>
+      </div>
+      <div class="row">
+        <v-paginator class="center-block" style="width: 180px;" v-show="table_Data.length > 0" :resource_url="resource_url" v-on:update="updateTable" :options="options"></v-paginator>
+      </div>
     </div>
   </template>
 
-  <template id="modal-window">
-    <div class="modal-mask">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" v-once>Edit Relationship</h4>
-          </div>
-          <div class="modal-body">
-            <slot></slot>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
-            <button type="submit" class="btn btn-primary" v-on:click="submitForm">Save changes</button>
+  <template id="app-modal-form">
+    <div v-if="modal_open">
+      <div class="modal-mask">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" v-once>Edit Relationship</h4>
+            </div>
+            <div class="modal-body">
+              <app-form :form="modal_form_data" submit_type="mod"></app-form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
+              <button type="submit" class="btn btn-primary" v-on:click="submitForm">Save changes</button>
+            </div>
           </div>
         </div>
       </div>

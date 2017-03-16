@@ -115,7 +115,7 @@ class relationshipsAPI(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('data', type=dict, location='json')
-        self.reqparse.add_argument('user_id', type=int, location='json')
+        self.reqparse.add_argument('id', type=int, location='json')
         self.reqparse.add_argument('page', type=str, location='args')
         self.relationships_per_page = 10
         super(relationshipsAPI, self).__init__()
@@ -197,7 +197,7 @@ class relationshipsAPI(Resource):
 
     def delete(self):
         args = self.reqparse.parse_args()
-        delete_person_id = args['user_id']
+        delete_person_id = args['id']
         deleted_uid = Person.query.filter_by(id=delete_person_id).delete()
         if deleted_uid == 1:
             print('{} deleted from database'.format(delete_person_id))
@@ -208,11 +208,13 @@ class relationshipsAPI(Resource):
                 db.session.commit()
                 graph.delete_node(delete_person_id)
                 print('{} deleted from graph'.format(delete_person_id))
+                return {'message': 'Relationship deleted'}
             except NetworkXError:
                 print('{} does not exist in graph'.format(delete_person_id))
-                return {}
-        print('{} does not exist in database'.format(delete_person_id))
-        return {}
+                return {'message': 'Graph error'}
+        else:
+            print('{} does not exist in database'.format(delete_person_id))
+            return {'message': 'Database error'}
 
 # relation_name:{value:'Father', type:'multiselect-input'},
 # birth_date:{value:'2017-02-15', type:'pikaday-input'}
