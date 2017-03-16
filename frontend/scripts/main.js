@@ -700,7 +700,16 @@ const list_relationships = Vue.component('list-relationships-page', {
 					}
 				}).then(
 					function(response) {
-						self.relative_data = response.data
+						for (index in self.relative_data) {
+							for (field in self.relative_data[index]) {
+								if (self.relative_data[index][field].field_name == 'id') {
+									if (self.relative_data[index][field].value == person_id) {
+										self.relative_data.splice(index, 1)
+										self.$forceUpdate()
+									}
+								}
+							}
+						}
 						swal({
 							title: 'Deleted',
 							text: 'Relation has successfully been deleted',

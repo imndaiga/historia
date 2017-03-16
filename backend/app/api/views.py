@@ -197,9 +197,7 @@ class relationshipsAPI(Resource):
 
     def delete(self):
         args = self.reqparse.parse_args()
-        user_email = _app_ctx_stack.top.current_user['email']
         delete_person_id = args['user_id']
-        user = Person.query.filter_by(email=user_email).first()
         deleted_uid = Person.query.filter_by(id=delete_person_id).delete()
         if deleted_uid == 1:
             print('{} deleted from database'.format(delete_person_id))
@@ -209,13 +207,7 @@ class relationshipsAPI(Resource):
                         Link.descendant_id == delete_person_id)).delete()
                 db.session.commit()
                 graph.delete_node(delete_person_id)
-                node_list = graph.get_subgraph(user).nodes()
-                for index, node in enumerate(node_list):
-                    if node == user.id:
-                        del node_list[index]
-                response = self.formatResponse(node_list)
                 print('{} deleted from graph'.format(delete_person_id))
-                return response
             except NetworkXError:
                 print('{} does not exist in graph'.format(delete_person_id))
                 return {}
