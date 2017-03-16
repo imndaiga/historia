@@ -126,6 +126,7 @@ Vue.component('app-header', {
 	},
 	methods: {
 		openMobileMenu: function() {
+			document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
 			bus.$emit('open-mobile-menu')
 		}
 	}
@@ -353,11 +354,11 @@ Vue.component('app-table', {
 		}
 	},
 	methods: {
-		openRelation: function(relation_id) {
-			bus.$emit('open-relation-modal', relation_id)
+		openRelation: function(person_id) {
+			bus.$emit('open-modal', person_id)
 		},
-		deleteRelation: function(relation_id) {
-			bus.$emit('delete-relation', relation_id)
+		deleteRelation: function(person_id) {
+			bus.$emit('delete-relation', person_id)
 		}
 	}
 })
@@ -609,8 +610,8 @@ const list_relationships = Vue.component('list-relationships-page', {
 	template: '#list-relationships-page',
 	data: function() {
 		return {
-			open_modal_state: false,
-			open_modal_relationship_id: '',
+			modal_open: false,
+			modal_form_data: [],
 			relative_data: [],
 			resource_url: '/api/relationships',
 			options: {
@@ -626,38 +627,26 @@ const list_relationships = Vue.component('list-relationships-page', {
 		updateTable: function(data) {
 			this.relative_data = data
 			this.$forceUpdate()
+		},
+		getModalData: function(person_id) {
+				var self = this
+				this.$http.get('/api/person', {
+					params: {
+						id: person_id
+					}
+				}).then(
+				function(response) {
+					self.modal_form_data = response.data
+					self.$forceUpdate()
+					self.modal_open = true
+				},
+				function(error) {
+					console.log(error)
+				}
+			)
 		}
 	},
 	computed: {
-		modal_Relativeform: function() {
-			var relative_found = false
-			for (relative in this.relative_data) {
-				for (field in this.relative_data[relative]) {
-					if (this.relative_data[relative][field].field_name == 'id') {
-						if (this.relative_data[relative][field].value == this.open_modal_relationship_id) {
-							relative_found = true
-						}
-					}
-					if (relative_found && Object.keys(this.relative_data[relative][field]).indexOf('validators') != -1) {
-						if (this.relative_data[relative][field].validators.length > 0) {
-							validations = {}
-							for (index in this.relative_data[relative][field].validators) {
-								validation = this.relative_data[relative][field].validators[index]
-								if (validation == 'required') {
-									validations = extendDict(validations, {required})
-								} else if (validation == 'email') {
-									validations = extendDict(validations, {email})
-								} else if (validation == 'alpha') {
-									validations = extendDict(validations, {alpha})
-								}
-							}
-						}
-						this.relative_data[relative][field].validators = validations
-					}
-				}
-				return this.relative_data[relative]
-			}
-		},
 		table_Headers: function() {
 			headers = []
 			for (relative in this.relative_data) {
@@ -686,17 +675,15 @@ const list_relationships = Vue.component('list-relationships-page', {
 		}
 	},
 	created: function() {
-		bus.$on('open-relation-modal', function(relationship_id) {
+		bus.$on('open-modal', function(person_id) {
 			document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
-			this.open_modal_state = true
-			this.open_modal_relationship_id = relationship_id
+			this.getModalData(person_id)
 		}.bind(this))
 		bus.$on('close-modal', function() {
 			document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
-			this.open_modal_state = false
-			this.open_modal_relationship_id = ''
+			this.modal_open = false
 		}.bind(this))
-		bus.$on('delete-relation', function(relationship_id) {
+		bus.$on('delete-relation', function(person_id) {
 			var self = this
 			swal({
 				title: 'Are you sure?',
@@ -707,9 +694,9 @@ const list_relationships = Vue.component('list-relationships-page', {
 				closeOnConfirm: false
 			},
 			function() {
-				this.$http.delete('/api/relationships', {
+				self.$http.delete('/api/relationships', {
 					data: {
-						user_id: relationship_id
+						user_id: person_id
 					}
 				}).then(
 					function(response) {

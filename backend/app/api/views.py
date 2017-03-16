@@ -108,9 +108,6 @@ class searchAPI(Resource):
                     'id': found_person.id}
         return {}
 
-# relation_name:{value:'Father', type:'multiselect-input'},
-# birth_date:{value:'2017-02-15', type:'pikaday-input'}
-
 
 class relationshipsAPI(Resource):
     decorators = [requires_auth]
@@ -123,7 +120,7 @@ class relationshipsAPI(Resource):
         self.relationships_per_page = 10
         super(relationshipsAPI, self).__init__()
 
-    def formatResponse(self, page, nodes):
+    def formatResponse(self, nodes):
         relatives = []
         for node in nodes:
             relation = Person.query.get(node)
@@ -168,9 +165,9 @@ class relationshipsAPI(Resource):
         page = 1 if not args['page'] else int(args['page'])
         user = Person.query.filter_by(email=user_email).first()
         node_list = graph.get_subgraph(user).nodes()
-        for node in node_list:
+        for index, node in enumerate(node_list):
             if node == user.id:
-                del node_list[node]
+                del node_list[index]
         max_page = math.ceil(len(node_list) / self.relationships_per_page)
         max_rows = page * self.relationships_per_page
         max_index = max_rows \
@@ -190,7 +187,7 @@ class relationshipsAPI(Resource):
                                   str(int(page) + 1),
             'data': []
         }
-        response['data'] = self.formatResponse(page, node_list)
+        response['data'] = self.formatResponse(node_list)
         return response
 
     def put(self):
@@ -200,7 +197,6 @@ class relationshipsAPI(Resource):
 
     def delete(self):
         args = self.reqparse.parse_args()
-        print(args)
         user_email = _app_ctx_stack.top.current_user['email']
         delete_person_id = args['user_id']
         user = Person.query.filter_by(email=user_email).first()
@@ -214,6 +210,9 @@ class relationshipsAPI(Resource):
                 db.session.commit()
                 graph.delete_node(delete_person_id)
                 node_list = graph.get_subgraph(user).nodes()
+                for index, node in enumerate(node_list):
+                    if node == user.id:
+                        del node_list[index]
                 response = self.formatResponse(node_list)
                 print('{} deleted from graph'.format(delete_person_id))
                 return response
@@ -223,17 +222,66 @@ class relationshipsAPI(Resource):
         print('{} does not exist in database'.format(delete_person_id))
         return {}
 
+# relation_name:{value:'Father', type:'multiselect-input'},
+# birth_date:{value:'2017-02-15', type:'pikaday-input'}
+
 
 class personAPI(Resource):
     decorators = [requires_auth]
 
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('user_id', type=int, location='json')
+        self.reqparse.add_argument('id', type=int, location='args')
         super(personAPI, self).__init__()
 
+    def formatResponse(self, person):
+        relative = [
+            {
+                'type': 'hidden-input', 'value': person.id or '',
+                'label': 'ID', 'field_name': 'id'
+            },
+            {
+                'type': 'alpha-input',
+                'value': person.baptism_name or '',
+                'label': 'First Name',
+                'validators': ['required', 'alpha'],
+                'field_name': 'first_name'
+            },
+            {
+                'type': 'alpha-input',
+                'value': person.ethnic_name or '',
+                'label': 'Ethnic Name',
+                'validators': ['required', 'alpha'],
+                'field_name': 'ethnic_name'},
+            {
+                'type': 'alpha-input', 'value':
+                    person.surname or '',
+                'label': 'Last Name',
+                'validators': ['required', 'alpha'],
+                'field_name': 'last_name'
+            },
+            {
+                'type': 'email-input', 'value':
+                    person.email or '',
+                'label': 'Email', 'validators':
+                    ['required', 'email'],
+                'field_name': 'email'
+            },
+            {
+                'type': 'pikaday-input', 'value':
+                    str(person.dob) or '',
+                'label': 'Date of Birth', 'validators':
+                    [],
+                'field_name': 'birth_date'
+            }
+        ]
+        return relative
+
     def get(self):
-        pass
+        args = self.reqparse.parse_args()
+        person_id = args['id']
+        person = Person.query.filter_by(id=person_id).one()
+        return self.formatResponse(person)
 
     def put(self):
         pass

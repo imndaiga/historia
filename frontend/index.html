@@ -65,10 +65,10 @@
       <app-table class="app-table" :list="table_Data" :table_headers="table_Headers">
       </app-table>
       <div class="row">
-        <v-paginator class="center-block" style="width: 250px;" v-show="table_Data.length > 0" :resource_url="resource_url" v-on:update="updateTable" :options="options"></v-paginator>
+        <v-paginator class="center-block" style="width: 180px;" v-show="table_Data.length > 0" :resource_url="resource_url" v-on:update="updateTable" :options="options"></v-paginator>
       </div>
-      <modal-window v-if="open_modal_state">
-        <app-form :form="modal_Relativeform" submit_type="mod"></app-form>
+      <modal-window v-if="modal_open">
+        <app-form :form="modal_form_data" submit_type="mod"></app-form>
       </modal-window>
     </div>
   </template>
