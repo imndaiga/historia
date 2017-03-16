@@ -29,6 +29,8 @@ function(error) {
 	return Promise.reject(error)
 })
 
+Vue.prototype.$http = HTTP
+
 function extendDict(obj, src) {
 	for (key in src) {
 		if (src.hasOwnProperty(key)) {
@@ -216,7 +218,7 @@ Vue.component('app-form', {
 					form_data[field] = this.form_object[field].value
 				}
 				form_data['submit_type'] = this.sub_type
-				HTTP.put('/api/relationships', {
+				this.$http.put('/api/relationships', {
 					data: {
 						form: form_data
 					}
@@ -257,7 +259,7 @@ Vue.component('app-form', {
 			var value = value
 			this.form_object[field_name].loading = true
 			this.$forceUpdate()
-			HTTP.get('/api/search', {
+			this.$http.get('/api/search', {
 				params: {
 					field: field,
 					value: value
@@ -610,7 +612,12 @@ const list_relationships = Vue.component('list-relationships-page', {
 			open_modal_state: false,
 			open_modal_relationship_id: '',
 			relative_data: [],
-			resource_url: '/api/relationships'
+			resource_url: '/api/relationships',
+			options: {
+				headers: {
+					'Authorization': 'Bearer ' + localStorage.getItem('id_token')
+				}
+			}
 		}
 	},
 	methods: {
@@ -698,7 +705,7 @@ const list_relationships = Vue.component('list-relationships-page', {
 				closeOnConfirm: false
 			},
 			function() {
-				HTTP.delete('/api/relationships', {
+				this.$http.delete('/api/relationships', {
 					data: {
 						user_id: relationship_id
 					}
@@ -751,7 +758,7 @@ const visualisation = Vue.component('visualisation-page', {
 	},
 	created: function() {
 		var self = this
-		HTTP.get('/api/graph').then(
+		this.$http.get('/api/graph').then(
 			function(response) {
 				self.graph = response.data.graph
 				self.renderGraph()
@@ -768,23 +775,7 @@ const user = Vue.component('user-page', {
 	template: '#user-page'
 })
 
-Vue.component('v-paginator', {
-	mixins: [VuePaginator],
-	methods: {
-		fetchData: function(pageUrl) {
-			pageUrl = pageUrl || this.resource_url
-			var self = this
-			HTTP.get(pageUrl).then(
-				function(response) {
-					self.handleResponseData(response.data)
-				},
-				function (error) {
-					console.log('Fetching data failed.', error)
-				}
-			)
-		}
-	}
-})
+Vue.component('v-paginator', VuePaginator)
 
 const routes = [
 	{ path: '/', component: welcome, beforeEnter: autoRoute},
@@ -809,10 +800,11 @@ const router = new VueRouter({
 	routes: routes
 })
 
-router.beforeEach(function(to, from, next) {
-	HTTP.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
-	bus.$emit('close-mobile-menu')
-	next()
+router.beforeEach(
+	function(to, from, next) {
+		Vue.prototype.$http.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
+		bus.$emit('close-mobile-menu')
+		next()
 })
 
 var bus = new Vue()
@@ -865,7 +857,7 @@ var vm = new Vue({
 		},
 		testSecured: function() {
 			console.log('testing secured connection')
-			HTTP.get('api/ping').then(
+			this.$http.get('api/ping').then(
 				function(response) {
 					console.log(response)
 				},
