@@ -334,6 +334,16 @@ th {
   margin-top: 20px
 }
 
+.v-paginator > .btn:last-child:before {
+  content: "\f061";
+  font-family: FontAwesome
+}
+
+.v-paginator > .btn:first-child:before {
+  content: "\f060";
+  font-family: FontAwesome
+}
+
 /*
 * Media queries
 */

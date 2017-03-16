@@ -616,7 +616,9 @@ const list_relationships = Vue.component('list-relationships-page', {
 			options: {
 				headers: {
 					'Authorization': 'Bearer ' + localStorage.getItem('id_token')
-				}
+				},
+				next_button_text: '',
+				previous_button_text: ''
 			}
 		}
 	},
