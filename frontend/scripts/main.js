@@ -459,12 +459,12 @@ Vue.component('app-modal-form', {
 	data: function() {
 		return {
 			modal_open: false,
-			modal_form_data: []
+			raw_modal_form_data: []
 		}
 	},
 	methods: {
 		closeModal: function() {
-			self.modal_form_data = []
+			self.raw_modal_form_data = []
 			this.modal_open = false
 		},
 		getModalFormData: function(record_id) {
@@ -475,7 +475,7 @@ Vue.component('app-modal-form', {
 					}
 				}).then(
 				function(response) {
-					self.modal_form_data = response.data
+					self.raw_modal_form_data = response.data
 					self.$forceUpdate()
 					self.modal_open = true
 				},
@@ -493,6 +493,27 @@ Vue.component('app-modal-form', {
 			document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
 			this.getModalFormData(record_id)
 		}.bind(this))
+	},
+	computed: {
+		modal_Form_Data: function() {
+			processed = this.raw_modal_form_data
+			for (field in this.raw_modal_form_data) {
+				if (this.raw_modal_form_data[field].validators != undefined) {
+					field_validators = this.raw_modal_form_data[field].validators
+					processed[field].validators = {}
+					for (index in field_validators) {
+						if (field_validators[index] == 'required') {
+							processed[field].validators = extendDict(processed[field].validators, {required})
+						} else if (field_validators[index] == 'alpha') {
+							processed[field].validators = extendDict(processed[field].validators, {alpha})
+						} else if (field_validators[index] == 'email') {
+							processed[field].validators = extendDict(processed[field].validators, {email})
+						}
+					}
+				}
+			}
+			return processed
+		}
 	}
 })
 

@@ -153,7 +153,7 @@
               <input type="text" :name="field.field_name" :value="field.placeholder" readonly>
             </div>
             <label v-else>{{ field.label }}</label>
-            <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.required && Object.keys($v.form_object[field.field_name].value).indexOf('required') != -1"> *</span>
+            <span class="form-group__message" v-if="Object.keys($v.form_object[field.field_name].value).indexOf('required') != -1"> *</span>
             <input v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" type="text" class="form-control" :name="field.field_name" v-model.trim="form_object[field.field_name].value" :placeholder="field.placeholder" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id">
             <div v-else-if="field.type == 'pikaday-input'" class="input-group">
               <input type="text" class="form-control" :name="field.field_name" :ref="field.field_name"  v-model.trim="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" readonly :key="field.id">
@@ -171,7 +171,7 @@
           <!-- <pre v-if="!!$v.form_object[field.field_name].value">{{$v.form_object[field.field_name].value}}</pre> -->
           <div v-if="$v.form_object[field.field_name].$error" class="form-group__field">
             <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.required && Object.keys($v.form_object[field.field_name].value).indexOf('required') != -1">{{ field.label }} is required</span>
-            <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.alpha  && Object.keys($v.form_object[field.field_name].value).indexOf('alpha') != -1">{{ field.label }} is not valid</span>
+            <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.alpha && Object.keys($v.form_object[field.field_name].value).indexOf('alpha') != -1">{{ field.label }} is not valid</span>
             <span class="form-group__message" v-if="!$v.form_object[field.field_name].value.email && Object.keys($v.form_object[field.field_name].value).indexOf('email') != -1">Invalid email address</span>
           </div>
         </div>
@@ -237,7 +237,7 @@
               <h4 class="modal-title" v-once>Edit Relationship</h4>
             </div>
             <div class="modal-body">
-              <app-form :form="modal_form_data" submit_type="mod"></app-form>
+              <app-form :form="modal_Form_Data" submit_type="mod"></app-form>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
