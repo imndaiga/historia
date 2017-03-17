@@ -472,6 +472,7 @@ Vue.component('app-modal-form', {
 		closeModal: function() {
 			self.raw_modal_form_data = []
 			this.modal_open = false
+			this.activate_submit_button = false
 		},
 		getModalFormData: function(record_id) {
 				var self = this

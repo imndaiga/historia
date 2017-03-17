@@ -39,6 +39,10 @@ th {
   min-height: 40px
 }
 
+.disabled-button {
+  display: none
+}
+
 /*
 * Forms
 */
@@ -86,7 +90,6 @@ th {
   font-size: 14px;
   line-height: 50px;
   text-transform: uppercase
-
 }
 .nav-app-menu > .active > a,
 .nav-app-menu > .active > a:hover,
@@ -94,6 +97,16 @@ th {
   color: #fff;
   background-color: #428bca
 }
+
+.nav-app-menu > li > a > i {
+  padding-right: 15px;
+  color: #525252;
+  font-size: 25px
+}
+.nav-app-menu > .active > a > i {
+  color: #fff;
+}
+
 .nav-app-submenu {
   background-color: #b5afaf
 }
@@ -134,22 +147,15 @@ th {
 
 .footer-links {
   margin-top: 15px;
-  margin-left: calc(50% - 40px)
+  margin-left: calc(50% - 30px)
 }
-
-.footer-nav {
-  color: #525252
-}
-
-.menu-icon {
-  padding-right: 15px;
+.footer-links > li > a,
+.footer-links > li > a:hover,
+.footer-links > li > a:focus {
   color: #525252;
-  font-size: 25px
+  text-decoration: none
 }
 
-.nav-app-menu > .active > a > .menu-icon {
-  color: #fff
-}
 /*
 * Mobile menu
 */
