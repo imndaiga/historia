@@ -297,9 +297,13 @@ Vue.component('app-form', {
 					} else {
 						form_object[key]['value'] = ''
 					}
+					form_object[key]['activated'] = false
 				}
 			}
 			return form_object
+		},
+		activateField: function(field_name) {
+			this.form_object[field_name].activated = true
 		}
 	},
 	computed: {

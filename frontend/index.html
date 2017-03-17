@@ -154,14 +154,24 @@
             </div>
             <label v-else>{{ field.label }}</label>
             <span class="form-group__message" v-if="Object.keys($v.form_object[field.field_name].value).indexOf('required') != -1"> *</span>
-            <input v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" type="text" class="form-control" :name="field.field_name" v-model.trim="form_object[field.field_name].value" :placeholder="field.placeholder" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id">
+            <div v-if="['alpha-input', 'email-input'].indexOf(field.type) != -1" :class="{'input-group': field.value != undefined}">
+              <input type="text" class="form-control" :name="field.field_name" v-model.trim="form_object[field.field_name].value" :placeholder="field.placeholder" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id" :readonly="field.value != undefined && !form_object[field.field_name].activated">
+              <div v-if="field.value != undefined" class="input-group-btn">
+                <button type="button" class="btn btn-warning" v-on:click="activateField(field.field_name)">
+                  Change
+                </button>
+              </div>
+            </div>
             <div v-else-if="field.type == 'pikaday-input'" class="input-group">
               <input type="text" class="form-control" :name="field.field_name" :ref="field.field_name"  v-model.trim="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" readonly :key="field.id">
-              <span class="input-group-btn">
-                <button type="button" class="btn btn-default" :ref="field.field_name+'-btn'">
+              <div class="input-group-btn">
+                <button type="button" class="btn btn-default" :ref="field.field_name+'-btn'" :class="{'disabled': field.value != undefined && !form_object[field.field_name].activated}">
                   <i class="fa fa-calendar fa-lg"></i>
                 </button>
-              </span>
+                <button v-if="field.value != undefined" type="button" class="btn btn-warning" v-on:click="activateField(field.field_name)">
+                  Change
+                </button>
+              </div>
              </div>
              <multiselect v-else-if="field.type == 'multiselect-input'" :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id"></multiselect>
              <multiselect v-else-if="field.type == 'search-input'" :options="form_object[field.field_name].options" :placeholder="field.placeholder" :loading="form_object[field.field_name].loading" :options-limit="10" :searchable="true" :internal-search="false" v-on:search-change="asyncFind(field.field_name, $event)" v-model="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id">
