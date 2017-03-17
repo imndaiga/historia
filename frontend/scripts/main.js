@@ -304,6 +304,7 @@ Vue.component('app-form', {
 		},
 		activateField: function(field_name) {
 			this.form_object[field_name].activated = true
+			bus.$emit('form-field-activated')
 		}
 	},
 	computed: {
@@ -463,7 +464,8 @@ Vue.component('app-modal-form', {
 	data: function() {
 		return {
 			modal_open: false,
-			raw_modal_form_data: []
+			raw_modal_form_data: [],
+			activate_submit_button: false
 		}
 	},
 	methods: {
@@ -496,6 +498,9 @@ Vue.component('app-modal-form', {
 		bus.$on('open-modal', function(record_id) {
 			document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
 			this.getModalFormData(record_id)
+		}.bind(this))
+		bus.$on('form-field-activated', function() {
+			this.activate_submit_button = true
 		}.bind(this))
 	},
 	computed: {

@@ -251,7 +251,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
-              <button type="submit" class="btn btn-primary" v-on:click="submitForm">Save changes</button>
+              <button type="submit" v-on:click="submitForm" :class="['btn', 'btn-primary', {'disabled' : !activate_submit_button}]">Save changes</button>
             </div>
           </div>
         </div>
