@@ -84,6 +84,9 @@ th {
   margin-left: -20px;
   border-bottom: 2px solid #eee
 }
+.nav-app-menu > li {
+  cursor: pointer
+}
 .nav-app-menu > li > a {
   padding-right: 20px;
   padding-left: 20px;
@@ -107,13 +110,26 @@ th {
   color: #fff;
 }
 
+.nav-app-menu > li > a > .reveal-icon {
+  position: absolute;
+  right: 20px;
+  top: 25px;
+  color:  rgba(150, 150, 150, 0.5)
+}
+.nav-app-menu > .active > a > .reveal-icon {
+  color: #fff;
+}
+
 .nav-app-submenu {
   background-color: #b5afaf
+}
+.nav-app-submenu > li {
+  border-bottom: 1px solid rgba(150, 150, 150, 0.5)
 }
 .nav-app-submenu > li > a {
   padding-left: 60px;
   font-size: 13px;
-  line-height: 30px
+  line-height: 25px
 }
 .nav-app-submenu > li > a:hover {
   background-color: #ddd

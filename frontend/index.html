@@ -266,20 +266,21 @@
         <li v-once>{{header.title}}</li>
       </ul>
       <ul v-for="panel in panels" class="nav nav-app-menu">
-        <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active" :key="panel.id">
+        <router-link v-if="panel.navs.length == 0" :to="{name: panel.name}" tag="li" active-class="active" :key="panel.id" v-on:click.native="setOpenSubmenu(panel.name)">
           <a>
             <i :class="panel.icon"></i>
             {{panel.name}}
           </a>
         </router-link>
-        <router-link  v-else-if="panel.navs.length > 0" :to="{name: panel.default_view}" tag="li" active-class="active" :key="panel.id">
-          <a>
+        <li v-else-if="panel.navs.length > 0" :key="panel.id" :class="{'active': current_panel == panel.name}">
+          <a v-on:click="setOpenSubmenu(panel.name)">
             <i :class="panel.icon"></i>
             {{panel.name}}
+            <span class="fa fa-chevron-down fa-fw reveal-icon"></span>
           </a>
-        </router-link>
-        <ul v-if="panel.name == current_panel" class="open nav nav-app-submenu">
-          <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.id">
+        </li>
+        <ul :class="['nav', 'nav-app-submenu', 'collapse', {'in': open_submenu == panel.name}]">
+          <router-link v-for="menu in panel.navs" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.id" v-on:click.native="setOpenSubmenu(panel.name)">
             <a>{{menu.title}}</a>
           </router-link>
         </ul>

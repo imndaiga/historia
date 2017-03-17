@@ -152,11 +152,20 @@ Vue.component('app-menu', {
 			required: true
 		}
 	},
+	data: function() {
+		return {
+			open_submenu: this.current_panel
+		}
+	},
 	methods: {
 		performAction: function(action) {
 			if (action == 'logout') {
 				this.$parent.$parent.$parent.logout()
 			}
+		},
+		setOpenSubmenu: function(panel_name) {
+			this.open_submenu = panel_name
+			this.$forceUpdate()
 		}
 	}
 })
@@ -559,7 +568,6 @@ const dashboard = Vue.component('dashboard-page', {
 							id: 2
 						}
 					],
-					default_view: 'User',
 					icon: 'fa fa-user-circle-o fa-lg',
 					id: 1
 				},
@@ -584,7 +592,6 @@ const dashboard = Vue.component('dashboard-page', {
 							id: 2
 						}
 					],
-					default_view: 'List_Relationships',
 					icon: 'fa fa-globe fa-lg',
 					id: 3
 				}
