@@ -107,6 +107,7 @@ Vue.component('app-mobile-menu', {
 	},
 	methods: {
 		closeMobileMenu: function() {
+			document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
 			bus.$emit('close-mobile-menu')
 		}
 	}
@@ -166,6 +167,7 @@ Vue.component('app-menu', {
 		setOpenSubmenu: function(panel_name) {
 			this.open_submenu = panel_name
 			this.$forceUpdate()
+			document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
 		}
 	}
 })
@@ -482,6 +484,7 @@ Vue.component('app-modal-form', {
 			self.raw_modal_form_data = []
 			this.modal_open = false
 			this.activate_submit_button = false
+			document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
 		},
 		getModalFormData: function(record_id) {
 				var self = this
