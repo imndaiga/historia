@@ -63,7 +63,7 @@
   <template id="list-relationships-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
       <app-table :resource_url="table_resource" class="app-table"></app-table>
-      <app-modal-form :resource_url="modal_resource"></app-modal-form>
+      <app-modal-form :resource_urls="modal_resources"></app-modal-form>
     </div>
   </template>
 
@@ -224,8 +224,9 @@
             <tr v-for="record in table_Data">
               <td class="center-content" v-for="(value, key) in record" v-if="key != 'id'">{{ value }}</td>
               <td class="center-content">
-                <button type="button" v-on:click="openRecordInModal(record.id)" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-pencil-square-o fa-lg"></i></button>
-                <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRecord(record.id)" title="Delete"><i class="fa fa-trash-o fa-lg"></i></button>
+                <button type="button" v-on:click="openRecordInModal(record.id, 'record')" class="btn btn-default btn-sm" title="Edit"><i class="fa fa-user fa-fw"></i></button>
+                <button type="button" v-on:click="openRecordInModal(record.id, 'links')" class="btn btn-default btn-sm" title="Edit"><i class="fa fa-link fa-fw"></i></button>
+                <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRecord(record.id)" title="Delete"><i class="fa fa-trash-o fa-fw"></i></button>
               </td>
             </tr>
           </tbody>

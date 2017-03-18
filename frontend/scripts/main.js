@@ -380,8 +380,8 @@ Vue.component('app-table', {
 			this.raw_table_data = data
 			this.$forceUpdate()
 		},
-		openRecordInModal: function(person_id) {
-			bus.$emit('open-modal', person_id)
+		openRecordInModal: function(person_id, resource_name) {
+			bus.$emit('open-modal', person_id, resource_name)
 		},
 		deleteRecord: function(record_id) {
 			var self = this
@@ -465,8 +465,8 @@ Vue.component('app-table', {
 Vue.component('app-modal-form', {
 	template: '#app-modal-form',
 	props: {
-		resource_url: {
-			type: String,
+		resource_urls: {
+			type: Object,
 			required: true
 		}
 	},
@@ -505,7 +505,12 @@ Vue.component('app-modal-form', {
 		}
 	},
 	created: function() {
-		bus.$on('open-modal', function(record_id) {
+		bus.$on('open-modal', function(record_id, resource_name) {
+			for (url in this.resource_urls) {
+				if (url == resource_name) {
+					this.resource_url = this.resource_urls[url]
+				}
+			}
 			document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
 			this.getModalFormData(record_id)
 		}.bind(this))
@@ -773,7 +778,10 @@ const list_relationships = Vue.component('list-relationships-page', {
 	template: '#list-relationships-page',
 	data: function() {
 		return {
-			modal_resource: '/api/person',
+			modal_resources: {
+				record: '/api/person',
+				links: '/api/relationships'
+			},
 			table_resource: '/api/relationships'
 		}
 	}
