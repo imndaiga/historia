@@ -256,13 +256,6 @@ Vue.component('app-form', {
 				)
 			} else {
 				this.$v.$touch()
-				swal({
-					title: 'Ooops...',
-					text: 'Form not filled in correctly',
-					type: 'error',
-					timer: 2000,
-					showConfirmButton: false
-				})
 			}
 		},
 		asyncFind: function(field_name, value) {
@@ -749,17 +742,14 @@ const add_relationships = Vue.component('add-relationships-page', {
 				{type: 'alpha-input', placeholder: 'Enter Ethnic Name', label: 'Ethnic Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'ethnic_name', id: 2},
 				{type: 'alpha-input', placeholder: 'Enter Last Name', label: 'Last Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'last_name', id: 3},
 				{type: 'email-input', placeholder: 'Enter Email Address', label: 'Email', bs_panel: 'add_relative_panel', validators: { email }, field_name: 'email', id: 4},
-				{type: 'search-input', placeholder: 'Search for Relative', label: 'Relative',
-					multiselect_options: [],
-					bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'relation_person', id: 4
+				{type: 'search-input', placeholder: 'Search for Relative', label: 'From', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'from_person', id: 5},
+				{type: 'search-input', placeholder: 'Search for Relative', label: 'To', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'to_person', id: 6},
+				{type: 'multiselect-input', placeholder: 'Choose a Relation', label: 'Relation', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'relation_name', id: 7,
+					multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother', 'Daughter', 'Son']
 				},
-				{type: 'multiselect-input', placeholder: 'Choose a Relation', label: 'Relation',
-					multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother', 'Daughter', 'Son'],
-					bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'relation_name', id: 5
-				},
-				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'add_relative_panel', validators: {required}, field_name: 'birth_date', id: 6},
-				{type: 'submit-button', button_message: 'Save Relative', button_name: 'add_personal-details', bs_panel: 'add_relative_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 7},
-				{type: 'submit-button', button_message: 'Save Relationship', button_name: 'add_connect-relations', bs_panel: 'add_relationship_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 8}
+				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'add_relative_panel', field_name: 'birth_date', id: 8},
+				{type: 'submit-button', button_message: 'Save Relative', button_name: 'add_personal-details', bs_panel: 'add_relative_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 9},
+				{type: 'submit-button', button_message: 'Save Relationship', button_name: 'add_connect-relations', bs_panel: 'add_relationship_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 10}
 
 			]
 		}
