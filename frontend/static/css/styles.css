@@ -57,6 +57,10 @@ th {
   margin-top: -10px
 }
 
+.has-error > .multiselect > .multiselect__tags {
+  border-color: #a94442
+}
+
 /*
  * Sidebar
  */
