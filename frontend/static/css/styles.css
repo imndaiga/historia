@@ -313,12 +313,22 @@ th {
   min-height: 700px
 }
 
-.login-well {
-  width: 20%;
-  min-width: 320px
+.welcome-action {
+  padding-top: 20px;
+}
+.welcome-action > a {
+  margin-right: 20px
+}
+.welcome-action > a:last-child {
+  color: grey;
+  font-size: 18px
+}
+.welcome-action > a:last-child:hover,
+.welcome-action > a:last-child:focus {
+  text-decoration: none
 }
 
-.welcome-components {
+.welcome-banner {
   padding-top: 5%
 }
 
@@ -330,10 +340,6 @@ th {
   bottom: 0;
   background-color: rgba(217, 237, 247, 1);
   z-index: 0
-}
-
-.well {
-  background-color: rgba(245, 245, 245, 0.8)
 }
 
 .footer {
