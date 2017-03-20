@@ -49,6 +49,10 @@ th {
   pointer-events: none
 }
 
+input.form-control {
+  margin-bottom: 0px
+}
+
 /*
 * Forms
 */
@@ -57,10 +61,6 @@ th {
   color: red;
   font-weight: 100;
   font-size: 90%
-}
-
-.form-group__field {
-  margin-top: -10px
 }
 
 .has-error > .multiselect > .multiselect__tags {
