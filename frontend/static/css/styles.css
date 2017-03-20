@@ -53,6 +53,13 @@ input.form-control {
   margin-bottom: 0px
 }
 
+.inline-split,
+.inline-split + .form-group {
+  margin-bottom: 10px;
+  border-bottom: 1px inset  rgba(232, 232, 232, 0.4);
+  padding-bottom: 15px
+}
+
 /*
 * Forms
 */
@@ -412,8 +419,18 @@ input.form-control {
 
 /* Landscape phones and portrait tablets */
 @media (max-width: 767px) {
+  .inline-split {
+    margin-bottom: 5px;
+    padding-bottom: 0px;
+    border-bottom: none
+  }
 }
 
 /* Portrait phones and smaller */
-@media (max-width: 480px) {  
+@media (max-width: 480px) {
+  .inline-split {
+    margin-bottom: 5px;
+    padding-bottom: 0px;
+    border-bottom: none
+  }
 }
