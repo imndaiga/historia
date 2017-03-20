@@ -117,6 +117,7 @@ class relationshipsAPI(Resource):
         self.reqparse.add_argument('data', type=dict, location='json')
         self.reqparse.add_argument('id', type=int, location='json')
         self.reqparse.add_argument('page', type=str, location='args')
+        self.reqparse.add_argument('type', type=str, location='args')
         self.relationships_per_page = 10
         super(relationshipsAPI, self).__init__()
 
@@ -266,16 +267,13 @@ class personAPI(Resource):
                 'field_name': 'birth_date'
             }
         ]
-        return relative
+        return {'form': relative, 'inline': False}
 
     def get(self):
         args = self.reqparse.parse_args()
         person_id = args['id']
         person = Person.query.filter_by(id=person_id).one()
         return self.formatResponse(person)
-
-    def put(self):
-        pass
 
 
 class familyAPI(Resource):
@@ -301,16 +299,6 @@ class familyAPI(Resource):
                 target_fullname = ' '.join(filter(None, listed_names))
                 family_array.append(
                     {
-                        'type': 'search-input',
-                        'placeholder': 'Search for Relative',
-                        'value': target_fullname,
-                        'label': 'To',
-                        'validators': ['required'],
-                        'field_name': 'to_fullname_' + str(target_id),
-                    }
-                )
-                family_array.append(
-                    {
                         'type': 'multiselect-input',
                         'placeholder': relation,
                         'value': relation,
@@ -320,10 +308,23 @@ class familyAPI(Resource):
                         'multiselect_options': [
                             'Parent', 'Sibling', 'Step-Parent',
                             'Step-Sibling', 'Child'
-                        ]
+                        ],
+                        'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12' +
+                                   ' inline-split'
                     }
                 )
-        return family_array
+                family_array.append(
+                    {
+                        'type': 'search-input',
+                        'placeholder': 'Search for Relative',
+                        'value': target_fullname,
+                        'label': 'To',
+                        'validators': ['required'],
+                        'field_name': 'to_fullname_' + str(target_id),
+                        'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12'
+                    }
+                )
+        return {'form': family_array, 'inline': True}
 
     def get(self):
         args = self.reqparse.parse_args()
