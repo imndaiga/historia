@@ -745,7 +745,7 @@ const add_relationships = Vue.component('add-relationships-page', {
 				{type: 'search-input', placeholder: 'Search for Relative', label: 'From', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'from_person', id: 5},
 				{type: 'search-input', placeholder: 'Search for Relative', label: 'To', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'to_person', id: 6},
 				{type: 'multiselect-input', placeholder: 'Choose a Relation', label: 'Relation', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'relation_name', id: 7,
-					multiselect_options: ['Father', 'Mother', 'Sister', 'Brother', 'Step-Father', 'Step-Mother', 'Step-Sister', 'Step-Brother', 'Daughter', 'Son']
+					multiselect_options: ['Parent', 'Partner', 'Sibling', 'Step-Parent', 'Step-Sibling', 'Child']
 				},
 				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'add_relative_panel', field_name: 'birth_date', id: 8},
 				{type: 'submit-button', button_message: 'Save Relative', button_name: 'add_personal-details', bs_panel: 'add_relative_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 9},
@@ -773,7 +773,7 @@ const list_relationships = Vue.component('list-relationships-page', {
 		return {
 			modal_resources: {
 				record: '/api/person',
-				links: '/api/relationships'
+				links: '/api/person/family'
 			},
 			table_resource: '/api/relationships'
 		}
