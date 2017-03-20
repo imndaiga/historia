@@ -168,11 +168,25 @@
                   Change
                 </button>
               </div>
-             </div>
-             <multiselect v-else-if="field.type == 'multiselect-input'" :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id"></multiselect>
-             <multiselect v-else-if="field.type == 'search-input'" :options="form_object[field.field_name].options" :placeholder="field.placeholder" :loading="form_object[field.field_name].loading" :options-limit="10" :searchable="true" :internal-search="false" v-on:search-change="asyncFind(field.field_name, $event)" v-model="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id">
-               <span slot="noResult">Oops! No person found under that name.</span>
-             </multiselect>
+            </div>
+            <div v-else-if="field.type == 'multiselect-input'" :class="{'input-group': field.value != undefined}">
+              <multiselect :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id" :disabled="field.value != undefined && !form_object[field.field_name].activated"></multiselect>
+              <div v-if="field.value != undefined" class="input-group-btn">
+                <button type="button" class="btn btn-warning" v-on:click="activateField(field.field_name)">
+                Change
+                </button>
+              </div>
+            </div>
+            <div v-else-if="field.type == 'search-input'" :class="{'input-group': field.value != undefined}">
+              <multiselect :options="form_object[field.field_name].options" :placeholder="field.placeholder" :loading="form_object[field.field_name].loading" :options-limit="10" :searchable="true" :internal-search="false" v-on:search-change="asyncFind(field.field_name, $event)" v-model="form_object[field.field_name].value" v-on:input="$v.form_object[field.field_name].value.$touch()" :key="field.id" :disabled="field.value != undefined && !form_object[field.field_name].activated">
+                <span slot="noResult">Oops! No person found under that name.</span>
+              </multiselect>
+              <div v-if="field.value != undefined" class="input-group-btn">
+                <button type="button" class="btn btn-warning" v-on:click="activateField(field.field_name)">
+                  Change
+                </button>
+              </div>
+            </div>
           </div>
           <!-- <pre v-if="!!$v.form_object[field.field_name].value">{{$v.form_object[field.field_name].value}}</pre> -->
           <div v-if="$v.form_object[field.field_name].$error" class="form-group__field">

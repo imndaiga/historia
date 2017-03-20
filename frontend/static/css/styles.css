@@ -43,6 +43,12 @@ th {
   display: none
 }
 
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+  opacity: 0.6;
+  background-color: #fff;
+  pointer-events: none
+}
+
 /*
 * Forms
 */
@@ -59,6 +65,10 @@ th {
 
 .has-error > .multiselect > .multiselect__tags {
   border-color: #a94442
+}
+
+.multiselect--disabled > .multiselect__select {
+  display: none
 }
 
 /*
