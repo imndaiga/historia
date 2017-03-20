@@ -9,14 +9,14 @@ class Graph:
 
     Relations = {
         'directed_types': {
-            3: ['parent', 4], 4: ['child', 3]},
+            3: ['Parent', 4], 4: ['Child', 3]},
         'undirected_types': {
-            1: ['partner'], 2: ['sibling']},
+            1: ['Partner'], 2: ['Sibling']},
         'all_types': {
-            1: 'partner', 2: 'sibling', 3: 'parent',
-            4: 'child', 5: 'niece-nephew', 6: 'uncle-aunt'},
+            1: 'Partner', 2: 'Sibling', 3: 'Parent',
+            4: 'Child', 5: 'Niece-Nephew', 6: 'Uncle-Aunt'},
         'modifiers': {
-            1: 'great', 2: 'grand', 3: 'in-law'}
+            1: 'Great', 2: 'Grand', 3: 'In-law'}
     }
 
     def init_app(self, app):

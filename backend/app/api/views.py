@@ -287,8 +287,7 @@ class familyAPI(Resource):
         super(familyAPI, self).__init__()
 
     def formatResponse(self, relations_list):
-        print(relations_list)
-        json_tree = {}
+        family_array = []
         for relation_tree in relations_list:
             for relation_degree in relation_tree:
                 target_id = relation_degree[0]
@@ -300,10 +299,31 @@ class familyAPI(Resource):
                     target.surname or ''
                 ]
                 target_fullname = ' '.join(filter(None, listed_names))
-                json_tree[target_fullname] = {
-                    'id': target_id, 'relation': relation
-                }
-        return json_tree
+                family_array.append(
+                    {
+                        'type': 'search-input',
+                        'placeholder': 'Search for Relative',
+                        'value': target_fullname,
+                        'label': 'To',
+                        'validators': ['required'],
+                        'field_name': 'to_fullname_' + str(target_id),
+                    }
+                )
+                family_array.append(
+                    {
+                        'type': 'multiselect-input',
+                        'placeholder': relation,
+                        'value': relation,
+                        'label': 'Relation',
+                        'validators': ['required'],
+                        'field_name': 'to_relation_' + str(target_id),
+                        'multiselect_options': [
+                            'Parent', 'Sibling', 'Step-Parent',
+                            'Step-Sibling', 'Child'
+                        ]
+                    }
+                )
+        return family_array
 
     def get(self):
         args = self.reqparse.parse_args()
