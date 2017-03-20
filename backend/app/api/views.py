@@ -216,9 +216,6 @@ class relationshipsAPI(Resource):
             print('{} does not exist in database'.format(delete_person_id))
             return {'message': 'Database error'}
 
-# relation_name:{value:'Father', type:'multiselect-input'},
-# birth_date:{value:'2017-02-15', type:'pikaday-input'}
-
 
 class personAPI(Resource):
     decorators = [requires_auth]
@@ -281,8 +278,51 @@ class personAPI(Resource):
         pass
 
 
+class familyAPI(Resource):
+    decorators = [requires_auth]
+
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('id', type=int, location='args')
+        super(familyAPI, self).__init__()
+
+    def formatResponse(self, relations_list):
+        print(relations_list)
+        json_tree = {}
+        for relation_tree in relations_list:
+            for relation_degree in relation_tree:
+                target_id = relation_degree[0]
+                relation = relation_degree[1]
+                target = Person.query.get(target_id)
+                listed_names = [
+                    target.baptism_name or '',
+                    target.ethnic_name or '',
+                    target.surname or ''
+                ]
+                target_fullname = ' '.join(filter(None, listed_names))
+                json_tree[target_fullname] = {
+                    'id': target_id, 'relation': relation
+                }
+        return json_tree
+
+    def get(self):
+        args = self.reqparse.parse_args()
+        person_id = args['id']
+        relations_list = []
+        if person_id is not None:
+            source = Person.query.get(person_id)
+            neighbor_list = graph.current.neighbors(person_id)
+            for node in neighbor_list:
+                target = Person.query.get(node)
+                relationship = graph.get_relation_tree(source, target)
+                relations_list.append(relationship)
+            return self.formatResponse(relations_list)
+        return {'message': 'missing person_id'}
+
+
 api.add_resource(relationshipsAPI, '/relationships', endpoint='relationships')
 api.add_resource(searchAPI, '/search', endpoint='search')
 api.add_resource(graphAPI, '/graph', endpoint='graph')
 api.add_resource(personAPI, '/person', endpoint='person')
+api.add_resource(familyAPI, '/person/family', endpoint='family')
 api.add_resource(pingAPI, '/ping', endpoint='ping')
