@@ -53,7 +53,7 @@
       <div class="panel-group">
         <div v-for="panel in bs_panels" class="col-sm-6 col-md-6 col-lg-6 panel-slot">
           <app-panel :bs_panel="panel" :key="panel.id">
-            <app-form :form="splitPanelForm(form_data, panel.name)" submit_type="add"></app-form>
+            <app-form :form="splitPanelForm(form_data, panel.name)" :submit_resource="submit_resource" :search_resource="search_resource"></app-form>
           </app-panel>
         </div>
       </div>
@@ -234,8 +234,8 @@
             <tr v-for="record in table_Data">
               <td class="center-content" v-for="(value, key) in record" v-if="key != 'id'">{{ value }}</td>
               <td class="center-content">
-                <button type="button" v-on:click="openRecordInModal(record.id, 'record')" class="btn btn-default btn-sm" title="Edit"><i class="fa fa-user fa-fw"></i></button>
-                <button type="button" v-on:click="openRecordInModal(record.id, 'links')" class="btn btn-default btn-sm" title="Edit"><i class="fa fa-link fa-fw"></i></button>
+                <button type="button" v-on:click="openRecordInModal(record.id, 'record_resource')" class="btn btn-default btn-sm" title="Edit"><i class="fa fa-user fa-fw"></i></button>
+                <button type="button" v-on:click="openRecordInModal(record.id, 'links_resource')" class="btn btn-default btn-sm" title="Edit"><i class="fa fa-link fa-fw"></i></button>
                 <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRecord(record.id)" title="Delete"><i class="fa fa-trash-o fa-fw"></i></button>
               </td>
             </tr>
@@ -258,7 +258,7 @@
               <h4 class="modal-title" v-once>Edit Relationship</h4>
             </div>
             <div class="modal-body">
-              <app-form :form="modal_Form_Data" submit_type="mod"></app-form>
+              <app-form :form="modal_Form_Data" :submit_resource="resource_urls.submit_resource" :search_resource="resource_urls.search_resource"></app-form>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>

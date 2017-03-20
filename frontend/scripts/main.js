@@ -194,7 +194,11 @@ Vue.component('app-form', {
 			type: Array,
 			required: true
 		},
-		submit_type: {
+		submit_resource: {
+			type: String,
+			required: true
+		},
+		search_resource: {
 			type: String,
 			required: true
 		}
@@ -202,7 +206,6 @@ Vue.component('app-form', {
 	data: function() {
 		return {
 			form_object: this.createFormObject(),
-			sub_type: this.submit_type,
 			picker: ''
 		}
 	},
@@ -229,8 +232,7 @@ Vue.component('app-form', {
 				for (field in this.form_object) {
 					form_data[field] = this.form_object[field].value
 				}
-				form_data['submit_type'] = this.sub_type
-				this.$http.put('/api/relationships', {
+				this.$http.put(this.submit_resource, {
 					data: {
 						form: form_data
 					}
@@ -264,7 +266,7 @@ Vue.component('app-form', {
 			var value = value
 			this.form_object[field_name].loading = true
 			this.$forceUpdate()
-			this.$http.get('/api/search', {
+			this.$http.get(this.search_resource, {
 				params: {
 					field: field,
 					value: value
@@ -469,7 +471,8 @@ Vue.component('app-modal-form', {
 		return {
 			modal_open: false,
 			raw_modal_form_data: [],
-			activate_submit_button: false
+			activate_submit_button: false,
+			resource_url: ''
 		}
 	},
 	methods: {
@@ -734,6 +737,8 @@ const add_relationships = Vue.component('add-relationships-page', {
 	template: '#add-relationships-page',
 	data: function() {
 		return {
+			submit_resource: 'api/relationships?type=add',
+			search_resource: 'api/search',
 			bs_panels: [
 				{name: 'add_relative_panel', open: false, label: 'Add Relative', icon: 'fa fa-user-plus fa-lg'},
 				{name: 'add_relationship_panel', open: false, label: 'Add Relationship', icon: 'fa fa-link fa-lg'}],
@@ -772,8 +777,10 @@ const list_relationships = Vue.component('list-relationships-page', {
 	data: function() {
 		return {
 			modal_resources: {
-				record: '/api/person',
-				links: '/api/person/family'
+				record_resource: '/api/person',
+				links_resource: '/api/person/family',
+				submit_resource: 'api/relationships?type=mod',
+				search_resource: 'api/search'
 			},
 			table_resource: '/api/relationships'
 		}
