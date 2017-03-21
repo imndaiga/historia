@@ -12,7 +12,7 @@ class GraphTestCase(unittest.TestCase):
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
-        self.delete_gpickle_file()
+        self.reset()
         seed.run(family_units=1, family_size=4, layers=0, verbose=False)
         self.p1 = db.session.query(Person).filter_by(
             baptism_name='Patricia').first()
@@ -27,7 +27,14 @@ class GraphTestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
-        self.delete_gpickle_file()
+
+    @staticmethod
+    def reset():
+        db.session.remove()
+        db.drop_all()
+        db.create_all()
+        graph.clear()
+        seed.auto = True
 
     def delete_gpickle_file(self):
         if os.path.exists(self.app.config['GRAPH_PATH']):
@@ -269,3 +276,24 @@ class GraphTestCase(unittest.TestCase):
         self.assertIsNone(c6.get(2))
         self.assertEqual(c6.get(3), 3)
         self.assertIsNone(c6.get(4))
+
+    def test_subgraph_edge_node_count_with_one_layer_and_family_size_3(self):
+        self.reset()
+        seed.run(family_units=1, family_size=3, layers=1, verbose=False)
+        p1_graph = graph.get_subgraph(self.p1)
+        self.assertEqual(p1_graph.number_of_nodes(), 9)
+        self.assertEqual(p1_graph.number_of_edges(), 8)
+
+    def test_subgraph_edge_node_count_with_one_layer_and_family_size_4(self):
+        self.reset()
+        seed.run(family_units=1, family_size=4, layers=1, verbose=False)
+        p1_graph = graph.get_subgraph(self.p1)
+        self.assertEqual(p1_graph.number_of_nodes(), 16)
+        self.assertEqual(p1_graph.number_of_edges(), 15)
+
+    def test_subgraph_edge_node_count_with_one_layer_and_family_size_5(self):
+        self.reset()
+        seed.run(family_units=1, family_size=5, layers=1, verbose=False)
+        p1_graph = graph.get_subgraph(self.p1)
+        self.assertEqual(p1_graph.number_of_nodes(), 25)
+        self.assertEqual(p1_graph.number_of_edges(), 24)
