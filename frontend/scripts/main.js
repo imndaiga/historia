@@ -814,7 +814,7 @@ const visualisation = Vue.component('visualisation-page', {
 		            labelThreshold: 12
 		        }
 			})
-			var dragListener = sigma.plugins.dragNodes(s, s.renderers[0])
+			s.startForceAtlas2({worker: true, barnesHutOptimize: false})
 		}
 	},
 	created: function() {
