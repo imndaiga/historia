@@ -14,14 +14,10 @@ class GraphTestCase(unittest.TestCase):
         db.create_all()
         self.delete_gpickle_file()
         seed.run(family_units=1, family_size=4, layers=0, verbose=False)
-        self.p1 = db.session.query(Person).filter_by(
-            baptism_name='Tina').first()
-        self.p2 = db.session.query(Person).filter_by(
-            baptism_name='Patricia').first()
-        self.p3 = db.session.query(Person).filter_by(
-            baptism_name='Paige').first()
-        self.p4 = db.session.query(Person).filter_by(
-            baptism_name='Kerry').first()
+        self.p1 = db.session.query(Person).filter_by(id=1).first()
+        self.p2 = db.session.query(Person).filter_by(id=2).first()
+        self.p3 = db.session.query(Person).filter_by(id=3).first()
+        self.p4 = db.session.query(Person).filter_by(id=4).first()
 
     def tearDown(self):
         db.session.remove()
@@ -119,18 +115,18 @@ class GraphTestCase(unittest.TestCase):
             source=self.p4, target=self.p2)
         n4_n3_relation = graph.get_relation_tree(
             source=self.p4, target=self.p3)
-        self.assertTrue(n1_n2_relation == [[2, 'partner']])
-        self.assertTrue(n1_n3_relation == [[3, 'parent']])
-        self.assertTrue(n1_n4_relation == [[4, 'parent']])
-        self.assertTrue(n2_n1_relation == [[1, 'partner']])
-        self.assertTrue(n2_n3_relation == [[3, 'parent']])
-        self.assertTrue(n2_n4_relation == [[4, 'parent']])
-        self.assertTrue(n3_n1_relation == [[1, 'child']])
-        self.assertTrue(n3_n2_relation == [[2, 'child']])
-        self.assertTrue(n3_n4_relation == [[4, 'sibling']])
-        self.assertTrue(n4_n1_relation == [[1, 'child']])
-        self.assertTrue(n4_n2_relation == [[2, 'child']])
-        self.assertTrue(n4_n3_relation == [[3, 'sibling']])
+        self.assertTrue(n1_n2_relation == [[2, 'Partner']])
+        self.assertTrue(n1_n3_relation == [[3, 'Parent']])
+        self.assertTrue(n1_n4_relation == [[4, 'Parent']])
+        self.assertTrue(n2_n1_relation == [[1, 'Partner']])
+        self.assertTrue(n2_n3_relation == [[3, 'Parent']])
+        self.assertTrue(n2_n4_relation == [[4, 'Parent']])
+        self.assertTrue(n3_n1_relation == [[1, 'Child']])
+        self.assertTrue(n3_n2_relation == [[2, 'Child']])
+        self.assertTrue(n3_n4_relation == [[4, 'Sibling']])
+        self.assertTrue(n4_n1_relation == [[1, 'Child']])
+        self.assertTrue(n4_n2_relation == [[2, 'Child']])
+        self.assertTrue(n4_n3_relation == [[3, 'Sibling']])
 
     def test_subgraph_null_relations(self):
         relative = fake.family_member(sex='F')
