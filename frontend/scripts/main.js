@@ -14,7 +14,7 @@ function(response) {
 },
 function(error) {
 	// Do something with response error
-	if (error.response.status === 401) {
+	if (!!error.response && error.response.status === 401) {
 		error_obj = {'error_message': [{
 			'code': error.response.data.code,
 			'description': error.response.data.description
@@ -26,6 +26,11 @@ function(error) {
 		this.authenticated = false
 		router.replace('/')
 	}
+	swal({
+		title: 'Ooops...',
+		text: 'Please check your Internet connection',
+		type: 'error'
+	})
 	return Promise.reject(error)
 })
 
