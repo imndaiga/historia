@@ -70,7 +70,7 @@ input.form-control {
   font-size: 90%
 }
 
-.has-error > .multiselect > .multiselect__tags {
+.has-error > div > .multiselect > .multiselect__tags {
   border-color: #a94442
 }
 
