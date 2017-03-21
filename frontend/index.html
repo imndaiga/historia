@@ -293,7 +293,7 @@
       <div class="nav-app-footer">
         <button type="button" v-for="item in footer" v-if="item.type == 'footer_button'" :class="item.class" v-on:click="performAction(item.action)">{{item.caption}}</button>
         <ul class="list-inline footer-links">
-          <router-link v-for="item in footer" v-if="item.path_type == 'internal'" active-class="active" :to="{name: item.link}" tag="li">
+          <router-link v-for="item in footer" v-if="item.path_type == 'internal'" active-class="active" :to="{name: item.link}" tag="li" :key="item.key">
             <a :class="item.icon"></a>
           </router-link>
           <li v-else-if="item.path_type == 'external'">

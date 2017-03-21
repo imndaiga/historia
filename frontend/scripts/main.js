@@ -620,7 +620,8 @@ const dashboard = Vue.component('dashboard-page', {
 					caption: 'Info',
 					icon: 'fa fa-info-circle fa-lg',
 					link: 'List_Relationships',
-					reference: 'Read more about the miminani project'
+					reference: 'Read more about the miminani project',
+					key: 1
 				},
 				{
 					type: 'footer_link',
@@ -628,7 +629,8 @@ const dashboard = Vue.component('dashboard-page', {
 					caption: 'Github',
 					icon: 'fa fa-github-alt fa-lg',
 					link: 'https://github.com/squarenomad/miminani',
-					reference: 'View our open source code'
+					reference: 'View our open source code',
+					key: 2
 				},
 			]
 		}
@@ -889,16 +891,17 @@ var vm = new Vue({
 				if (error) {
 					// Handle error
 					console.log('Error loading the Profile', error)
-					return
 				} else {
 					// Set the token and user profile in local storage
 					localStorage.setItem('profile', JSON.stringify(profile))
-					self.authenticated = true
 				}
 			})
+			self.authenticated = true
+			self.$router.push('/dashboard/user')
 		})
 		this.lock.on('authorization_error', function(error) {
 			// handle error when authorizaton fails
+			console.log('authorization error')
 		})
 	},
 	methods: {
@@ -909,6 +912,7 @@ var vm = new Vue({
 			localStorage.removeItem('id_token')
 			localStorage.removeItem('profile')
 			this.authenticated = false
+			this.$router.push('/')
 		},
 		testSecured: function() {
 			console.log('testing secured connection')
@@ -919,15 +923,6 @@ var vm = new Vue({
 				function(response) {
 					console.log(response)
 				})
-		}
-	},
-	watch: {
-		authenticated: function(state) {
-			// Automatically reload login page
-			// when user logs out
-			if (state == false) {
-				router.push('/')
-			}
 		}
 	}
 })
