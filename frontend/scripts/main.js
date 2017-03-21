@@ -386,8 +386,9 @@ Vue.component('app-table', {
 			this.raw_table_data = data
 			this.$forceUpdate()
 		},
-		openRecordInModal: function(person_id, resource_name) {
-			bus.$emit('open-modal', person_id, resource_name)
+		openRecordInModal: function(person_id, person_name_list, resource_name) {
+			full_name = person_name_list.filter(function(val) {return val}).join(' ')
+			bus.$emit('open-modal', person_id, resource_name, full_name)
 		},
 		deleteRecord: function(record_id) {
 			var self = this
@@ -482,7 +483,8 @@ Vue.component('app-modal-form', {
 			raw_modal_form_data: [],
 			activate_submit_button: false,
 			resource_url: '',
-			inlined_form: false
+			inlined_form: false,
+			modal_title: ''
 		}
 	},
 	methods: {
@@ -490,6 +492,7 @@ Vue.component('app-modal-form', {
 			self.raw_modal_form_data = []
 			this.modal_open = false
 			this.activate_submit_button = false
+			this.modal_title = ''
 			document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
 		},
 		getModalFormData: function(record_id) {
@@ -515,13 +518,14 @@ Vue.component('app-modal-form', {
 		}
 	},
 	created: function() {
-		bus.$on('open-modal', function(record_id, resource_name) {
+		bus.$on('open-modal', function(record_id, resource_name, title) {
 			for (url in this.resource_urls) {
 				if (url == resource_name) {
 					this.resource_url = this.resource_urls[url]
 				}
 			}
 			document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
+			this.modal_title = title
 			this.getModalFormData(record_id)
 		}.bind(this))
 		bus.$on('form-field-activated', function() {
