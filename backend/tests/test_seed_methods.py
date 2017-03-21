@@ -39,15 +39,15 @@ class SeedTestCase(unittest.TestCase):
         )
         seed.relate(parents=[self.p1, self.p2],
                     children=[self.p3, self.p4, a1])
-        self.assertTrue(Link.query.count() == 20)
+        self.assertEqual(Link.query.count(), 20)
 
     def test_seed_link_count_is_valid(self):
-        self.assertTrue(Link.query.count() == 12)
+        self.assertEqual(Link.query.count(), 12)
 
     def test_seed_auto_graph_is_false(self):
         G = graph.current
-        self.assertTrue(G.order() == 0)
-        self.assertTrue(G.size() == 0)
+        self.assertEqual(G.order(), 0)
+        self.assertEqual(G.size(), 0)
 
     def test_seed_auto_graph_is_true(self):
         seed.auto = True
@@ -57,5 +57,5 @@ class SeedTestCase(unittest.TestCase):
         seed.auto = True
         seed.run(family_units=1, family_size=4, layers=0, verbose=False)
         G = graph.current
-        self.assertTrue(G.order() == 4)
-        self.assertTrue(G.size() == 12)
+        self.assertEqual(G.order(), 4)
+        self.assertEqual(G.size(), 12)

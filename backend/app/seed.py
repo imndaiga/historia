@@ -64,9 +64,6 @@ class Seed(Command):
     """Create fake seed data and store in database"""
     # This function should be protected
 
-    auto = False
-    authorised = False
-
     option_list = (
         Option('--units', '-u', dest='family_units'),
         Option('--size', '-s', dest='family_size'),
@@ -181,8 +178,8 @@ class Seed(Command):
                         faker_index += 1
                         self.db.session.commit()
                         if verbose:
-                            print('Success! --> ID = {}'.format(
-                                created_person.id))
+                            print('Success! --> ID = {} --> Relation = {}'.
+                                  format(created_person.id, relation))
                         if relation == 'parents':
                             parents.append(created_person)
                             successful_fakers['parents'].append(relative)
