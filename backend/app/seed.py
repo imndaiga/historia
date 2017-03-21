@@ -192,9 +192,9 @@ class Seed(Command):
                             faker_index += 1
                             created_status = True
                             if verbose:
-                                print('Superimposed! -->', end="")
-                            if verbose:
-                                print('ID = {}'.format(created_person.id))
+                                print('Superimposed! --> ID = {}'
+                                      ' --> Relation = {}'.
+                                      format(created_person.id, relation))
                             if relation == 'parents':
                                 parents.append(created_person)
                             elif relation == 'children':
