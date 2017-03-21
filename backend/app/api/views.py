@@ -310,7 +310,9 @@ class familyAPI(Resource):
                             'Step-Sibling', 'Child'
                         ],
                         'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12' +
-                                   ' inline-split'
+                                   ' inline-split',
+                        'SelectLabel': '',
+                        'DeselectLabel': ''
                     }
                 )
                 family_array.append(
@@ -321,7 +323,9 @@ class familyAPI(Resource):
                         'label': 'To',
                         'validators': ['required'],
                         'field_name': 'to_fullname_' + str(target_id),
-                        'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12'
+                        'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12',
+                        'SelectLabel': '',
+                        'DeselectLabel': ''
                     }
                 )
         return {'form': family_array, 'inline': True}
