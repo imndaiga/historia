@@ -755,10 +755,10 @@ const add_relationships = Vue.component('add-relationships-page', {
 				{type: 'alpha-input', placeholder: 'Enter Ethnic Name', label: 'Ethnic Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'ethnic_name', classes: '' , id: 2},
 				{type: 'alpha-input', placeholder: 'Enter Last Name', label: 'Last Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'last_name', classes: '' , id: 3},
 				{type: 'email-input', placeholder: 'Enter Email Address', label: 'Email', bs_panel: 'add_relative_panel', validators: { email }, field_name: 'email', classes: '' , id: 4},
-				{type: 'search-input', placeholder: 'Search for Relative', label: 'From', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'from_person', classes: '' , id: 5},
-				{type: 'search-input', placeholder: 'Search for Relative', label: 'To', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'to_person', classes: '' , id: 6},
+				{type: 'search-input', placeholder: 'Search for Relative', label: 'From', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'from_person', classes: '' , 'SelectLabel': '', 'DeselectLabel': '', id: 5},
+				{type: 'search-input', placeholder: 'Search for Relative', label: 'To', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'to_person', classes: '' , 'SelectLabel': '', 'DeselectLabel': '', id: 6},
 				{type: 'multiselect-input', placeholder: 'Choose a Relation', label: 'Relation', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'relation_name', classes: '' , id: 7,
-					multiselect_options: ['Parent', 'Partner', 'Sibling', 'Step-Parent', 'Step-Sibling', 'Child']
+					multiselect_options: ['Parent', 'Partner', 'Sibling', 'Step-Parent', 'Step-Sibling', 'Child'], 'SelectLabel': '', 'DeselectLabel': '',
 				},
 				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'add_relative_panel', field_name: 'birth_date', classes: '' , id: 8},
 				{type: 'submit-button', button_message: 'Save Relative', button_name: 'add_personal-details', bs_panel: 'add_relative_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 9},
