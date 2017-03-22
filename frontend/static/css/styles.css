@@ -273,6 +273,11 @@ input.form-control {
   margin-left: -50px
 }
 
+.page-message {
+  margin-top: 20%;
+  font-size: 20px
+}
+
 /*
 * Modal window
 */
@@ -396,6 +401,58 @@ input.form-control {
 .v-paginator > .btn:first-child:before {
   content: "\f060";
   font-family: FontAwesome
+}
+
+/*
+* Loading Animation
+*/
+
+@keyframes pulsate-fwd {
+    0% {
+      -webkit-transform: scale(1);
+         -moz-transform: scale(1);
+          -ms-transform: scale(1);
+           -o-transform: scale(1);
+              transform: scale(1)
+      }
+    50% {
+      -webkit-transform: scale(1.1);
+         -moz-transform: scale(1.1);
+          -ms-transform: scale(1.1);
+           -o-transform: scale(1.1);
+              transform: scale(1.1)
+    }
+    100% {
+      -webkit-transform: scale(1);
+         -moz-transform: scale(1);
+          -ms-transform: scale(1);
+           -o-transform: scale(1);
+              transform: scale(1)
+    }
+}
+
+#loading-radar {
+  margin-top: 20%;
+  opacity: 0.6;
+  background: #f5f5f5;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  -webkit-animation: pulsate-fwd 0.5s ease-in-out infinite both;
+  -moz-animation: pulsate-fwd 0.5s ease-in-out infinite both;
+  animation: pulsate-fwd 0.5s ease-in-out infinite both
+}
+
+#loading-radar > p {
+  margin: 42% 25% 0 25%;
+  font-size: 20px;
+  font-weight: 100
+}
+
+.anim-object .active {
+  display: block;
+  z-index: 1000
 }
 
 /*

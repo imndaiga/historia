@@ -70,8 +70,9 @@
 
   <template id="visualisation-page">
     <div id="sigma-parent" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <div id="sigma-container">
+      <div v-show="!loading" id="sigma-container">
       </div>
+      <app-loading v-if="loading" :is_loading="loading"></app-loading>
     </div>
   </template>
 
@@ -217,30 +218,33 @@
 
   <template id="app-table">
     <div>
-      <div class="table-responsive">
-        <table v-if="table_Data.length > 0" class="table table-hover">
-          <thead>
-            <tr>
-              <th class="center-content" v-for="header in table_Headers">{{header}}</th>
-              <th class="center-content">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="record in table_Data">
-              <td class="center-content" v-for="(value, key) in record" v-if="key != 'id'">{{ value }}</td>
-              <td class="center-content">
-                <button type="button" v-on:click="openRecordInModal(record.id, [record.first_name, record.ethnic_name, record.last_name], 'record_resource')" class="btn btn-default btn-sm" title="Edit"><i class="fa fa-user fa-fw"></i></button>
-                <button type="button" v-on:click="openRecordInModal(record.id,  [record.first_name, record.ethnic_name, record.last_name], 'links_resource')" class="btn btn-default btn-sm" title="Edit"><i class="fa fa-link fa-fw"></i></button>
-                <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRecord(record.id)" title="Delete"><i class="fa fa-trash-o fa-fw"></i></button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <h3 class="text-center" v-else>No Relationship Data Available</h3>
+      <div v-show="table_Data.length > 0">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th class="center-content" v-for="header in table_Headers">{{header}}</th>
+                <th class="center-content">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="record in table_Data">
+                <td class="center-content" v-for="(value, key) in record" v-if="key != 'id'">{{ value }}</td>
+                <td class="center-content">
+                  <button type="button" v-on:click="openRecordInModal(record.id, [record.first_name, record.ethnic_name, record.last_name], 'record_resource')" class="btn btn-default btn-sm" title="Edit"><i class="fa fa-user fa-fw"></i></button>
+                  <button type="button" v-on:click="openRecordInModal(record.id,  [record.first_name, record.ethnic_name, record.last_name], 'links_resource')" class="btn btn-default btn-sm" title="Edit"><i class="fa fa-link fa-fw"></i></button>
+                  <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRecord(record.id)" title="Delete"><i class="fa fa-trash-o fa-fw"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row">
+          <v-paginator class="center-block" style="width: 180px;" v-show="table_Data.length > 0" :resource_url="resource_url" v-on:update="updateTable" :options="options"></v-paginator>
+        </div>
       </div>
-      <div class="row">
-        <v-paginator class="center-block" style="width: 180px;" v-show="table_Data.length > 0" :resource_url="resource_url" v-on:update="updateTable" :options="options"></v-paginator>
-      </div>
+      <app-loading v-if="loading" :is_loading="loading"></app-loading>
+      <p v-else-if="!loading && table_Data.length == 0" class="page-message text-center">No Relationship Data Available</p>
     </div>
   </template>
 
@@ -308,7 +312,12 @@
 
   <template id="user-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+        <app-loading v-if="loading" :is_loading="loading"></app-loading>
     </div>
+  </template>
+
+  <template id="app-loading">
+    <div id="loading-radar" class="center-block" v-if=is_loading><p class="text-center">Loading</p></div>
   </template>
 
 </body>

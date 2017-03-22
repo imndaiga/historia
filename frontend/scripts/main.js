@@ -33,6 +33,7 @@ HTTP.interceptors.response.use(
 			text: 'Please check your Internet connection',
 			type: 'error'
 		})
+		bus.$emit('cancel-loaders')
 		return Promise.reject(error)
 	})
 
@@ -389,13 +390,15 @@ Vue.component('app-table', {
 				},
 				next_button_text: '',
 				previous_button_text: ''
-			}
+			},
+			loading: true
 		}
 	},
 	methods: {
 		updateTable: function(data) {
 			this.raw_table_data = data
 			this.$forceUpdate()
+			this.loading = false
 		},
 		openRecordInModal: function(person_id, person_name_list, resource_name) {
 			full_name = person_name_list.filter(function(val) {return val}).join(' ')
@@ -477,6 +480,11 @@ Vue.component('app-table', {
 			}
 			return records
 		}
+	},
+	created: function() {
+		bus.$on('cancel-loaders', function() {
+			this.loading = false
+		}.bind(this))
 	}
 })
 
@@ -562,6 +570,16 @@ Vue.component('app-modal-form', {
 				}
 			}
 			return processed
+		}
+	}
+})
+
+Vue.component('app-loading', {
+	template: '#app-loading',
+	props: {
+		is_loading: {
+			type: Boolean,
+			required: true
 		}
 	}
 })
@@ -816,7 +834,8 @@ const visualisation = Vue.component('visualisation-page', {
 	data: function() {
 		return {
 			graph: {},
-			resource_url: '/api/graph'
+			resource_url: '/api/graph',
+			loading: false
 		}
 	},
 	methods: {
@@ -834,22 +853,30 @@ const visualisation = Vue.component('visualisation-page', {
 		}
 	},
 	created: function() {
+		this.loading = true
 		var self = this
 		this.$http.get(this.resource_url).then(
 			function(response) {
 				self.graph = response.data.graph
 				self.renderGraph()
 				self.$forceUpdate()
+				self.loading = false
 			},
 			function(error) {
 				console.log(error)
+				self.loading = false
 			}
 		)
 	}
 })
 
 const user = Vue.component('user-page', {
-	template: '#user-page'
+	template: '#user-page',
+	data: function() {
+		return {
+			loading: true
+		}
+	}
 })
 
 // ROUTER CONFIG
