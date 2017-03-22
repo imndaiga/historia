@@ -1,5 +1,7 @@
-// Create axios instance
+// HELPER FUNCTIONS AND SETUP
+
 var HTTP = axios.create({
+	// Create axios instance
 	baseURL: ''
 })
 
@@ -7,32 +9,32 @@ var HTTP = axios.create({
  var email = validators.email
  var alpha = validators.alpha
 
-// Set up axios interceptors to error responses
 HTTP.interceptors.response.use(
-function(response) {
-	return response
-},
-function(error) {
-	// Do something with response error
-	if (!!error.response && error.response.status === 401) {
-		error_obj = {'error_message': [{
-			'code': error.response.data.code,
-			'description': error.response.data.description
-		}]}
-		console.log('unauthorized, logging out ...')
-		console.log(error_obj)
-		localStorage.removeItem('id_token')
-		localStorage.removeItem('profile')
-		this.authenticated = false
-		router.replace('/')
-	}
-	swal({
-		title: 'Ooops...',
-		text: 'Please check your Internet connection',
-		type: 'error'
+	// Set up axios interceptors to error responses
+	function(response) {
+		return response
+	},
+	function(error) {
+		// Do something with response error
+		if (!!error.response && error.response.status === 401) {
+			error_obj = {'error_message': [{
+				'code': error.response.data.code,
+				'description': error.response.data.description
+			}]}
+			console.log('unauthorized, logging out ...')
+			console.log(error_obj)
+			localStorage.removeItem('id_token')
+			localStorage.removeItem('profile')
+			this.authenticated = false
+			router.replace('/')
+		}
+		swal({
+			title: 'Ooops...',
+			text: 'Please check your Internet connection',
+			type: 'error'
+		})
+		return Promise.reject(error)
 	})
-	return Promise.reject(error)
-})
 
 Vue.prototype.$http = HTTP
 
@@ -67,6 +69,8 @@ function autoRoute(to, from, next) {
 		next()
 	}
 }
+
+// APP COMPONENTS
 
 Vue.component('app-sidebar-menu', {
 	template: "#app-sidebar-menu",
@@ -194,6 +198,10 @@ Vue.component('app-panel', {
 
 Vue.component('app-form', {
 	template: '#app-form',
+	mixins: [window.vuelidate.validationMixin],
+	components: {
+		'multiselect': VueMultiselect.default
+	},
 	props: {
 		form : {
 			type: Array,
@@ -363,6 +371,9 @@ Vue.component('app-form', {
 
 Vue.component('app-table', {
 	template: '#app-table',
+	components: {
+		'v-paginator': VuePaginator
+	},
 	props: {
 		resource_url: {
 			type: String,
@@ -555,11 +566,7 @@ Vue.component('app-modal-form', {
 	}
 })
 
-Vue.component('v-paginator', VuePaginator)
-
-Vue.use(window.vuelidate.default)
-
-Vue.component('multiselect', VueMultiselect.default)
+// APP NAVIGATION PAGES
 
 const dashboard = Vue.component('dashboard-page', {
 	template: '#dashboard-page',
@@ -845,6 +852,8 @@ const user = Vue.component('user-page', {
 	template: '#user-page'
 })
 
+// ROUTER CONFIG
+
 const routes = [
 	{ path: '/', component: welcome, beforeEnter: autoRoute},
 	{ path: '/dashboard', component: dashboard, beforeEnter: requireAuth,
@@ -874,6 +883,8 @@ router.beforeEach(
 		bus.$emit('close-mobile-menu')
 		next()
 })
+
+// VUE INSTANCE CONFIGS
 
 var bus = new Vue()
 
