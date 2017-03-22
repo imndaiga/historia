@@ -34,6 +34,8 @@
     <router-view></router-view>
   </div>
 
+  <!-- APP NAVIGATION PAGES -->
+
   <template id="dashboard-page">
     <div>
       <app-sidebar-menu class="hidden-xs" :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer" :current_panel="current_Panel"></app-sidebar-menu>
@@ -138,6 +140,20 @@
       </footer>
     </div>
   </template>
+
+  <template id="user-profile-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+      <app-loading v-if="loading" :is_loading="loading"></app-loading>
+    </div>
+  </template>
+
+  <template id="user-settings-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+      <app-loading v-if="loading" :is_loading="loading"></app-loading>
+    </div>
+  </template>
+
+  <!-- APP COMPONENTS  -->
 
   <template id="app-sidebar-menu">
     <div class="container-fluid">
@@ -341,24 +357,12 @@
     </div>
   </template>
 
-  <template id="user-page">
-    <router-view></router-view>
-  </template>
-
-  <template id="user-profile-page">
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <app-loading v-if="loading" :is_loading="loading"></app-loading>
-    </div>
-  </template>
-
-  <template id="user-settings-page">
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <app-loading v-if="loading" :is_loading="loading"></app-loading>
-    </div>
-  </template>
-
   <template id="app-loading">
     <div id="loading-radar" class="center-block" v-if=is_loading><p class="text-center">Loading</p></div>
+  </template>
+
+  <template id="user-page">
+    <router-view></router-view>
   </template>
 
 </body>
