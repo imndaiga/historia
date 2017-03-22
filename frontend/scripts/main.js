@@ -5,9 +5,9 @@ var HTTP = axios.create({
 	baseURL: ''
 })
 
- var required = validators.required
- var email = validators.email
- var alpha = validators.alpha
+var required = validators.required
+var email = validators.email
+var alpha = validators.alpha
 
 HTTP.interceptors.response.use(
 	// Set up axios interceptors to error responses
@@ -646,7 +646,7 @@ const dashboard = Vue.component('dashboard-page', {
 					type: 'footer_button',
 					caption:'Log Out',
 					action: 'logout',
-					class: 'btn btn-block btn-lg btn-warning',
+					class: 'btn btn-block btn-lg btn-default',
 					reference: 'Your Profile'
 				},
 				{
