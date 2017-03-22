@@ -786,8 +786,8 @@ const add_relationships = Vue.component('add-relationships-page', {
 			submit_resource: 'api/relationships?type=add',
 			search_resource: 'api/search',
 			bs_panels: [
-				{name: 'add_relative_panel', open: false, label: 'Add Relative', icon: 'fa fa-user-plus fa-lg'},
-				{name: 'add_relationship_panel', open: false, label: 'Add Relationship', icon: 'fa fa-link fa-lg'}],
+				{name: 'add_relative_panel', open: false, label: 'Add Relative', icon: 'fa fa-user-plus fa-fw'},
+				{name: 'add_relationship_panel', open: false, label: 'Add Relationship', icon: 'fa fa-link fa-fw'}],
 			form_data: [
 				{type: 'alpha-input', placeholder: 'Enter First Name', label: 'First Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'first_name', classes: '' , id: 1},
 				{type: 'alpha-input', placeholder: 'Enter Ethnic Name', label: 'Ethnic Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'ethnic_name', classes: '' , id: 2},
@@ -849,12 +849,34 @@ const visualisation = Vue.component('visualisation-page', {
 			graph: {},
 			resource_url: '/api/graph',
 			loading: false,
-			viz: { graph: ''}
+			s: {graph: ''},
+			control_panel: {
+				name: 'visualisation_toolbox',
+				open: false,
+				label: 'Toolbox',
+				icon: 'fa fa-wrench fa-fw'
+			}
 		}
 	},
 	methods: {
+		getData: function() {
+			this.loading = true
+			var self = this
+			this.$http.get(this.resource_url).then(
+				function(response) {
+					self.graph = response.data.graph
+					self.renderGraph()
+					self.$forceUpdate()
+					self.loading = false
+				},
+				function(error) {
+					console.log(error)
+					self.loading = false
+				}
+			)
+		},
 		renderGraph: function() {
-			var s = new sigma({
+			this.s = new sigma({
 				graph: this.graph,
 				container: 'sigma-container',
 				settings: {
@@ -863,13 +885,26 @@ const visualisation = Vue.component('visualisation-page', {
 		            labelThreshold: 12
 		        }
 			})
-			s.startForceAtlas2({worker: true, barnesHutOptimize: false})
-			this.viz = s
+			this.s.startForceAtlas2({worker: true, barnesHutOptimize: false})
+		},
+		animateGraph: function(command) {
+			if (command == 'refresh') {
+				this.s.killForceAtlas2()
+				this.s.graph.clear()
+				this.s.refresh()
+				this.renderGraph()
+			} else if (command == 'play') {
+				this.s.startForceAtlas2({worker: true, barnesHutOptimize: false})
+			} else if (command == 'pause') {
+				this.s.stopForceAtlas2()
+			} else if (command == 'stop') {
+				this.s.killForceAtlas2()
+			}
 		}
 	},
 	computed: {
 		graph_Has_Nodes: function() {
-			if (!!this.viz.graph.nodes) {
+			if (!!this.s.graph.nodes) {
 				return true
 			} else {
 				return false
@@ -877,20 +912,7 @@ const visualisation = Vue.component('visualisation-page', {
 		}
 	},
 	created: function() {
-		this.loading = true
-		var self = this
-		this.$http.get(this.resource_url).then(
-			function(response) {
-				self.graph = response.data.graph
-				self.renderGraph()
-				self.$forceUpdate()
-				self.loading = false
-			},
-			function(error) {
-				console.log(error)
-				self.loading = false
-			}
-		)
+		this.getData()
 	}
 })
 

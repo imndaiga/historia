@@ -204,7 +204,7 @@ input.form-control {
   left: 0;
   height: 100%;
   left: 0;
-  z-index: 1000;
+  z-index: 1001;
   display: block;
   padding: 20px;
   overflow-x: hidden;
@@ -276,6 +276,11 @@ input.form-control {
 .page-message {
   margin-top: 20%;
   font-size: 20px
+}
+
+.toolbox {
+  position: absolute;
+  z-index: 1000
 }
 
 /*
