@@ -64,7 +64,7 @@ function requireAuth(to, from, next) {
 
 function autoRoute(to, from, next) {
 	if (checkAuth()) {
-		var path = 'dashboard/user'
+		var path = '/dashboard/user/profile'
 		next({ path: path })
 	} else {
 		next()
@@ -1015,7 +1015,7 @@ var vm = new Vue({
 				}
 			})
 			self.authenticated = true
-			self.$router.push('/dashboard/user')
+			self.$router.push('/dashboard/user/profile')
 		})
 		this.lock.on('authorization_error', function(error) {
 			// handle error when authorizaton fails
