@@ -65,14 +65,18 @@
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
       <app-table :resource_url="table_resource" class="app-table"></app-table>
       <app-modal-form :resource_urls="modal_resources"></app-modal-form>
+      <app-loading v-if="loading" :is_loading="loading"></app-loading>
     </div>
   </template>
 
   <template id="visualisation-page">
-    <div id="sigma-parent" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <div v-show="!loading" id="sigma-container">
-      </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
       <app-loading v-if="loading" :is_loading="loading"></app-loading>
+      <p v-else-if="!loading && !graph_Has_Nodes" class="page-message text-center">No Relationship Data Available</p>
+      <div v-show="!loading && graph_Has_Nodes" id="sigma-parent">
+        <div id="sigma-container">
+        </div>
+      </div>
     </div>
   </template>
 
@@ -243,8 +247,7 @@
           <v-paginator class="center-block" style="width: 180px;" v-show="table_Data.length > 0" :resource_url="resource_url" v-on:update="updateTable" :options="options"></v-paginator>
         </div>
       </div>
-      <app-loading v-if="loading" :is_loading="loading"></app-loading>
-      <p v-else-if="!loading && table_Data.length == 0" class="page-message text-center">No Relationship Data Available</p>
+      <p v-if="table_loaded && table_Data.length == 0" class="page-message text-center">No Relationship Data Available</p>
     </div>
   </template>
 
@@ -311,8 +314,18 @@
   </template>
 
   <template id="user-page">
+    <router-view></router-view>
+  </template>
+
+  <template id="user-profile-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-        <app-loading v-if="loading" :is_loading="loading"></app-loading>
+      <app-loading v-if="loading" :is_loading="loading"></app-loading>
+    </div>
+  </template>
+
+  <template id="user-settings-page">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+      <app-loading v-if="loading" :is_loading="loading"></app-loading>
     </div>
   </template>
 

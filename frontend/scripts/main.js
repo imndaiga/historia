@@ -16,6 +16,7 @@ HTTP.interceptors.response.use(
 	},
 	function(error) {
 		// Do something with response error
+		bus.$emit('clear-children')
 		if (!!error.response && error.response.status === 401) {
 			error_obj = {'error_message': [{
 				'code': error.response.data.code,
@@ -33,7 +34,6 @@ HTTP.interceptors.response.use(
 			text: 'Please check your Internet connection',
 			type: 'error'
 		})
-		bus.$emit('cancel-loaders')
 		return Promise.reject(error)
 	})
 
@@ -391,14 +391,15 @@ Vue.component('app-table', {
 				next_button_text: '',
 				previous_button_text: ''
 			},
-			loading: true
+			table_loaded: false
 		}
 	},
 	methods: {
 		updateTable: function(data) {
 			this.raw_table_data = data
 			this.$forceUpdate()
-			this.loading = false
+			this.table_loaded = true
+			bus.$emit('table-loaded')
 		},
 		openRecordInModal: function(person_id, person_name_list, resource_name) {
 			full_name = person_name_list.filter(function(val) {return val}).join(' ')
@@ -482,8 +483,8 @@ Vue.component('app-table', {
 		}
 	},
 	created: function() {
-		bus.$on('cancel-loaders', function() {
-			this.loading = false
+		bus.$on('clear-children', function() {
+			this.table_loaded = true
 		}.bind(this))
 	}
 })
@@ -602,13 +603,13 @@ const dashboard = Vue.component('dashboard-page', {
 						{
 							title: 'Profile',
 							info: 'Your profile',
-							view: 'User',
+							view: 'Profile',
 							id: 1
 						},
 						{
 							title: 'Settings',
 							info: 'Configure your profile settings',
-							view: 'User',
+							view: 'Settings',
 							id: 2
 						}
 					],
@@ -674,6 +675,9 @@ const dashboard = Vue.component('dashboard-page', {
 			this.open_mobile_menu = true
 		}.bind(this))
 		bus.$on('close-mobile-menu', function() {
+			this.open_mobile_menu = false
+		}.bind(this))
+		bus.$on('clear-children', function() {
 			this.open_mobile_menu = false
 		}.bind(this))
 	},
@@ -824,8 +828,17 @@ const list_relationships = Vue.component('list-relationships-page', {
 				submit_resource: 'api/relationships?type=mod',
 				search_resource: 'api/search'
 			},
-			table_resource: '/api/relationships'
+			table_resource: '/api/relationships',
+			loading: true
 		}
+	},
+	created: function() {
+		bus.$on('table-loaded', function() {
+			this.loading = false
+		}.bind(this))
+		bus.$on('clear-children', function() {
+			this.loading = false
+		}.bind(this))
 	}
 })
 
@@ -835,7 +848,8 @@ const visualisation = Vue.component('visualisation-page', {
 		return {
 			graph: {},
 			resource_url: '/api/graph',
-			loading: false
+			loading: false,
+			viz: { graph: ''}
 		}
 	},
 	methods: {
@@ -850,6 +864,16 @@ const visualisation = Vue.component('visualisation-page', {
 		        }
 			})
 			s.startForceAtlas2({worker: true, barnesHutOptimize: false})
+			this.viz = s
+		}
+	},
+	computed: {
+		graph_Has_Nodes: function() {
+			if (!!this.viz.graph.nodes) {
+				return true
+			} else {
+				return false
+			}
 		}
 	},
 	created: function() {
@@ -879,6 +903,24 @@ const user = Vue.component('user-page', {
 	}
 })
 
+const user_profile = Vue.component('user-profile-page', {
+	template: '#user-profile-page',
+	data: function() {
+		return {
+			loading: true
+		}
+	}
+})
+
+const user_settings = Vue.component('user-settings-page', {
+	template: '#user-settings-page',
+	data: function() {
+		return {
+			loading: true
+		}
+	}
+})
+
 // ROUTER CONFIG
 
 const routes = [
@@ -894,8 +936,15 @@ const routes = [
 				]
 			},
 			{path: 'visualisation', name: 'Visualisation', component: visualisation, beforeEnter: requireAuth},
-			{path: 'user', name: 'User', component: user, beforeEnter: requireAuth},
-			{path: '*', redirect: 'user', beforeEnter: requireAuth}
+			{path: 'user', component: user, beforeEnter: requireAuth,
+				children: [
+					{path: 'profile', name: 'Profile', component: user_profile, beforeEnter: requireAuth},
+					{path: 'settings', name: 'Settings', component: user_settings, beforeEnter: requireAuth},
+					{path: '', component: user_profile, beforeEnter: requireAuth},
+					{path: '*', redirect: 'profile', beforeEnter: requireAuth}
+				]
+			},
+			{path: '*', redirect: 'profile', beforeEnter: requireAuth}
 		]
 	}
 ]
@@ -907,7 +956,7 @@ const router = new VueRouter({
 router.beforeEach(
 	function(to, from, next) {
 		Vue.prototype.$http.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
-		bus.$emit('close-mobile-menu')
+		bus.$emit('clear-children')
 		next()
 })
 
