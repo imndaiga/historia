@@ -5,12 +5,14 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - f:/Projects/codebases/miminani/backend:/app
+      - ./backend:/app
     env_file:
-      - backend/.env
+      - backend.env
   frontend:
     build: ./frontend
     ports:
       - "8080:8080"
     volumes:
-      - f:/Projects/codebases/miminani/frontend:/app
+      - ./frontend:/app
+    env_file:
+      - frontend.env
