@@ -7,7 +7,7 @@ var app = express()
 app.set('port', 8080);
 
 app.use(express.static(path.join(__dirname, '/public')))
-app.use('/node_modules', express.static(path.join(__dirname, '/node_modules')))
+app.use('/scripts', express.static(path.join(__dirname, '/node_modules')))
 
 // Listen for requests
 var server = app.listen(app.get('port'), function() {
