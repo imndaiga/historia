@@ -1,8 +1,11 @@
-FROM python:3.4.5
-MAINTAINER Wachira Ndaiga
-COPY ./requirements.txt /app/requirements.txt
+FROM python:latest
+MAINTAINER squarenomad
+
+ADD ./requirements.txt /app/requirements.txt
 WORKDIR /app
 RUN pip install -r requirements.txt
-COPY . /app
+ADD . /app
+EXPOSE 5000
+
 ENTRYPOINT ["python","manage.py"]
 CMD ["runserver","-h","0.0.0.0"]
