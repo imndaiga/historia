@@ -64,7 +64,7 @@ function requireAuth(to, from, next) {
 
 function autoRoute(to, from, next) {
 	if (checkAuth()) {
-		var path = '/dashboard/user/profile'
+		var path = '/dashboard/user/home'
 		next({ path: path })
 	} else {
 		next()
@@ -601,9 +601,9 @@ const dashboard = Vue.component('dashboard-page', {
 					name: 'User',
 					navs: [
 						{
-							title: 'Profile',
-							info: 'Your profile',
-							view: 'Profile',
+							title: 'Home',
+							info: 'View your progress',
+							view: 'Home',
 							id: 1
 						},
 						{
@@ -624,19 +624,7 @@ const dashboard = Vue.component('dashboard-page', {
 				},
 				{
 					name: 'Relationships',
-					navs: [
-						{
-							title: 'List Relationships',
-							info: 'List all your relationships',
-							view: 'List_Relationships',
-							id: 1
-						},{
-							title: 'Add Relationships',
-							info: 'Add a relationship to your tree',
-							view: 'Add_Relationships',
-							id: 2
-						}
-					],
+					navs: [],
 					icon: 'fa fa-globe fa-lg',
 					id: 3
 				}
@@ -654,7 +642,7 @@ const dashboard = Vue.component('dashboard-page', {
 					path_type: 'internal',
 					caption: 'Info',
 					icon: 'fa fa-info-circle fa-lg',
-					link: 'List_Relationships',
+					link: 'Relationships',
 					reference: 'Read more about the miminani project',
 					key: 1
 				},
@@ -776,50 +764,7 @@ const welcome = Vue.component('welcome-page', {
 })
 
 const relationships = Vue.component('relationships-page', {
-	template: '#relationships-page'
-})
-
-const add_relationships = Vue.component('add-relationships-page', {
-	template: '#add-relationships-page',
-	data: function() {
-		return {
-			submit_resource: 'api/relationships?type=add',
-			search_resource: 'api/search',
-			bs_panels: [
-				{name: 'add_relative_panel', open: false, label: 'Add Relative', icon: 'fa fa-user-plus fa-fw'},
-				{name: 'add_relationship_panel', open: false, label: 'Add Relationship', icon: 'fa fa-link fa-fw'}],
-			form_data: [
-				{type: 'alpha-input', placeholder: 'Enter First Name', label: 'First Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'first_name', classes: '' , id: 1},
-				{type: 'alpha-input', placeholder: 'Enter Ethnic Name', label: 'Ethnic Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'ethnic_name', classes: '' , id: 2},
-				{type: 'alpha-input', placeholder: 'Enter Last Name', label: 'Last Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'last_name', classes: '' , id: 3},
-				{type: 'email-input', placeholder: 'Enter Email Address', label: 'Email', bs_panel: 'add_relative_panel', validators: { email }, field_name: 'email', classes: '' , id: 4},
-				{type: 'search-input', placeholder: 'Search for Relative', label: 'From', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'from_person', classes: '' , 'SelectLabel': '', 'DeselectLabel': '', id: 5},
-				{type: 'search-input', placeholder: 'Search for Relative', label: 'To', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'to_person', classes: '' , 'SelectLabel': '', 'DeselectLabel': '', id: 6},
-				{type: 'multiselect-input', placeholder: 'Choose a Relation', label: 'Relation', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'relation_name', classes: '' , id: 7,
-					multiselect_options: ['Parent', 'Partner', 'Sibling', 'Step-Parent', 'Step-Sibling', 'Child'], 'SelectLabel': '', 'DeselectLabel': '',
-				},
-				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'add_relative_panel', field_name: 'birth_date', classes: '' , id: 8},
-				{type: 'submit-button', button_message: 'Save Relative', button_name: 'add_personal-details', bs_panel: 'add_relative_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 9},
-				{type: 'submit-button', button_message: 'Save Relationship', button_name: 'add_connect-relations', bs_panel: 'add_relationship_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 10}
-
-			]
-		}
-	},
-	methods: {
-		splitPanelForm: function(form_data, bs_panel) {
-			split_form = []
-			for (index in form_data) {
-				if (form_data[index].bs_panel == bs_panel) {
-					split_form.push(form_data[index])
-				}
-			}
-			return split_form
-		}
-	}
-})
-
-const list_relationships = Vue.component('list-relationships-page', {
-	template: '#list-relationships-page',
+	template: '#relationships-page',
 	data: function() {
 		return {
 			modal_resources: {
@@ -925,11 +870,42 @@ const user = Vue.component('user-page', {
 	}
 })
 
-const user_profile = Vue.component('user-profile-page', {
-	template: '#user-profile-page',
+const user_home = Vue.component('user-home-page', {
+	template: '#user-home-page',
 	data: function() {
 		return {
-			loading: true
+			loading: true,
+			submit_resource: 'api/relationships?type=add',
+			search_resource: 'api/search',
+			bs_panels: [
+				{name: 'add_relative_panel', open: false, label: 'Add Relative', icon: 'fa fa-user-plus fa-fw'},
+				{name: 'add_relationship_panel', open: false, label: 'Add Relationship', icon: 'fa fa-link fa-fw'}],
+			form_data: [
+				{type: 'alpha-input', placeholder: 'Enter First Name', label: 'First Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'first_name', classes: '' , id: 1},
+				{type: 'alpha-input', placeholder: 'Enter Ethnic Name', label: 'Ethnic Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'ethnic_name', classes: '' , id: 2},
+				{type: 'alpha-input', placeholder: 'Enter Last Name', label: 'Last Name', bs_panel: 'add_relative_panel', validators: { required, alpha }, field_name: 'last_name', classes: '' , id: 3},
+				{type: 'email-input', placeholder: 'Enter Email Address', label: 'Email', bs_panel: 'add_relative_panel', validators: { email }, field_name: 'email', classes: '' , id: 4},
+				{type: 'search-input', placeholder: 'Search for Relative', label: 'From', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'from_person', classes: '' , 'SelectLabel': '', 'DeselectLabel': '', id: 5},
+				{type: 'search-input', placeholder: 'Search for Relative', label: 'To', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'to_person', classes: '' , 'SelectLabel': '', 'DeselectLabel': '', id: 6},
+				{type: 'multiselect-input', placeholder: 'Choose a Relation', label: 'Relation', bs_panel: 'add_relationship_panel', validators: {required}, field_name: 'relation_name', classes: '' , id: 7,
+					multiselect_options: ['Parent', 'Partner', 'Sibling', 'Step-Parent', 'Step-Sibling', 'Child'], 'SelectLabel': '', 'DeselectLabel': '',
+				},
+				{type: 'pikaday-input', placeholder: 'Select Birth Date', label: 'Date of Birth', bs_panel: 'add_relative_panel', field_name: 'birth_date', classes: '' , id: 8},
+				{type: 'submit-button', button_message: 'Save Relative', button_name: 'add_personal-details', bs_panel: 'add_relative_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 9},
+				{type: 'submit-button', button_message: 'Save Relationship', button_name: 'add_connect-relations', bs_panel: 'add_relationship_panel', button_class: 'btn btn-lg btn-success btn-block btn-margin', id: 10}
+
+			]
+		}
+	},
+	methods: {
+		splitPanelForm: function(form_data, bs_panel) {
+			split_form = []
+			for (index in form_data) {
+				if (form_data[index].bs_panel == bs_panel) {
+					split_form.push(form_data[index])
+				}
+			}
+			return split_form
 		}
 	}
 })
@@ -949,24 +925,17 @@ const routes = [
 	{ path: '/', component: welcome, beforeEnter: autoRoute},
 	{ path: '/dashboard', component: dashboard, beforeEnter: requireAuth,
 		children: [
-			{path: 'relationships', component: relationships, beforeEnter: requireAuth,
-				children: [
-					{path: 'list', name: 'List_Relationships', component: list_relationships, beforeEnter: requireAuth},
-					{path: 'add', name: 'Add_Relationships', component: add_relationships, beforeEnter: requireAuth},
-					{path: '', component: list_relationships, beforeEnter: requireAuth},
-					{path: '*', redirect: 'list', beforeEnter: requireAuth}
-				]
-			},
+			{path: 'relationships', name: 'Relationships', component: relationships, beforeEnter: requireAuth},
 			{path: 'visualisation', name: 'Visualisation', component: visualisation, beforeEnter: requireAuth},
 			{path: 'user', component: user, beforeEnter: requireAuth,
 				children: [
-					{path: 'profile', name: 'Profile', component: user_profile, beforeEnter: requireAuth},
+					{path: 'home', name: 'Home', component: user_home, beforeEnter: requireAuth},
 					{path: 'settings', name: 'Settings', component: user_settings, beforeEnter: requireAuth},
-					{path: '', component: user_profile, beforeEnter: requireAuth},
+					{path: '', component: user_home, beforeEnter: requireAuth},
 					{path: '*', redirect: 'profile', beforeEnter: requireAuth}
 				]
 			},
-			{path: '*', redirect: 'profile', beforeEnter: requireAuth}
+			{path: '*', redirect: 'home', beforeEnter: requireAuth}
 		]
 	}
 ]
@@ -1015,7 +984,7 @@ var vm = new Vue({
 				}
 			})
 			self.authenticated = true
-			self.$router.push('/dashboard/user/profile')
+			self.$router.push('/dashboard/user/home')
 		})
 		this.lock.on('authorization_error', function(error) {
 			// handle error when authorizaton fails

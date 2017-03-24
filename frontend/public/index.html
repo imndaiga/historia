@@ -48,22 +48,6 @@
   </template>
 
   <template id="relationships-page">
-    <router-view></router-view>
-  </template>
-
-  <template id="add-relationships-page">
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <div class="panel-group">
-        <div v-for="panel in bs_panels" class="col-sm-6 col-md-6 col-lg-6 panel-slot">
-          <app-panel :bs_panel="panel" :key="panel.id">
-            <app-form :form="splitPanelForm(form_data, panel.name)" :submit_resource="submit_resource" :search_resource="search_resource" :form_is_inline="false"></app-form>
-          </app-panel>
-        </div>
-      </div>
-    </div>
-  </template>
-
-  <template id="list-relationships-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
       <app-table :resource_url="table_resource" class="app-table"></app-table>
       <app-modal-form :resource_urls="modal_resources"></app-modal-form>
@@ -141,9 +125,16 @@
     </div>
   </template>
 
-  <template id="user-profile-page">
+  <template id="user-home-page">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
-      <app-loading v-if="loading" :is_loading="loading"></app-loading>
+      <!-- <app-loading v-if="loading" :is_loading="loading"></app-loading> -->
+      <div class="panel-group">
+        <div v-for="panel in bs_panels" class="col-sm-6 col-md-6 col-lg-6 panel-slot">
+          <app-panel :bs_panel="panel" :key="panel.id">
+            <app-form :form="splitPanelForm(form_data, panel.name)" :submit_resource="submit_resource" :search_resource="search_resource" :form_is_inline="false"></app-form>
+          </app-panel>
+        </div>
+      </div>
     </div>
   </template>
 
