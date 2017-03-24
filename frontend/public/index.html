@@ -40,15 +40,15 @@
     <div>
       <app-sidebar-menu class="hidden-xs" :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer" :current_panel="current_Panel"></app-sidebar-menu>
       <app-mobile-menu :panels="sidebar_panels" :header="sidebar_header" :footer="sidebar_footer" v-if="open_mobile_menu" :current_panel="current_Panel"></app-mobile-menu>
-      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 panel">
-        <app-header class="hidden-lg hidden-md hidden-sm" :panels="sidebar_panels" :current_panel="current_Panel"></app-header>
+      <app-header class="hidden-lg hidden-md hidden-sm" :panels="sidebar_panels" :current_panel="current_Panel"></app-header>
+      <div class="col-lg-10 col-lg-offset-2 col-md-9 col-md-offset-3 col-sm-8 col-sm-offset-4">
+        <router-view></router-view>
       </div>
-      <router-view></router-view>
     </div>
   </template>
 
   <template id="relationships-page">
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+    <div>
       <app-table :resource_url="table_resource" class="app-table"></app-table>
       <app-modal-form :resource_urls="modal_resources"></app-modal-form>
       <app-loading v-if="loading" :is_loading="loading"></app-loading>
@@ -56,7 +56,7 @@
   </template>
 
   <template id="visualisation-page">
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+    <div>
       <app-loading v-if="loading" :is_loading="loading"></app-loading>
       <p v-else-if="!loading && !graph_Has_Nodes" class="page-message text-center">No Relationship Data Available</p>
       <div v-show="!loading && graph_Has_Nodes" id="sigma-parent">
@@ -126,7 +126,7 @@
   </template>
 
   <template id="user-home-page">
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+    <div>
       <!-- <app-loading v-if="loading" :is_loading="loading"></app-loading> -->
       <div class="panel-group">
         <div v-for="panel in bs_panels" class="col-sm-6 col-md-6 col-lg-6 panel-slot">
@@ -139,7 +139,7 @@
   </template>
 
   <template id="user-settings-page">
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+    <div>
       <app-loading v-if="loading" :is_loading="loading"></app-loading>
     </div>
   </template>
@@ -149,7 +149,7 @@
   <template id="app-sidebar-menu">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
+        <div class="col-lg-2 col-md-3 col-sm-4 sidebar">
           <app-menu :panels="panels" :header="header" :footer="footer" :current_panel="current_panel"></app-menu>
         </div>
       </div>

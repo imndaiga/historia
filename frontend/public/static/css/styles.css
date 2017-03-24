@@ -284,7 +284,8 @@ input.form-control {
 
 .toolbox {
   position: absolute;
-  z-index: 1000
+  z-index: 1000;
+  margin-top: 2%
 }
 
 /*
@@ -333,7 +334,7 @@ input.form-control {
 
 #sigma-parent {
   position: relative;
-  height: calc(100vh - 40px);
+  height: calc(100vh - 10px);
   width: 100vw;
 }
 
@@ -399,7 +400,7 @@ input.form-control {
 */
 
 .app-table {
-  margin-top: 20px
+  margin-top: 5%
 }
 
 .v-paginator > .btn:last-child:before {
@@ -468,21 +469,21 @@ input.form-control {
 /* Large desktops and laptops */
 @media (min-width: 1200px) {
   #sigma-parent {
-    width: calc(100vw - 250px)
+    width: calc(100vw - 260px)
   }
 }
 
 /* Landscape tablets and medium desktops */
 @media (min-width: 992px) and (max-width: 1199px) {
   #sigma-parent {
-    width: calc(100vw - 250px)
+    width: calc(100vw - 260px)
   }
 }
 
 /* Portrait tablets and small desktops */
 @media (min-width: 768px) and (max-width: 991px) {
   #sigma-parent {
-    width: calc(100vw - 250px)
+    width: calc(100vw - 260px)
   }
 }
 
