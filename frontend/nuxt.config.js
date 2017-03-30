@@ -3,7 +3,7 @@ module.exports = {
   ** Headers of the page
   */
   head: {
-    title: 'starter',
+    title: 'MIMINANI',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -34,5 +34,18 @@ module.exports = {
         })
       }
     }
-  }
+  },
+  /*
+  * Change the default directory
+  */
+  srcDir: 'client/',
+  /*
+  * Add global CSS files
+  */
+  css: [
+    'bootstrap-css-only/css/bootstrap.min.css',
+    'font-awesome/css/font-awesome.min.css',
+    'npm-font-open-sans/open-sans.css',
+    '~assets/css/main.css'
+  ]
 }
