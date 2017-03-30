@@ -345,9 +345,20 @@ class familyAPI(Resource):
         return {'message': 'missing person_id'}
 
 
+class userAPI(Resource):
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('id', type=int, location='args')
+        super(userAPI, self).__init__()
+
+    def get(self):
+        pass
+
+
 api.add_resource(relationshipsAPI, '/relationships', endpoint='relationships')
 api.add_resource(searchAPI, '/search', endpoint='search')
 api.add_resource(graphAPI, '/graph', endpoint='graph')
 api.add_resource(personAPI, '/person', endpoint='person')
 api.add_resource(familyAPI, '/person/family', endpoint='family')
+api.add_resource(userAPI, '/user', endpoint='user')
 api.add_resource(pingAPI, '/ping', endpoint='ping')
