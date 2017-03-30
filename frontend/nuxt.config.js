@@ -33,7 +33,11 @@ module.exports = {
           exclude: /(node_modules)/
         })
       }
-    }
+    },
+    /*
+    * Include libraries in the vendor bundle
+    */
+    vendor: ['vuelidate']
   },
   /*
   * Change the default directory
@@ -47,5 +51,11 @@ module.exports = {
     'font-awesome/css/font-awesome.min.css',
     'npm-font-open-sans/open-sans.css',
     '~assets/css/main.css'
+  ],
+  /*
+  * Set up Plugins
+  */
+  plugins: [
+    { src: '~plugins/vuelidate', ssr: false }
   ]
 }
