@@ -1,5 +1,5 @@
 <template>
-  <div class="col-lg-10 col-lg-push-2 col-md-9 col-md-push-2 col-sm-8 col-sm-push-4">
+  <div class="col-lg-10 col-lg-push-2 col-md-9 col-md-push-2 col-sm-8 col-sm-push-4 col-xs-12">
     <page-header></page-header>
   </div>
 </template>
