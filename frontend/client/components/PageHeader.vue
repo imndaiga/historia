@@ -24,11 +24,7 @@
 
 <style scoped>
   .page-menu-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    margin-bottom: 10px;
+    position: relative;
     padding-bottom: 15px;
     padding-top: 20px;
     border-bottom: 1px solid #eee;
