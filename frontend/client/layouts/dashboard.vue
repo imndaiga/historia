@@ -28,12 +28,14 @@
                 title: 'home',
                 info: 'View your progress',
                 view: 'user-home',
+                icon: 'fa fa-home fa-fw',
                 key: 1
               },
               {
                 title: 'settings',
                 info: 'Configure your profile settings',
                 view: 'user-settings',
+                icon: 'fa fa-cog fa-fw',
                 key: 2
               }
             ],
@@ -66,7 +68,7 @@
             type: 'footer_link',
             path_type: 'internal',
             caption: 'Info',
-            icon: 'fa fa-info-circle fa-lg',
+            icon: 'fa fa-info-circle fa-fw',
             link: 'relationships',
             reference: 'Read more about the miminani project',
             key: 2
@@ -75,7 +77,7 @@
             type: 'footer_link',
             path_type: 'external',
             caption: 'Github',
-            icon: 'fa fa-github-alt fa-lg',
+            icon: 'fa fa-github-alt fa-fw',
             link: 'https://github.com/squarenomad/miminani',
             reference: 'View our open source code',
             key: 3

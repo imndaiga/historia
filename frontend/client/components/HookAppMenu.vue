@@ -20,7 +20,10 @@
       </li>
       <ul :class="['nav', 'nav-app-submenu', 'collapse', {'in': open_submenu == page.name}]">
         <router-link v-for="menu in page.navs" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.key" v-on:click.native="setOpenMenu(page.name)">
-          <a>{{menu.title}}</a>
+          <a>
+          <i :class="menu.icon"></i>
+          {{menu.title}}
+          </a>
         </router-link>
       </ul>
     </ul>
@@ -131,7 +134,7 @@
     background-color: #dad4d4
   }
   .nav-app-submenu > li > a {
-    padding-left: 40px;
+    padding-left: 30px;
     font-size: 14px;
     line-height: 20px;
     text-transform: lowercase;
@@ -146,6 +149,10 @@
   .nav-app-submenu > .active > a:focus {
     color: #fff;
     background-color: #91acc3
+  }
+  .nav-app-submenu > li > a > i {
+    font-size: 19px;
+    margin-right: 15px
   }
 
   .nav-app-footer {
