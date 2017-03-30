@@ -1,10 +1,6 @@
 <template>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-lg-2 col-md-3 col-sm-4 sidebar">
-        <hook-app-menu :pages="pages" :header="header" :footer="footer"></hook-app-menu>
-      </div>
-    </div>
+  <div class="col-lg-2 col-md-3 col-sm-4 sidebar">
+    <hook-app-menu :pages="pages" :header="header" :footer="footer"></hook-app-menu>
   </div>
 </template>
 

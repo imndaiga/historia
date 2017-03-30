@@ -48,6 +48,10 @@
       this.$nuxt.$on('open-mobile-menu', function () {
         this.open_mobile_menu = true
       }.bind(this))
+      this.$nuxt.$on('routeChanged', function () {
+        document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
+        this.open_mobile_menu = false
+      }.bind(this))
     }
   }
 </script>
