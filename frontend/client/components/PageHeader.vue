@@ -1,5 +1,5 @@
 <template>
-  <div class="hidden-lg hidden-md hidden-sm col-xs-12 page-menu-header">
+  <div class="hidden-lg hidden-md hidden-sm page-menu-header">
     <button class="btn btn-default btn-lg" v-on:click="openMobileMenu">
       <span class="fa fa-bars fa-lg"></span>
     </button>
@@ -24,6 +24,10 @@
 
 <style scoped>
   .page-menu-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
     margin-bottom: 10px;
     padding-bottom: 15px;
     padding-top: 20px;
@@ -31,12 +35,14 @@
     text-indent: 50px
   }
   .page-menu-header > button {
-    margin-top: -10px;
-    margin-left: -50px
+    position: absolute;
+    left: 10px;
+    top: 18px;
+    border: none
   }
   .page-menu-title {
     font-size: 30px;
-    margin-left: 15px;
+    margin-left: 10%;
     text-transform: capitalize
   }
 </style>
