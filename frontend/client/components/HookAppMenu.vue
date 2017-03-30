@@ -101,7 +101,7 @@
     cursor: pointer
   }
   .nav-app-menu > li > a {
-    padding-left: 30px;
+    padding-left: 20px;
     font-size: 16px;
     font-weight: 400;
     line-height: 50px;
@@ -134,10 +134,10 @@
     background-color: #dad4d4
   }
   .nav-app-submenu > li > a {
-    padding-left: 30px;
+    padding-left: 40px;
     font-size: 14px;
     line-height: 20px;
-    text-transform: lowercase;
+    text-transform: capitalize;
     color:  rgba(100, 100, 100, 1);
     border-bottom: 1px solid rgba(150, 150, 150, 0.2)
   }
@@ -152,21 +152,20 @@
   }
   .nav-app-submenu > li > a > i {
     font-size: 19px;
-    margin-right: 15px
+    padding-right: 35px
   }
 
   .nav-app-footer {
     position: absolute;
     bottom: 0px;
-    width: 100%;
-    margin-right: -21px; /* 20px padding + 1px border */
-    margin-left: -20px;
-    padding: 10px 10px 10px 10px;
+    left: 0px;
+    right: 0px;
+    padding: 10px 10px 0px 10px;
     background-color: rgba(214, 214, 214, 1)
   }
   .nav-app-footer > ul {
-    margin-top: 15px;
-    margin-left: 35%
+    margin-top: 5px;
+    margin-left: calc(50% - 35px)
   }
   .nav-app-footer > ul > li > a,
   .nav-app-footer > ul > li > a:hover,
