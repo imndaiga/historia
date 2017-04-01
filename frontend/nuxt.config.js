@@ -37,7 +37,7 @@ module.exports = {
     /*
     * Include libraries in the vendor bundle
     */
-    vendor: ['~plugins/vuelidate','pikaday','vue-multiselect']
+    vendor: []
   },
   /*
   * Change the default directory
