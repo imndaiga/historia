@@ -9,6 +9,7 @@
     "font-awesome": "^4.7.0",
     "npm-font-open-sans": "^1.0.3",
     "nuxt": "latest",
+    "pikaday": "^1.5.1",
     "vuelidate": "^0.4.2"
   },
   "scripts": {
