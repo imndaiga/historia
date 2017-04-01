@@ -37,7 +37,7 @@ module.exports = {
     /*
     * Include libraries in the vendor bundle
     */
-    vendor: ['vuelidate']
+    vendor: ['~plugins/vuelidate','pikaday']
   },
   /*
   * Change the default directory
@@ -50,6 +50,7 @@ module.exports = {
     'bootstrap-css-only/css/bootstrap.min.css',
     'font-awesome/css/font-awesome.min.css',
     'npm-font-open-sans/open-sans.css',
+    'pikaday/css/pikaday.css',
     '~assets/css/main.css'
   ],
   /*
