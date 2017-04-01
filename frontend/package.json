@@ -5,24 +5,28 @@
   "author": "squarenomad",
   "private": true,
   "dependencies": {
+    "body-parser": "^1.17.1",
     "bootstrap-css-only": "^3.3.7",
+    "express": "^4.15.2",
+    "express-session": "^1.15.2",
     "font-awesome": "^4.7.0",
     "npm-font-open-sans": "^1.0.3",
     "nuxt": "latest",
     "pikaday": "^1.5.1",
     "vue-multiselect": "^2.0.0-beta.15",
-    "vuelidate": "^0.4.2"
+    "vuelidate": "^0.4.2",
+    "whatwg-fetch": "^2.0.3"
   },
   "scripts": {
-    "dev": "nuxt",
+    "dev": "node server.js",
     "build": "nuxt build",
-    "start": "nuxt start",
-    "generate": "nuxt generate",
+    "start": "cross-env NODE_ENV=production node server.js",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "precommit": "npm run lint"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
+    "cross-env": "^4.0.0",
     "eslint": "^3.15.0",
     "eslint-config-standard": "^6.2.1",
     "eslint-loader": "^1.6.1",
