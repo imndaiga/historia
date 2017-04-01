@@ -1,4 +1,4 @@
-<template id="app-form">
+<template>
   <form v-on:submit.prevent="submitForm" :class="{'form-inline': form_is_inline}">
     <div v-for="field in form" v-if="validateField(field.field_name).exists" :class="['form-group', field.classes, {'has-error': validateField(field.field_name).has_error}]">
       <div v-if="field.type == 'hidden-input'" style="display: none;" :key="field.key">
@@ -15,6 +15,17 @@
           </button>
         </div>
       </div>
+      <div v-else-if="field.type == 'pikaday-input'" class="input-group">
+        <input type="text" class="form-control" :name="field.field_name" :placeholder="field.placeholder" :ref="field.field_name"  v-model.trim="form_object[field.field_name].value" v-on:input="touchField(field.field_name)" readonly :key="field.key">
+        <div class="input-group-btn">
+          <button type="button" :ref="field.field_name+'-btn'" :class="['btn', 'btn-default', {'disabled-button': field.value != undefined && !form_object[field.field_name].activated}]">
+            <i class="fa fa-calendar fa-lg"></i>
+          </button>
+          <button v-if="field.value != undefined" type="button" class="btn btn-warning" v-on:click="activateField(field.field_name)">
+            Change
+          </button>
+        </div>
+      </div>
       <!-- <pre v-if="!!$v.form_object[field.field_name].value">{{$v.form_object[field.field_name].value}}</pre> -->
       <span class="form-group__message" v-if="validateField(field.field_name).failed_required">{{ field.label }} is required</span>
       <span class="form-group__message" v-else-if="validateField(field.field_name).failed_alpha">{{ field.label }} is not valid</span>
@@ -27,12 +38,12 @@
 </template>
 
 <script>
-  var vuelidate
+  var isBrowser = false
   if (process.browser) {
-    vuelidate = require('vuelidate')
+    var Pikaday = require('pikaday')
+    isBrowser = true
   }
   export default {
-    mixins: [vuelidate ? vuelidate.validationMixin : ''],
     props: {
       form: {
         type: Array,
@@ -115,7 +126,7 @@
       validateField: function (fieldName) {
         // Replace with better implementation, creates hydration errors
         var validation = {}
-        if (this.$v && fieldName) {
+        if (isBrowser && fieldName) {
           validation.exists = this.$v.form_object[fieldName] !== null
           validation.has_error = this.$v.form_object[fieldName].$error
           validation.is_dirty = this.$v.form_object[fieldName].value.$dirty
@@ -125,24 +136,53 @@
           validation.failed_required = !this.$v.form_object[fieldName].value.required && validation.is_required && validation.is_dirty
           validation.failed_alpha = !this.$v.form_object[fieldName].value.alpha && validation.is_alpha && validation.is_dirty
           validation.failed_email = !this.$v.form_object[fieldName].value.email && validation.is_email && validation.is_dirty
-        } else {
-          validation.exists = false
-          validation.has_error = false
-          validation.is_dirty = false
-          validation.is_required = false
-          validation.is_alpha = false
-          validation.is_email = false
-          validation.failed_required = false
-          validation.failed_alpha = false
-          validation.failed_email = false
         }
         return validation
       },
       touchField: function (fieldName) {
         // Replace with better implementation, creates hydration errors
-        if (this.$v && fieldName) {
+        if (isBrowser && fieldName) {
           this.$v.form_object[fieldName].value.$touch()
         }
+      }
+    },
+    computed: {
+      pikaday_Hooks: function () {
+        if (isBrowser) {
+          var hooks = []
+          if (Object.keys(this.$refs).length === 2) {
+            for (var ref in this.$refs) {
+              if (ref.indexOf('-btn') === -1) {
+                hooks.push(ref)
+              }
+              hooks.push(this.$refs[ref])
+            }
+          } else {
+            return null
+          }
+          return hooks
+        }
+        return null
+      }
+    },
+    mounted: function () {
+      var self = this
+      if (this.pikaday_Hooks) {
+        for (var index in this.pikaday_Hooks) {
+          if (typeof this.pikaday_Hooks[index] === 'string') {
+            var pikadayFieldName = this.pikaday_Hooks[index]
+            this.pikaday_Hooks.splice(index, 1)
+          }
+        }
+        this.picker = new Pikaday({
+          ref: this.base_ref,
+          field: this.pikaday_Hooks[0][0],
+          trigger: this.pikaday_Hooks[1][0],
+          onSelect: function () {
+            var date = this.getMoment().format('Do MMMM YYYY')
+            self.form_object[pikadayFieldName].value = date
+          }
+        })
       }
     }
   }
