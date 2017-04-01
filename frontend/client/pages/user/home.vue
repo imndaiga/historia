@@ -17,6 +17,11 @@
   import HookAppForm from '~components/HookAppForm.vue'
   import { required, email, alpha } from 'vuelidate/lib/validators'
   export default {
+    fetch: function ({ store, redirect }) {
+      if (!store.state.authUser) {
+        return redirect('/')
+      }
+    },
     layout: 'dashboard',
     components: {
       PageHeader: PageHeader,

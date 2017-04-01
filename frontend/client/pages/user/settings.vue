@@ -7,6 +7,11 @@
 <script>
   import PageHeader from '~components/PageHeader.vue'
   export default {
+    fetch: function ({ store, redirect }) {
+      if (!store.state.authUser) {
+        return redirect('/')
+      }
+    },
     layout: 'dashboard',
     components: {
       PageHeader: PageHeader
