@@ -26,6 +26,24 @@
           </button>
         </div>
       </div>
+      <div v-else-if="field.type == 'multiselect-input'" :class="{'input-group': field.value != undefined}">
+        <multiselect :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name].value" v-on:input="touchField(field.field_name)" :key="field.id" :disabled="field.value != undefined && !form_object[field.field_name].activated" :select-label="field.SelectLabel" :deselect-label="field.DeselectLabel"></multiselect>
+        <div v-if="field.value != undefined" class="input-group-btn">
+          <button type="button" class="btn btn-warning" v-on:click="activateField(field.field_name)">
+          Change
+          </button>
+        </div>
+      </div>
+      <div v-else-if="field.type == 'search-input'" :class="{'input-group': field.value != undefined}">
+        <multiselect :options="form_object[field.field_name].options" :placeholder="field.placeholder" :loading="form_object[field.field_name].loading" :options-limit="10" :searchable="true" :internal-search="false" v-on:search-change="asyncFind(field.field_name, $event)" v-model="form_object[field.field_name].value" v-on:input="touchField(field.field_name)" :key="field.id" :disabled="field.value != undefined && !form_object[field.field_name].activated" :select-label="field.SelectLabel" :deselect-label="field.DeselectLabel">
+          <span slot="noResult">Oops! Person not found.</span>
+        </multiselect>
+        <div v-if="field.value != undefined" class="input-group-btn">
+          <button type="button" class="btn btn-warning" v-on:click="activateField(field.field_name)">
+            Change
+          </button>
+        </div>
+      </div>
       <!-- <pre v-if="!!$v.form_object[field.field_name].value">{{$v.form_object[field.field_name].value}}</pre> -->
       <span class="form-group__message" v-if="validateField(field.field_name).failed_required">{{ field.label }} is required</span>
       <span class="form-group__message" v-else-if="validateField(field.field_name).failed_alpha">{{ field.label }} is not valid</span>
@@ -41,9 +59,13 @@
   var isBrowser = false
   if (process.browser) {
     var Pikaday = require('pikaday')
+    var Multiselect = require('vue-multiselect').default
     isBrowser = true
   }
   export default {
+    components: {
+      multiselect: Multiselect
+    },
     props: {
       form: {
         type: Array,
