@@ -59,11 +59,10 @@
 <style scoped>
   .mobile-menu {
     position: fixed;
-    width: 100vw;
     top: 0;
     left: 0;
-    height: 100%;
-    left: 0;
+    right: 0;
+    bottom: 0;
     z-index: 1001;
     display: block;
     padding: 20px;
@@ -79,6 +78,7 @@
     right: 25px;
     font-size: 36px;
     margin-left: 50px;
-    text-decoration: none
+    text-decoration: none;
+    cursor: pointer
   }
 </style>

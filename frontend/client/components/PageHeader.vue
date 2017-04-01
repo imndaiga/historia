@@ -36,6 +36,10 @@
     top: 18px;
     border: none
   }
+  .page-menu-header > button:hover,
+  .page-menu-header > button:focus {
+    background: none
+  }
   .page-menu-title {
     font-size: 30px;
     margin-left: 10%;
