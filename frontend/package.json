@@ -10,6 +10,7 @@
     "npm-font-open-sans": "^1.0.3",
     "nuxt": "latest",
     "pikaday": "^1.5.1",
+    "vue-multiselect": "^2.0.0-beta.15",
     "vuelidate": "^0.4.2"
   },
   "scripts": {
