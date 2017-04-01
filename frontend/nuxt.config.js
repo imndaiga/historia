@@ -37,7 +37,7 @@ module.exports = {
     /*
     * Include libraries in the vendor bundle
     */
-    vendor: ['~plugins/vuelidate','pikaday']
+    vendor: ['~plugins/vuelidate','pikaday','vue-multiselect']
   },
   /*
   * Change the default directory
@@ -51,6 +51,7 @@ module.exports = {
     'font-awesome/css/font-awesome.min.css',
     'npm-font-open-sans/open-sans.css',
     'pikaday/css/pikaday.css',
+    'vue-multiselect/dist/vue-multiselect.min.css',
     '~assets/css/main.css'
   ],
   /*
