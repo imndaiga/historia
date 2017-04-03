@@ -121,6 +121,10 @@
             formData[field] = this.form_object[field].value
           }
           // Send form data to submit resource
+          if (this.submit_resource === 'login') {
+            this.$nuxt.$store.dispatch('login', formData)
+            this.$nuxt.$router.push('/user/home')
+          }
         } else {
           this.$v.$touch()
         }

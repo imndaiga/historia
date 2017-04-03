@@ -7,7 +7,7 @@
           <span class="modal-title">{{modal_title}}</span>
         </div>
         <div class="modal-body">
-          <hook-app-form :form="modal_Form_Data" :submit_resource="resource_urls.submit_resource" :search_resource="resource_urls.search_resource" :form_is_inline="inlined_form"></hook-app-form>
+          <hook-app-form ref="form" :form="modal_Form_Data" :submit_resource="resource_urls.submit_resource" :search_resource="resource_urls.search_resource" :form_is_inline="inlined_form"></hook-app-form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
@@ -63,7 +63,7 @@
         console.log('Retrieving form data')
       },
       submitForm: function () {
-        console.log('Submitting form')
+        this.$refs.form.submitForm()
       }
     },
     created: function () {

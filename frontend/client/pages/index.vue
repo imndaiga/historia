@@ -130,7 +130,7 @@
           'retina_detect': true
         },
         resource_urls: {
-          submit_resource: '/api/login',
+          submit_resource: 'login',
           search_resource: ''
         },
         login_form: [
@@ -160,7 +160,6 @@
     },
     methods: {
       login: function () {
-        console.log('logging in')
         this.$nuxt.$emit('open-modal', this.login_form)
       }
     }
