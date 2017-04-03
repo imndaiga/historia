@@ -65,7 +65,8 @@
     methods: {
       performAction: function (action) {
         if (action === 'logout') {
-          this.$parent.$parent.$parent.logout()
+          this.$nuxt.$store.dispatch('logout')
+          this.$nuxt.$router.push('/')
         }
       },
       setOpenMenu: function (pageName) {
