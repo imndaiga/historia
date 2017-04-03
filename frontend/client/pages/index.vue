@@ -47,6 +47,30 @@
     },
     data: function () {
       return {
+        resource_urls: {
+          submit_resource: 'login',
+          search_resource: ''
+        },
+        login_form: [
+          {
+            type: 'email-input',
+            placeholder: 'Enter Email Address',
+            label: 'Email',
+            validators: ['required', 'email'],
+            field_name: 'email',
+            classes: '',
+            key: 1
+          },
+          {
+            type: 'password-input',
+            placeholder: 'Enter Password',
+            label: 'Password',
+            validators: ['required'],
+            field_name: 'password',
+            classes: '',
+            key: 2
+          }
+        ],
         particlesjs_data: {
           'particles': {
             'number': {
@@ -128,31 +152,7 @@
             }
           },
           'retina_detect': true
-        },
-        resource_urls: {
-          submit_resource: 'login',
-          search_resource: ''
-        },
-        login_form: [
-          {
-            type: 'email-input',
-            placeholder: 'Enter Email Address',
-            label: 'Email',
-            validators: ['required', 'email'],
-            field_name: 'email',
-            classes: '',
-            key: 1
-          },
-          {
-            type: 'password-input',
-            placeholder: 'Enter Password',
-            label: 'Password',
-            validators: ['required'],
-            field_name: 'password',
-            classes: '',
-            key: 2
-          }
-        ]
+        }
       }
     },
     mounted: function () {
@@ -166,7 +166,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .jumbotron {
     position: relative;
     height: calc(100vh - 60px)
@@ -205,7 +205,7 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    right: 0;
+    width: 100%;
     /* Set the fixed height of the footer here */
     height: 60px;
     line-height: 59px; /* Vertically center the text there */
