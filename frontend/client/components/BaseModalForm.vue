@@ -118,6 +118,7 @@
 
 <style scoped>
   .modal-dialog {
+    margin-top: 80px;
     overflow-y: initial !important
   }
 
