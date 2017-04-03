@@ -15,6 +15,14 @@
           </button>
         </div>
       </div>
+      <div v-if="field.type == 'password-input'" :class="{'input-group': field.value != undefined}">
+        <input type="password" class="form-control" :name="field.field_name" v-model.trim="form_object[field.field_name].value" :placeholder="field.placeholder" v-on:input="touchField(field.field_name)" :key="field.key" :readonly="field.value != undefined && !form_object[field.field_name].activated">
+        <div v-if="field.value != undefined" class="input-group-btn">
+          <button type="button" class="btn btn-warning" v-on:click="activateField(field.field_name)">
+            Change
+          </button>
+        </div>
+      </div>
       <div v-else-if="field.type == 'pikaday-input'" class="input-group">
         <input type="text" class="form-control" :name="field.field_name" :placeholder="field.placeholder" :ref="field.field_name"  v-model.trim="form_object[field.field_name].value" v-on:input="touchField(field.field_name)" readonly :key="field.key">
         <div class="input-group-btn">
