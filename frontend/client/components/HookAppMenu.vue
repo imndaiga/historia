@@ -64,8 +64,15 @@
     },
     methods: {
       performAction: function (action) {
+        var loggedOutAlert = {
+          message: 'You have been logged out',
+          type: 'alert-warning',
+          dismissable: true,
+          duration: 0
+        }
         if (action === 'logout') {
           this.$nuxt.$store.dispatch('logout')
+          this.$nuxt.$store.dispatch('alert', loggedOutAlert)
           this.$nuxt.$router.push('/')
         }
       },
