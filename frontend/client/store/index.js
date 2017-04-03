@@ -6,11 +6,20 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    authUser: null
+    authUser: null,
+    alert: {
+      message: '',
+      type: '',
+      duration: 0,
+      dismissable: true
+    }
   },
   mutations: {
     SET_USER: function (state, user) {
       state.authUser = user
+    },
+    SET_ALERT: function (state, alertObject) {
+      state.alert = alertObject
     }
   },
   actions: {
@@ -32,13 +41,10 @@ const store = new Vuex.Store({
       })
       .then(function (response) {
         commit('SET_USER', response.data)
+        return response
       })
       .catch(function (error) {
-        if (error.status === 401) {
-          throw new Error('Bad credentials')
-        } else {
-          return error
-        }
+        return error
       })
     },
     logout: function ({ commit }) {
@@ -48,8 +54,21 @@ const store = new Vuex.Store({
       .then(function () {
         commit('SET_USER', null)
       })
-      .catch(function (error) {
-        console.log(error)
+    },
+    alert: function ({ commit }, { message, type, duration, dismissable }) {
+      return commit('SET_ALERT', {
+        message: message,
+        type: type,
+        duration: duration,
+        dismissable: dismissable
+      })
+    },
+    dismiss_alert: function ({ commit }) {
+      return commit('SET_ALERT', {
+        message: '',
+        type: '',
+        duration: 0,
+        dismissable: true
       })
     }
   }

@@ -1,31 +1,29 @@
 <template>
-  <div v-if="alert_Is_Visible" :class="['alert', alert_type, {'alert-dismissable': dismissable}]">
-    <a class="close" v-if="dismissable" v-on:click="dismissMessage">&times;</a>
-    <span v-html="message"></span>
+  <div v-if="alert_Is_Visible" :class="['alert', alert.type]">
+    <a class="close" v-if="alert.dismissable" v-on:click="dismissMessage">&times;</a>
+    <span v-html="alert.message"></span>
   </div>
 </template>
 
 <script>
   export default {
-    data: function () {
-      return {
-        alert_type: '',
-        message: '',
-        dismissable: true,
-        timeout: 0,
-        dismissed: false
-      }
-    },
     methods: {
       dismissMessage: function () {
-        this.dismissed = true
+        this.$nuxt.$store.dispatch('dismiss_alert')
       }
     },
     computed: {
+      alert: function () {
+        if (this.$nuxt.$store.state.alert) {
+          return this.$nuxt.$store.state.alert
+        } else {
+          return { message: '', type: '', dismissable: true, duration: 0 }
+        }
+      },
       alert_Is_Visible: function () {
-        if (this.message.length > 0 && !this.dismissable) {
+        if (this.alert.message.length > 0 && !this.alert.dismissable) {
           return true
-        } else if (this.message.length > 0 && this.dismissable && !this.dismissed) {
+        } else if (this.alert.message.length > 0 && this.alert.dismissable) {
           return true
         } else {
           return false
