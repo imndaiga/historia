@@ -5,6 +5,7 @@
   "author": "squarenomad",
   "private": true,
   "dependencies": {
+    "axios": "^0.16.0",
     "body-parser": "^1.17.1",
     "bootstrap-css-only": "^3.3.7",
     "express": "^4.15.2",
@@ -14,8 +15,7 @@
     "nuxt": "latest",
     "pikaday": "^1.5.1",
     "vue-multiselect": "^2.0.0-beta.15",
-    "vuelidate": "^0.4.2",
-    "whatwg-fetch": "^2.0.3"
+    "vuelidate": "^0.4.2"
   },
   "scripts": {
     "dev": "node server.js",
