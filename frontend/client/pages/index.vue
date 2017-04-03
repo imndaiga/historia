@@ -19,6 +19,7 @@
             </div>
           </div>
         </div>
+        <base-modal-form :resource_urls="resource_urls"></base-modal-form>
       </div>
     </div>
     <footer class='footer'>
@@ -32,6 +33,7 @@
 </template>
 
 <script>
+  import BaseModalForm from '~components/BaseModalForm.vue'
   export default {
     head: function () {
       return {
@@ -39,6 +41,9 @@
           { src: 'https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js' }
         ]
       }
+    },
+    components: {
+      BaseModalForm: BaseModalForm
     },
     data: function () {
       return {
@@ -123,7 +128,31 @@
             }
           },
           'retina_detect': true
-        }
+        },
+        resource_urls: {
+          submit_resource: '/api/login',
+          search_resource: ''
+        },
+        login_form: [
+          {
+            type: 'email-input',
+            placeholder: 'Enter Email Address',
+            label: 'Email',
+            validators: ['required', 'email'],
+            field_name: 'email',
+            classes: '',
+            key: 1
+          },
+          {
+            type: 'password-input',
+            placeholder: 'Enter Password',
+            label: 'Password',
+            validators: ['required'],
+            field_name: 'password',
+            classes: '',
+            key: 2
+          }
+        ]
       }
     },
     mounted: function () {
@@ -132,6 +161,7 @@
     methods: {
       login: function () {
         console.log('logging in')
+        this.$nuxt.$emit('open-modal', this.login_form)
       }
     }
   }
