@@ -19,20 +19,19 @@ const store = new Vuex.Store({
         commit('SET_USER', req.session.authUser)
       }
     },
-    login: function ({ commit }, { username, password }) {
+    login: function ({ commit }, { email, password }) {
       return axios.post('/api/login', {
         credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json'
         },
         data: {
-          username: username,
+          email: email,
           password: password
         }
       })
-      .then(function (authUser) {
-        console.log('Logged User in')
-        commit('SET_USER', authUser)
+      .then(function (response) {
+        commit('SET_USER', response.data)
       })
       .catch(function (error) {
         if (error.status === 401) {
@@ -47,7 +46,6 @@ const store = new Vuex.Store({
         credentials: 'same-origin'
       })
       .then(function () {
-        console.log('Logged User out')
         commit('SET_USER', null)
       })
       .catch(function (error) {

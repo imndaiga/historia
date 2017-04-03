@@ -18,7 +18,7 @@ app.use(session({
 }))
 
 app.post('/api/login', function (req, res) {
-	if (req.body.data.username === 'demo' && req.body.data.password === 'demo') {
+	if (req.body.data.email === 'demo@gmail.com' && req.body.data.password === 'demo') {
 		req.session.authUser = { username: 'demo' }
 		return res.json({ username: 'demo' })
 	}
