@@ -115,6 +115,7 @@
     },
     methods: {
       submitForm: function () {
+        var self = this
         if (!this.$v.$invalid) {
           var formData = {}
           for (var field in this.form_object) {
@@ -122,8 +123,27 @@
           }
           // Send form data to submit resource
           if (this.submit_resource === 'login') {
+            var unauthorisedAlert = {
+              message: 'Ooops! Please try again',
+              type: 'alert-danger',
+              dismissable: true,
+              duration: 0
+            }
+            var authorisedAlert = {
+              message: 'Yay! Welcome',
+              type: 'alert-success',
+              dismissable: true,
+              duration: 0
+            }
             this.$nuxt.$store.dispatch('login', formData)
-            this.$nuxt.$router.push('/user/home')
+            .then(function (response) {
+              if (response.status === 200) {
+                self.$nuxt.$store.dispatch('alert', authorisedAlert)
+                self.$nuxt.$router.push('/user/home')
+              } else {
+                self.$nuxt.$store.dispatch('alert', unauthorisedAlert)
+              }
+            })
           }
         } else {
           this.$v.$touch()
