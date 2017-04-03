@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div class="col-lg-10 col-lg-push-2 col-md-9 col-md-push-3 col-sm-8 col-sm-push-4 col-xs-12">
+      <alert-message></alert-message>
+    </div>
     <nuxt/>
     <base-sidebar class="hidden-xs" :pages="pages" :header="header" :footer="footer"></base-sidebar>
     <base-mobile-menu class="hidden-lg hidden-md hidden-sm" :pages="pages" :header="header" :footer="footer"></base-mobile-menu>
@@ -9,10 +12,12 @@
 <script>
   import BaseSidebar from '~components/BaseSidebar.vue'
   import BaseMobileMenu from '~components/BaseMobileMenu.vue'
+  import AlertMessage from '~components/AlertMessage.vue'
   export default {
     components: {
       BaseSidebar: BaseSidebar,
-      BaseMobileMenu: BaseMobileMenu
+      BaseMobileMenu: BaseMobileMenu,
+      AlertMessage: AlertMessage
     },
     data: function () {
       return {
