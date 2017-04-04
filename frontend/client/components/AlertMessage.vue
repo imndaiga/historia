@@ -21,9 +21,13 @@
         }
       },
       alert_Is_Visible: function () {
+        var self = this
+        var timeout = this.$nuxt.$store.state.alert.duration === 0 ? 1500 : this.$nuxt.$store.state.alert.duration
         if (this.alert.message.length > 0 && !this.alert.dismissable) {
+          setTimeout(self.dismissMessage, timeout)
           return true
         } else if (this.alert.message.length > 0 && this.alert.dismissable) {
+          setTimeout(self.dismissMessage, timeout)
           return true
         } else {
           return false
