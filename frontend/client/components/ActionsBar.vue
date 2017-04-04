@@ -44,9 +44,16 @@
     background-color: #fff
   }
   .actions-bar-title {
-    line-height: 45px
+    line-height: 45px;
+    font-weight: 600;
+    margin-left: 10px;
+    font-size: 17px
   }
   i {
+    font-size: 20px;
+    margin-right: 10px
+  }
+  button {
     font-size: 15px
   }
 </style>
