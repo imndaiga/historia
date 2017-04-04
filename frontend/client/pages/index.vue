@@ -19,7 +19,7 @@
             </div>
           </div>
         </div>
-        <base-modal-form :resource_urls="resource_urls"></base-modal-form>
+        <base-modal-form></base-modal-form>
       </div>
     </div>
     <footer class='footer'>
@@ -47,30 +47,35 @@
     },
     data: function () {
       return {
-        resource_urls: {
-          submit_resource: 'login',
-          search_resource: ''
-        },
-        login_form: [
-          {
-            type: 'email-input',
-            placeholder: 'Enter Email Address',
-            label: 'Email',
-            validators: ['required', 'email'],
-            field_name: 'email',
-            classes: '',
-            key: 1
-          },
-          {
-            type: 'password-input',
-            placeholder: 'Enter Password',
-            label: 'Password',
-            validators: ['required'],
-            field_name: 'password',
-            classes: '',
-            key: 2
+        login_form: {
+          data: [
+            {
+              type: 'email-input',
+              placeholder: 'Enter Email Address',
+              label: 'Email',
+              validators: ['required', 'email'],
+              field_name: 'email',
+              classes: '',
+              key: 1
+            },
+            {
+              type: 'password-input',
+              placeholder: 'Enter Password',
+              label: 'Password',
+              validators: ['required'],
+              field_name: 'password',
+              classes: '',
+              key: 2
+            }
+          ],
+          modal_title: 'Login',
+          modal_icon: 'fa fa-sign-in fa-fw',
+          modal_submit_message: 'Log In',
+          resource_urls: {
+            submit_url: 'login',
+            search_url: ''
           }
-        ],
+        },
         particlesjs_data: {
           'particles': {
             'number': {

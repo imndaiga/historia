@@ -7,7 +7,7 @@
           <span class="modal-title">{{modal_title}}</span>
         </div>
         <div class="modal-body">
-          <hook-app-form ref="form" :form="modal_Form_Data" :submit_resource="resource_urls.submit_resource" :search_resource="resource_urls.search_resource" :form_is_inline="inlined_form"></hook-app-form>
+          <hook-app-form ref="form" :form="modal_Form_Data" :submit_resource="submit_url" :search_resource="search_url" :form_is_inline="inlined_form"></hook-app-form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
@@ -33,33 +33,33 @@
     components: {
       HookAppForm: HookAppForm
     },
-    props: {
-      resource_urls: {
-        type: Object,
-        required: true
-      }
-    },
     data: function () {
       return {
-        open_modal: false,
         raw_modal_form_data: [],
+        open_modal: false,
         activate_submit_button: false,
-        resource_url: '',
         inlined_form: false,
         modal_title: '',
-        modal_header_icon: 'fa fa-pencil-square-o fa-lg',
-        modal_submit_message: ''
+        modal_header_icon: '',
+        modal_submit_message: '',
+        submit_url: '',
+        search_url: ''
       }
     },
     methods: {
       closeModal: function () {
-        self.raw_modal_form_data = []
+        document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
+        this.raw_modal_form_data = []
         this.open_modal = false
         this.activate_submit_button = false
+        this.inlined_form = false
         this.modal_title = ''
-        document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
+        this.modal_header_icon = ''
+        this.modal_submit_message = ''
+        this.submit_url = ''
+        this.search_url = ''
       },
-      getModalFormData: function (recordId) {
+      getModalFormData: function (URL, ID) {
         console.log('Retrieving form data')
       },
       submitForm: function () {
@@ -67,24 +67,20 @@
       }
     },
     created: function () {
-      this.$nuxt.$on('open-modal', function (form, resource, recordId, title) {
+      this.$nuxt.$on('open-modal', function (form, getFormUrl, recordId, modalTitle) {
+        document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
         if (!form) {
-          for (var url in this.resource_urls) {
-            if (url === resource) {
-              this.resource_url = this.resource_urls[url]
-            }
-          }
-          document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
-          this.modal_title = title
-          this.getModalFormData(recordId)
+          this.modal_title = modalTitle
+          this.getModalFormData(getFormUrl, recordId)
         } else {
-          this.raw_modal_form_data = form
-          this.inlined_form = false
-          this.modal_header_icon = ''
-          this.modal_title = 'Login'
+          this.raw_modal_form_data = form.data
           this.activate_submit_button = true
-          this.modal_header_icon = 'fa fa-sign-in fa-lg'
-          this.modal_submit_message = 'Log In'
+          this.inlined_form = false
+          this.modal_title = form.modal_title
+          this.modal_header_icon = form.modal_icon
+          this.modal_submit_message = form.modal_submit_message
+          this.submit_url = form.resource_urls.submit_url
+          this.search_url = form.resource_urls.search_url
           this.open_modal = true
         }
       }.bind(this))
