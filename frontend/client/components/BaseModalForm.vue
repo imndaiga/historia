@@ -73,6 +73,7 @@
           this.modal_title = modalTitle
           this.getModalFormData(getFormUrl, recordId)
         } else {
+          form = JSON.parse(form)
           this.raw_modal_form_data = form.data
           this.activate_submit_button = true
           this.inlined_form = false
@@ -97,11 +98,11 @@
             processed[field].validators = {}
             for (var index in fieldValidators) {
               if (fieldValidators[index] === 'required') {
-                processed[field].validators = extendDict(processed[field].validators, {required})
+                extendDict(processed[field].validators, {required})
               } else if (fieldValidators[index] === 'alpha') {
-                processed[field].validators = extendDict(processed[field].validators, {alpha})
+                extendDict(processed[field].validators, {alpha})
               } else if (fieldValidators[index] === 'email') {
-                processed[field].validators = extendDict(processed[field].validators, {email})
+                extendDict(processed[field].validators, {email})
               }
             }
           }

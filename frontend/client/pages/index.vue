@@ -165,7 +165,7 @@
     },
     methods: {
       login: function () {
-        this.$nuxt.$emit('open-modal', this.login_form)
+        this.$nuxt.$emit('open-modal', JSON.stringify(this.login_form))
       }
     }
   }

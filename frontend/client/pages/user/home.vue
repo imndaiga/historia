@@ -147,10 +147,10 @@
     },
     created: function () {
       this.$nuxt.$on('open_add_relative_modal', function () {
-        this.$nuxt.$emit('open-modal', this.actions_data[0].form)
+        this.$nuxt.$emit('open-modal', JSON.stringify(this.actions_data[0].form))
       }.bind(this))
       this.$nuxt.$on('open_add_relation_modal', function () {
-        this.$nuxt.$emit('open-modal', this.actions_data[1].form)
+        this.$nuxt.$emit('open-modal', JSON.stringify(this.actions_data[1].form))
       }.bind(this))
     }
   }
