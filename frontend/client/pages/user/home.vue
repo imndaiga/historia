@@ -78,6 +78,7 @@
               modal_title: 'Add Relative',
               modal_icon: 'fa fa-user-plus fa-fw',
               modal_submit_message: 'Add Relative',
+              inline: false,
               resource_urls: {
                 submit_url: 'api/person',
                 search_url: ''
@@ -131,6 +132,7 @@
               modal_title: 'Add Relationship',
               modal_icon: 'fa fa-link fa-fw',
               modal_submit_message: 'Add Relationship',
+              inline: false,
               resource_urls: {
                 submit_url: 'api/relationships',
                 search_url: ''
