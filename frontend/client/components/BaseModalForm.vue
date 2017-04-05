@@ -76,7 +76,7 @@
           form = JSON.parse(form)
           this.raw_modal_form_data = form.data
           this.activate_submit_button = true
-          this.inlined_form = false
+          this.inlined_form = form.inline
           this.modal_title = form.modal_title
           this.modal_header_icon = form.modal_icon
           this.modal_submit_message = form.modal_submit_message
@@ -120,7 +120,7 @@
   }
 
   .modal-body {
-    max-height: calc(100vh - 180px);
+    max-height: calc(100vh - 250px);
     overflow-y: auto
   }
 
