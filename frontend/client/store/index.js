@@ -4,6 +4,8 @@ import axios from 'axios'
 
 Vue.use(Vuex)
 
+var server = axios.create()
+
 const store = new Vuex.Store({
   state: {
     authUser: null,
@@ -29,15 +31,12 @@ const store = new Vuex.Store({
       }
     },
     login: function ({ commit }, { email, password }) {
-      return axios.post('/api/login', {
-        credentials: 'same-origin',
+      return server.post('/auth/login', {
         headers: {
           'Content-Type': 'application/json'
         },
-        data: {
-          email: email,
-          password: password
-        }
+        email: email,
+        password: password
       })
       .then(function (response) {
         commit('SET_USER', response.data)
@@ -48,9 +47,7 @@ const store = new Vuex.Store({
       })
     },
     logout: function ({ commit }) {
-      return axios.post('/api/logout', {
-        credentials: 'same-origin'
-      })
+      return server.post('/auth/logout')
       .then(function () {
         commit('SET_USER', null)
       })
