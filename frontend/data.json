@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "email": "admin@miminani.com",
+      "password": "admin"
+    },
+    {
+      "email": "user@miminani.com",
+      "password": "user"
+    }
+  ]
+}
