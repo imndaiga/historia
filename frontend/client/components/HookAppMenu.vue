@@ -71,9 +71,11 @@
           duration: 0
         }
         if (action === 'logout') {
+          var self = this
           this.$nuxt.$store.dispatch('logout')
-          this.$nuxt.$store.dispatch('alert', loggedOutAlert)
-          this.$nuxt.$router.push('/')
+          this.$nuxt.$router.push('/', function () {
+            self.$nuxt.$store.dispatch('alert', loggedOutAlert)
+          })
         }
       },
       setOpenMenu: function (pageName) {

@@ -138,8 +138,9 @@
             this.$nuxt.$store.dispatch('login', formData)
             .then(function (response) {
               if (response.status === 200) {
-                self.$nuxt.$store.dispatch('alert', authorisedAlert)
-                self.$nuxt.$router.push('/user/home')
+                self.$nuxt.$router.push('/user/home', function () {
+                  self.$nuxt.$store.dispatch('alert', authorisedAlert)
+                })
               } else {
                 self.$nuxt.$store.dispatch('alert', unauthorisedAlert)
               }
