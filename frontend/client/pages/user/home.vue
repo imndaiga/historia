@@ -11,11 +11,7 @@
   import ActionsBar from '~components/ActionsBar.vue'
   import BaseModalForm from '~components/BaseModalForm.vue'
   export default {
-    fetch: function ({ store, redirect }) {
-      if (!store.state.authUser) {
-        return redirect('/')
-      }
-    },
+    middleware: 'authenticated',
     layout: 'dashboard',
     components: {
       PageHeader: PageHeader,
