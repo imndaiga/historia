@@ -65,6 +65,7 @@ authRoutes.post('/login', function(req, res, next) {
     if (!user) { return res.status(401).json({ error: 'Bad credentials' }) }
     req.logIn(user, function(err) {
       if (err) { return next(err) }
+      req.session.authUser = { user: user.email }
       return res.json({ user: user.email })
     })
   })(req, res, next)
@@ -72,6 +73,7 @@ authRoutes.post('/login', function(req, res, next) {
 
 authRoutes.post('/logout', function (req, res) {
   req.logout()
+  delete req.session.authUser
   res.json({ user: req.user })
 })
 
