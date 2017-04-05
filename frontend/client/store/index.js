@@ -68,6 +68,11 @@ const store = new Vuex.Store({
         dismissable: true
       })
     }
+  },
+  getters: {
+    isAuthenticated: function (state) {
+      return !!state.authUser
+    }
   }
 })
 
