@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="menu">
     <ul class="nav nav-app-brand">
       <i v-once :class="header.logo"></i>
       <li v-once>{{header.title}}</li>
@@ -167,9 +167,9 @@
 
   .nav-app-footer {
     position: absolute;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
+    bottom: 0;
+    left: 0;
+    right: 0;
     padding: 10px 10px 0px 10px;
     background-color: rgba(214, 214, 214, 1)
   }
@@ -182,5 +182,31 @@
   .nav-app-footer > ul > li > a:focus {
     color: #525252;
     text-decoration: none
+  }
+
+  /* Landscape phones and portrait tablets */
+  @media (max-width: 767px) {
+    .menu {
+      position: relative
+    }
+    .nav-app-footer {
+      height: 100px;
+      bottom: -100px;
+      left: -21px;
+      right: -21px
+    }
+  }
+
+    /* Portrait phones and smaller */
+  @media (max-width: 480px) {
+    .menu {
+      position: static
+    }
+    .nav-app-footer {
+      height: auto;
+      bottom: 0;
+      left: 0;
+      right: 0
+    }
   }
 </style>
