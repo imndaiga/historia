@@ -1,6 +1,6 @@
 <template>
   <div class="col-lg-2 col-md-3 col-sm-4 sidebar">
-    <hook-app-menu :pages="pages" :header="header" :footer="footer"></hook-app-menu>
+    <hook-app-menu :pages="pages" :footer="footer"></hook-app-menu>
   </div>
 </template>
 
@@ -13,10 +13,6 @@
     props: {
       pages: {
         type: Array,
-        required: true
-      },
-      header: {
-        type: Object,
         required: true
       },
       footer: {

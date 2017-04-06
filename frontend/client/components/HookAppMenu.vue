@@ -1,8 +1,7 @@
 <template>
   <div class="menu">
     <ul class="nav nav-app-brand">
-      <i v-once :class="header.logo"></i>
-      <li v-once>{{header.title}}</li>
+      <img src="~assets/img/logo.png" alt="jina" class="logo" width="65" height="77" />
     </ul>
     <ul v-for="page in pages" class="nav nav-app-menu">
       <router-link v-if="page.navs.length == 0" :to="{name: page.name}" tag="li" active-class="active" :key="page.key" v-on:click.native="setOpenMenu(page.name)">
@@ -46,10 +45,6 @@
     props: {
       pages: {
         type: Array,
-        required: true
-      },
-      header: {
-        type: Object,
         required: true
       },
       footer: {

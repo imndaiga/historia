@@ -4,8 +4,8 @@
       <alert-message></alert-message>
     </div>
     <nuxt/>
-    <base-sidebar class="hidden-xs" :pages="pages" :header="header" :footer="footer"></base-sidebar>
-    <base-mobile-menu class="hidden-lg hidden-md hidden-sm" :pages="pages" :header="header" :footer="footer"></base-mobile-menu>
+    <base-sidebar class="hidden-xs" :pages="pages" :footer="footer"></base-sidebar>
+    <base-mobile-menu class="hidden-lg hidden-md hidden-sm" :pages="pages" :footer="footer"></base-mobile-menu>
   </div>
 </template>
 
@@ -21,10 +21,6 @@
     },
     data: function () {
       return {
-        header: {
-          title: 'MIMINANI',
-          logo: 'fa fa-tree fa-lg'
-        },
         pages: [
           {
             name: 'user',

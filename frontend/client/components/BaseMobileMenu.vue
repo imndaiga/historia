@@ -3,7 +3,7 @@
     <div class="row">
       <div class="mobile-menu">
         <a v-on:click="closeMobileMenu">&times;</a>
-        <hook-app-menu :pages="pages" :header="header" :footer="footer"></hook-app-menu>
+        <hook-app-menu :pages="pages" :footer="footer"></hook-app-menu>
       </div>
     </div>
   </div>
@@ -23,10 +23,6 @@
     props: {
       pages: {
         type: Array,
-        required: true
-      },
-      header: {
-        type: Object,
         required: true
       },
       footer: {
