@@ -1,13 +1,14 @@
 <template>
   <div>
     <div class='jumbotron'>
+      <img src="~assets/img/logo.png" alt="jina" class="logo" width="80" height="94" style="display: block; margin: auto; position: relative; z-index: 1;"/>
       <div id='particlesjs'></div>
       <div class='container-fluid'>
-        <div class='row'>
-          <div class='col-lg-6 col-md-8 col-sm-6 col-xs-12 col-lg-push-1 col-md-push-1 col-sm-push-1'>
+        <div class='welcome-banner row'>
+          <div class='col-lg-7 col-md-8 col-sm-8 col-xs-12 col-lg-push-1 col-md-push-1 col-sm-push-1'>
             <div>
-              <h1><strong>Connecting</strong> African Histories.</h1>
-              <h3>History is a collection of stories. We help you tell yours.</h3>
+              <p class="header"><em>Connecting</em> African Histories.</p>
+              <p class="intro">History is a collection of stories. We help you tell yours.</p>
               <hr>
               <p class='welcome-action'>
                 <a class='btn btn-success btn-lg' v-on:click='login()'>Tell your story</a>
@@ -71,6 +72,7 @@
           modal_title: 'Login',
           modal_icon: 'fa fa-sign-in fa-fw',
           modal_submit_message: 'Log In',
+          inline: false,
           resource_urls: {
             submit_url: 'login',
             search_url: ''
@@ -178,7 +180,7 @@
   }
 
   .welcome-action {
-    padding-top: 20px;
+    padding-top: 10px;
   }
   .welcome-action > a {
     margin-right: 20px
@@ -193,7 +195,7 @@
   }
 
   .welcome-banner {
-    padding-top: 5%
+    padding-top: 40px
   }
 
   #particlesjs {
@@ -202,7 +204,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(217, 237, 247, 1);
+    background-color: #c2dcc8;
     z-index: 0
   }
 
@@ -215,5 +217,13 @@
     height: 60px;
     line-height: 59px; /* Vertically center the text there */
     background-color: #f5f5f5
+  }
+
+  .header {
+    font-size: 45px
+  }
+
+  .intro {
+    font-size: 30px
   }
 </style>
