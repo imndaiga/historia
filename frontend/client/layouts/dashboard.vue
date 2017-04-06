@@ -85,6 +85,9 @@
           }
         ]
       }
+    },
+    created: function () {
+      this.$http.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
     }
   }
 </script>
