@@ -58,6 +58,7 @@ module.exports = {
   * Set up Plugins
   */
   plugins: [
-    { src: '~plugins/vuelidate', ssr: false }
+    { src: '~plugins/vuelidate', ssr: false },
+    { src: '~plugins/axios'}
   ]
 }
