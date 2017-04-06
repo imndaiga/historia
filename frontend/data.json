@@ -2,11 +2,13 @@
   "users": [
     {
       "email": "admin@miminani.com",
-      "password": "admin"
+      "password": "admin",
+      "id": 1
     },
     {
       "email": "user@miminani.com",
-      "password": "user"
+      "password": "user",
+      "id": 2
     }
   ]
 }
