@@ -1,20 +1,33 @@
 const Nuxt = require('nuxt')
 const bodyParser = require('body-parser')
-const session = require('express-session')
 const express = require('express')
 const passport = require('passport')
-const LocalStrategy = require('passport-local').Strategy
-const appData = require('./data.json')
+const passportJWT = require('passport-jwt')
+const jwt = require('jsonwebtoken')
+const jwtStrategy = passportJWT.Strategy
+const ExtractJwt = passportJWT.ExtractJwt
 
+const appData = require('./data.json')
 const host = process.env.HOST || '127.0.0.1'
 const port = process.env.PORT || 3000
-const sessionSecret = process.env.SECRET || 'ncdunioubaiub9287&@!'
+const jwtSecret = process.env.JWTSECRET || 'ncdunioubaiub9287&@!'
 
 const userData = appData.users
 
-function getUser (email) {
+function getUser (email, id) {
+  var field
+  var data
+  if (email && !id) {
+    field = 'email'
+    data = email
+  } else if (!email && id) {
+    field = 'id'
+    data = id
+  } else {
+    return null
+  }
   const user = userData.find(function (user) {
-    return user.email === email
+    return user[field] === data
   })
   return Object.assign({}, user)
 }
@@ -22,59 +35,50 @@ function getUser (email) {
 const server = express()
 
 server.use(bodyParser.json())
-server.use(session({
-  secret: sessionSecret,
-  resave: false,
-  saveUninitialized: false,
-  cookie: { maxAge: 60000 }
-}))
 server.use(passport.initialize())
-server.use(passport.session())
 
-passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password'
-  },
-  function (email, password, done) {
-    const user = getUser(email)
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeader(),
+  secretOrKey: jwtSecret
+}
 
-    if (!user || user.password !== password) {
-      return done(null, false)
-    }
+var strategy = new jwtStrategy(jwtOptions, function (payload, done) {
+  var user = getUser(null, payload.id)
 
+  if (user) {
     delete user.password
-    return done(null, user)
+    done(null, user)
+  } else {
+    done(null, false)
   }
-))
-
-passport.serializeUser(function (user, done) {
-  return done(null, user.email)
 })
 
-passport.deserializeUser(function (email, done) {
-  const user = getUser(email)
-  delete user.password
-  return done(null, user)
-})
+passport.use(strategy)
 
 const authRoutes = express.Router()
 
-authRoutes.post('/login', function(req, res, next) {
-  passport.authenticate('local', function (err, user, info) {
-    if (err) { return next(err) }
-    if (!user) { return res.status(401).json({ error: 'Bad credentials' }) }
-    req.logIn(user, function(err) {
-      if (err) { return next(err) }
-      req.session.authUser = { user: user.email }
-      return res.json({ user: user.email })
-    })
-  })(req, res, next)
-})
+authRoutes.post('/login', function (req, res) {
+  if (req.body.email && req.body.password) {
+    var email = req.body.email
+    var password = req.body.password
+    var user = getUser(email, null)
 
-authRoutes.post('/logout', function (req, res) {
-  req.logout()
-  delete req.session.authUser
-  res.json({ user: req.user })
+    if (!user) { res.status(401).json({ error: 'Bad credentials' }) }
+
+    if (user.password === password) {
+      delete user.password
+      var payload = { id: user.id }
+      var token = jwt.sign(payload, jwtOptions.secretOrKey)
+      res.json({
+        token: token,
+        user: user
+      })
+    } else {
+      res.status(401).json({ error: 'Bad credentials' })
+    }
+  } else {
+    res.status(401).json({ error: 'Bad credentials' })
+  }
 })
 
 server.use('/auth', authRoutes)

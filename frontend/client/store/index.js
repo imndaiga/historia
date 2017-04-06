@@ -25,11 +25,6 @@ const store = new Vuex.Store({
     }
   },
   actions: {
-    nuxtServerInit: function ({ commit }, { req }) {
-      if (req.session && req.session.authUser) {
-        commit('SET_USER', req.session.authUser)
-      }
-    },
     login: function ({ commit }, { email, password }) {
       return server.post('/auth/login', {
         headers: {
@@ -39,7 +34,8 @@ const store = new Vuex.Store({
         password: password
       })
       .then(function (response) {
-        commit('SET_USER', response.data)
+        commit('SET_USER', response.data.user)
+        localStorage.setItem('id_token', response.data.token)
         return response
       })
       .catch(function (error) {
@@ -47,10 +43,8 @@ const store = new Vuex.Store({
       })
     },
     logout: function ({ commit }) {
-      return server.post('/auth/logout')
-      .then(function () {
-        commit('SET_USER', null)
-      })
+      commit('SET_USER', null)
+      localStorage.removeItem('id_token')
     },
     alert: function ({ commit }, { message, type, duration, dismissable }) {
       return commit('SET_ALERT', {
@@ -71,7 +65,7 @@ const store = new Vuex.Store({
   },
   getters: {
     isAuthenticated: function (state) {
-      return !!state.authUser
+      return !!state.authUser && !!localStorage.getItem('id_token')
     }
   }
 })
