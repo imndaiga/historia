@@ -3,7 +3,7 @@ import axios from 'axios'
 
 var HTTP = axios.create({
   // Create axios instance
-  baseURL: 'http://localhost:5000'
+  baseURL: process.env.backendUrl
 })
 
 Vue.prototype.$http = HTTP

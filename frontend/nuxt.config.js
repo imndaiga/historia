@@ -60,5 +60,11 @@ module.exports = {
   plugins: [
     { src: '~plugins/vuelidate', ssr: false },
     { src: '~plugins/axios'}
-  ]
+  ],
+  /*
+  * Set up client environment
+  */
+  env: {
+    backendUrl: process.env.BACKEND_URL || 'http://localhost:5000'
+  }
 }
