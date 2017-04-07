@@ -8,7 +8,6 @@ const jwtStrategy = passportJWT.Strategy
 const ExtractJwt = passportJWT.ExtractJwt
 
 const appData = require('./data.json')
-const host = process.env.HOST || '127.0.0.1'
 const port = process.env.PORT || 3000
 const jwtSecret = process.env.JWTSECRET || 'ncdunioubaiub9287&@!'
 
@@ -97,5 +96,6 @@ if (config.dev) {
 }
 
 server.use(nuxt.render)
-server.listen(port, host)
-console.log('Server is listening on ' + host + ':' + port) // eslint-disable-line no-console
+server.listen(port, function () {
+  console.log('Server is listening on port: ' + port) // eslint-disable-line no-console
+})
