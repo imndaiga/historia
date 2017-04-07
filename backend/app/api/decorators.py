@@ -5,10 +5,7 @@ import os
 from ..models import Person
 from .. import db, seed
 
-# AUTH0 JWT DECODING
-client_secret = os.environ.get('CLIENT_SECRET', None)
-client_id = os.environ.get('CLIENT_ID', None)
-client_domain = os.environ.get('CLIENT_DOMAIN', None)
+jwt_secret = os.environ.get('JWT_SECRET', None)
 
 
 def handle_error(error, status_code):
@@ -47,16 +44,11 @@ def requires_auth(f):
         try:
             payLoad = jwt.decode(
                 token,
-                client_secret,
-                audience=client_id
+                jwt_secret
             )
         except jwt.ExpiredSignature:
             return handle_error({'code': 'token_expired',
                                  'description': 'token is expired'}, 401)
-        except jwt.InvalidAudienceError:
-            return handle_error({'code': 'invalid_audience',
-                                 'description': 'Incorrect audience,'
-                                 'expected:' + client_id}, 401)
         except jwt.DecodeError:
             return handle_error({'code': 'token_invalid_signature',
                                  'description':
@@ -65,13 +57,14 @@ def requires_auth(f):
             return handle_error({'code': 'invalid_header',
                                  'description': 'Unable to parse'
                                  ' authentication token'}, 400)
-        user_email = payLoad['email']
-        print('Validating {}'.format(user_email))
+        user_id = payLoad['id']
+        print('Validating ID: {}'.format(user_id))
         (person, created_status) = seed._get_or_create_one(
             session=db.session,
             model=Person,
             create_method='auto',
-            email=user_email)
+            id=user_id
+        )
         if (created_status is True):
             print('User registered')
         else:

@@ -27,10 +27,13 @@ class pingAPI(Resource):
 class graphAPI(Resource):
     decorators = [requires_auth]
 
+    def __init__(self):
+        self.user_id = _app_ctx_stack.top.current_user['id']
+        self.current_user = Person.query.filter_by(id=self.user_id).first()
+        super(graphAPI, self).__init__()
+
     def getNodeColor(self, node_id):
-        current_user_email = _app_ctx_stack.top.current_user['email']
-        current_user = Person.query.filter_by(email=current_user_email).first()
-        if current_user.id == node_id:
+        if self.current_user.id == node_id:
             return '#f96060'
         return '#5c61ad'
 
@@ -69,11 +72,8 @@ class graphAPI(Resource):
         return serialised_graph
 
     def get(self):
-        current_user_email = _app_ctx_stack.top.current_user['email']
-        current_user = Person.query.filter_by(
-            email=current_user_email).first()
-        print('Returning graph for node {}'.format(current_user.id))
-        current_user_graph = graph.get_subgraph(current_user)
+        print('Returning graph for node {}'.format(self.current_user.id))
+        current_user_graph = graph.get_subgraph(self.current_user)
         json_graph = self.formatResponse(current_user_graph)
         return {'graph': json_graph}
 
@@ -113,6 +113,8 @@ class relationshipsAPI(Resource):
     decorators = [requires_auth]
 
     def __init__(self):
+        self.user_id = _app_ctx_stack.top.current_user['id']
+        self.current_user = Person.query.filter_by(id=self.user_id).first()
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('data', type=dict, location='json')
         self.reqparse.add_argument('id', type=int, location='json')
@@ -161,13 +163,11 @@ class relationshipsAPI(Resource):
         return relatives
 
     def get(self):
-        user_email = _app_ctx_stack.top.current_user['email']
         args = self.reqparse.parse_args()
         page = 1 if not args['page'] else int(args['page'])
-        user = Person.query.filter_by(email=user_email).first()
-        node_list = graph.get_subgraph(user).nodes()
+        node_list = graph.get_subgraph(self.current_user).nodes()
         for index, node in enumerate(node_list):
-            if node == user.id:
+            if node == self.current_user.id:
                 del node_list[index]
         max_page = math.ceil(len(node_list) / self.relationships_per_page)
         max_rows = page * self.relationships_per_page
