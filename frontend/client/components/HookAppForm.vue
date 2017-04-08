@@ -125,15 +125,11 @@
           if (this.submit_resource === 'login') {
             var unauthorisedAlert = {
               message: 'Ooops! Please try again',
-              type: 'alert-danger',
-              dismissable: false,
-              duration: 0
+              type: 'alert-danger'
             }
             var authorisedAlert = {
               message: 'Yay! Welcome',
-              type: 'alert-success',
-              dismissable: false,
-              duration: 0
+              type: 'alert-success'
             }
             this.login(formData)
             .then(function (response) {

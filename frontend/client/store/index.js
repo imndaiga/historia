@@ -5,12 +5,7 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    alert: {
-      message: '',
-      type: '',
-      duration: 0,
-      dismissable: false
-    }
+    alert: {}
   },
   mutations: {
     SET_ALERT: function (state, alertObject) {
@@ -20,19 +15,14 @@ const store = new Vuex.Store({
   actions: {
     alert: function ({ commit }, { message, type, duration, dismissable }) {
       return commit('SET_ALERT', {
-        message: message,
-        type: type,
-        duration: duration,
-        dismissable: dismissable
+        message: message || '',
+        type: type || 'alert-info',
+        duration: duration || 0,
+        dismissable: dismissable || false
       })
     },
     dismiss_alert: function ({ commit }) {
-      return commit('SET_ALERT', {
-        message: '',
-        type: '',
-        duration: 0,
-        dismissable: false
-      })
+      return commit('SET_ALERT', {})
     }
   }
 })
