@@ -70,7 +70,7 @@ authRoutes.post('/login', function (req, res) {
       var token = jwt.sign(payload, jwtOptions.secretOrKey)
       res.json({
         token: token,
-        user: user
+        user: user.email
       })
     } else {
       res.status(401).json({ error: 'Bad credentials' })
