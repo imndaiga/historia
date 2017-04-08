@@ -7,5 +7,4 @@ RUN pip install -r requirements.txt
 ADD . /app
 EXPOSE 5000
 
-ENTRYPOINT ["python","manage.py"]
-CMD ["runserver","-h","0.0.0.0"]
+CMD ["python","manage.py","runserver","-h","0.0.0.0"]
