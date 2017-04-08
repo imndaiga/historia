@@ -13,6 +13,7 @@
     "jsonwebtoken": "^7.3.0",
     "npm-font-open-sans": "^1.0.3",
     "nuxt": "latest",
+    "particles.js": "^2.0.0",
     "passport": "^0.3.2",
     "passport-jwt": "^2.2.1",
     "pikaday": "^1.5.1",
