@@ -1,5 +1,7 @@
-export default function ({ redirect, store }) {
-  if (!store.getters.isAuthenticated) {
-    redirect('/')
+export default function ({ redirect }) {
+  if (process.browser) {
+    if (!localStorage.getItem('id_token')) {
+      redirect('/')
+    }
   }
 }

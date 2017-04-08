@@ -13,12 +13,7 @@
 </template>
 <script>
 export default {
-  props: ['error'],
-  created: function () {
-    if (this.$http) {
-      this.$http.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
-    }
-  }
+  props: ['error']
 }
 </script>
 
