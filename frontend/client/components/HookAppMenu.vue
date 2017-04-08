@@ -62,12 +62,12 @@
         var loggedOutAlert = {
           message: 'You have been logged out',
           type: 'alert-warning',
-          dismissable: true,
+          dismissable: false,
           duration: 0
         }
         if (action === 'logout') {
           var self = this
-          this.$nuxt.$store.dispatch('logout')
+          this.logout()
           this.$nuxt.$router.push('/', function () {
             self.$nuxt.$store.dispatch('alert', loggedOutAlert)
           })

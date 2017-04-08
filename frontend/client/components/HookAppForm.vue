@@ -126,16 +126,16 @@
             var unauthorisedAlert = {
               message: 'Ooops! Please try again',
               type: 'alert-danger',
-              dismissable: true,
+              dismissable: false,
               duration: 0
             }
             var authorisedAlert = {
               message: 'Yay! Welcome',
               type: 'alert-success',
-              dismissable: true,
+              dismissable: false,
               duration: 0
             }
-            this.$nuxt.$store.dispatch('login', formData)
+            this.login(formData)
             .then(function (response) {
               if (response.status === 200) {
                 self.$nuxt.$router.push('/user/home', function () {

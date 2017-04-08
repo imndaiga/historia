@@ -59,7 +59,9 @@ module.exports = {
   */
   plugins: [
     { src: '~plugins/vuelidate', ssr: false },
-    { src: '~plugins/axios'}
+    { src: '~plugins/axios', ssr: false },
+    { src: '~plugins/login', ssr: false },
+    { src: '~plugins/logout', ssr: false }
   ],
   /*
   * Set up client environment
