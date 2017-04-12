@@ -3,8 +3,8 @@
     <ul class="nav nav-app-brand">
       <img src="~assets/img/logo.png" alt="jina" class="logo" width="65" height="77" />
     </ul>
-    <ul v-for="page in pages" class="nav nav-app-menu">
-      <router-link v-if="page.navs.length == 0" :to="{name: page.name}" tag="li" active-class="active" :key="page.key" v-on:click.native="setOpenMenu(page.name)">
+    <ul class="nav nav-app-menu">
+      <router-link v-for="page in pages" v-if="page.navs.length == 0" :to="{name: page.name}" tag="li" active-class="active" :key="page.key" v-on:click.native="setOpenMenu(page.name)">
         <a>
           <i :class="page.icon"></i>
           {{page.name}}
@@ -16,15 +16,15 @@
           {{page.name}}
           <span class="fa fa-chevron-down fa-fw reveal-icon"></span>
         </a>
+        <ul :class="['nav', 'nav-app-submenu', 'collapse', {'in': open_submenu == page.name}]">
+          <router-link v-for="menu in page.navs" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.key" v-on:click.native="setOpenMenu(page.name)">
+            <a>
+            <i :class="menu.icon"></i>
+            {{menu.title}}
+            </a>
+          </router-link>
+        </ul>
       </li>
-      <ul :class="['nav', 'nav-app-submenu', 'collapse', {'in': open_submenu == page.name}]">
-        <router-link v-for="menu in page.navs" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.key" v-on:click.native="setOpenMenu(page.name)">
-          <a>
-          <i :class="menu.icon"></i>
-          {{menu.title}}
-          </a>
-        </router-link>
-      </ul>
     </ul>
     <div class="nav-app-footer">
       <button type="button" v-for="item in footer" v-if="item.type == 'footer_button'" :class="item.class" v-on:click="performAction(item.action)">{{item.caption}}</button>
