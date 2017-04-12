@@ -17,12 +17,18 @@
           <span class="fa fa-chevron-down fa-fw reveal-icon"></span>
         </a>
         <ul :class="['nav', 'nav-app-submenu', 'collapse', {'in': open_submenu == page.name}]">
-          <router-link v-for="menu in page.navs" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.key" v-on:click.native="setOpenMenu(page.name)">
+          <router-link v-for="menu in page.navs" v-if="menu.view" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.key" v-on:click.native="setOpenMenu(page.name)">
             <a>
             <i :class="menu.icon"></i>
             {{menu.title}}
             </a>
           </router-link>
+          <li v-else>
+            <a v-on:click="performAction(menu.action)">
+              <i :class="menu.icon"></i>
+              {{menu.title}}
+            </a>
+          </li>
         </ul>
       </li>
     </ul>
