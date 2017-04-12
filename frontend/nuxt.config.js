@@ -68,5 +68,11 @@ module.exports = {
   */
   env: {
     backendUrl: process.env.BACKEND_URL || 'http://localhost:5000'
+  },
+  /*
+  * Set up router
+  */
+  router: {
+    linkActiveClass: 'active'
   }
 }
