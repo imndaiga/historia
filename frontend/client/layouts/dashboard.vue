@@ -38,6 +38,13 @@
                 view: 'user-settings',
                 icon: 'fa fa-cog fa-fw',
                 key: 2
+              },
+              {
+                title: 'sign out',
+                info: 'Log out of your account',
+                action: 'logout',
+                icon: 'fa fa-sign-out fa-fw',
+                key: 3
               }
             ],
             icon: 'fa fa-user-circle-o fa-lg',
@@ -58,30 +65,22 @@
         ],
         footer: [
           {
-            type: 'footer_button',
-            caption: 'Log Out',
-            action: 'logout',
-            class: 'btn btn-block btn-lg btn-default',
-            reference: 'Your Profile',
-            key: 1
-          },
-          {
             type: 'footer_link',
             path_type: 'internal',
             caption: 'Info',
-            icon: 'fa fa-info-circle fa-fw',
+            icon: 'fa fa-info-circle fa-fw fa-lg',
             link: 'relationships',
             reference: 'Read more about the miminani project',
-            key: 2
+            key: 1
           },
           {
             type: 'footer_link',
             path_type: 'external',
             caption: 'Github',
-            icon: 'fa fa-github-alt fa-fw',
+            icon: 'fa fa-github-alt fa-fw fa-lg',
             link: 'https://github.com/squarenomad/miminani',
             reference: 'View our open source code',
-            key: 3
+            key: 2
           }
         ]
       }
