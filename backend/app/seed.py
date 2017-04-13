@@ -155,7 +155,7 @@ class Seed(Command):
                 while created_status is False:
                     person = self.Person(
                         baptism_name=relative['name'].split()[0],
-                        surname=relative['name'].split()[1],
+                        last_name=relative['name'].split()[1],
                         sex=relative['sex'],
                         dob=relative['birthdate'],
                         email=relative['mail'],

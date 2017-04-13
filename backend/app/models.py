@@ -35,7 +35,7 @@ class Person(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     baptism_name = db.Column(db.String(64))
     ethnic_name = db.Column(db.String(64), index=True)
-    surname = db.Column(db.String(64), index=True)
+    last_name = db.Column(db.String(64), index=True)
     sex = db.Column(db.String(64))
     dob = db.Column(db.DateTime, default=date(9999, 1, 1))
     email = db.Column(db.String(64), unique=True)

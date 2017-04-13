@@ -98,7 +98,7 @@ class searchAPI(Resource):
             listed_names = [
                 found_person.baptism_name or '',
                 found_person.ethnic_name or '',
-                found_person.surname or ''
+                found_person.last_name or ''
             ]
             person_fullname = ' '.join(filter(None, listed_names))
             print({'fullname': person_fullname,
@@ -147,7 +147,7 @@ class relationshipsAPI(Resource):
                     'field_name': 'ethnic_name'},
                 {
                     'type': 'alpha-input', 'value':
-                        relation.surname or '',
+                        relation.last_name or '',
                     'label': 'Last Name',
                     'validators': ['required', 'alpha'],
                     'field_name': 'last_name'
@@ -247,7 +247,7 @@ class personAPI(Resource):
                 'field_name': 'ethnic_name'},
             {
                 'type': 'alpha-input', 'value':
-                    person.surname or '',
+                    person.last_name or '',
                 'label': 'Last Name',
                 'validators': ['required', 'alpha'],
                 'field_name': 'last_name'
@@ -294,7 +294,7 @@ class familyAPI(Resource):
                 listed_names = [
                     target.baptism_name or '',
                     target.ethnic_name or '',
-                    target.surname or ''
+                    target.last_name or ''
                 ]
                 target_fullname = ' '.join(filter(None, listed_names))
                 family_array.append(
