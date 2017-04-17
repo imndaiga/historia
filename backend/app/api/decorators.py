@@ -5,7 +5,7 @@ import os
 from ..models import Person
 from .. import db, seed
 
-jwt_secret = os.environ.get('JWT_SECRET', None)
+jwt_secret = os.environ.get('JWT_SECRET', 'superSECRETth!ng')
 
 
 def handle_error(error, status_code):

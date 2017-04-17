@@ -9,7 +9,7 @@ const ExtractJwt = passportJWT.ExtractJwt
 
 const appData = require('./data.json')
 const port = process.env.PORT || 3000
-const jwtSecret = process.env.JWTSECRET || 'ncdunioubaiub9287&@!'
+const jwtSecret = process.env.JWT_SECRET || 'superSECRETth!ng'
 
 const userData = appData.users
 
