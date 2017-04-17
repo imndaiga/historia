@@ -1,9 +1,10 @@
 FROM node:latest
 MAINTAINER squarenomad
 
-ADD . /app
+ADD ./package.json /app/package.json
 WORKDIR /app
 RUN npm install
+ADD . /app
 RUN npm run build
 EXPOSE 3000
 
