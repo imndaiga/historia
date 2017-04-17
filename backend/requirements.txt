@@ -18,6 +18,7 @@ Mako==1.0.6
 MarkupSafe==1.0
 networkx==1.11
 packaging==16.8
+psycopg2==2.7.1
 PyJWT==1.4.2
 pyparsing==2.2.0
 python-dateutil==2.6.0
