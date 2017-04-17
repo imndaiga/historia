@@ -12,3 +12,9 @@ services:
       - "3000:3000"
     env_file:
       - ./.env
+  db:
+    image: postgres:latest
+    ports:
+    - "5400:5432"
+    env_file:
+      - ./.env
