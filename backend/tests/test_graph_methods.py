@@ -47,18 +47,18 @@ class GraphTestCase(unittest.TestCase):
     def test_graph_load_with_invalid_environment_variable(self):
         graph.gpickle_path = None
         with self.assertRaises(EnvironmentError):
-            graph._load()
+            graph.load_or_create()
 
     def test_graph_load_instatiates_gpickle_file(self):
         self.delete_gpickle_file()
         self.assertFalse(os.path.exists(self.app.config['GRAPH_PATH']))
-        G = graph._load()
+        G = graph.load_or_create()
         self.assertTrue(os.path.exists(self.app.config['GRAPH_PATH']))
         self.assertEqual(G.order(), 0)
         self.assertEqual(G.size(), 0)
 
     def test_graph_load_is_successful(self):
-        G = graph._load()
+        G = graph.load_or_create()
         self.assertEqual(G.order(), 4)
         self.assertEqual(G.size(), 12)
 
@@ -143,7 +143,7 @@ class GraphTestCase(unittest.TestCase):
         relative = fake.family_member(sex='F')
         a1 = Person(
             baptism_name=relative['name'].split()[0],
-            surname=relative['name'].split()[1],
+            last_name=relative['name'].split()[1],
             sex=relative['sex'],
             dob=relative['birthdate'],
             email=relative['mail'],
@@ -183,7 +183,7 @@ class GraphTestCase(unittest.TestCase):
         relative = fake.family_member(sex='F')
         a1 = Person(
             baptism_name=relative['name'].split()[0],
-            surname=relative['name'].split()[1],
+            last_name=relative['name'].split()[1],
             sex=relative['sex'],
             dob=relative['birthdate'],
             email=relative['mail'],
@@ -203,7 +203,7 @@ class GraphTestCase(unittest.TestCase):
         relative = fake.family_member(sex='F')
         a1 = Person(
             baptism_name=relative['name'].split()[0],
-            surname=relative['name'].split()[1],
+            last_name=relative['name'].split()[1],
             sex=relative['sex'],
             dob=relative['birthdate'],
             email=relative['mail'],
@@ -223,7 +223,7 @@ class GraphTestCase(unittest.TestCase):
         relative = fake.family_member(sex='F')
         a1 = Person(
             baptism_name=relative['name'].split()[0],
-            surname=relative['name'].split()[1],
+            last_name=relative['name'].split()[1],
             sex=relative['sex'],
             dob=relative['birthdate'],
             email=relative['mail'],
@@ -232,7 +232,7 @@ class GraphTestCase(unittest.TestCase):
         relative = fake.family_member(sex='M')
         a2 = Person(
             baptism_name=relative['name'].split()[0],
-            surname=relative['name'].split()[1],
+            last_name=relative['name'].split()[1],
             sex=relative['sex'],
             dob=relative['birthdate'],
             email=relative['mail'],
@@ -252,7 +252,7 @@ class GraphTestCase(unittest.TestCase):
         relative = fake.family_member(sex='F')
         a1 = Person(
             baptism_name=relative['name'].split()[0],
-            surname=relative['name'].split()[1],
+            last_name=relative['name'].split()[1],
             sex=relative['sex'],
             dob=relative['birthdate'],
             email=relative['mail'],
@@ -261,7 +261,7 @@ class GraphTestCase(unittest.TestCase):
         relative = fake.family_member(sex='M')
         a2 = Person(
             baptism_name=relative['name'].split()[0],
-            surname=relative['name'].split()[1],
+            last_name=relative['name'].split()[1],
             sex=relative['sex'],
             dob=relative['birthdate'],
             email=relative['mail'],

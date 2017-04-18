@@ -44,7 +44,7 @@ class ModelsTestCase(unittest.TestCase):
         relative = fake.family_member(sex='F')
         a1 = Person(
             baptism_name=relative['name'].split()[0],
-            surname=relative['name'].split()[1],
+            last_name=relative['name'].split()[1],
             sex=relative['sex'],
             dob=relative['birthdate'],
             email=relative['mail'],
@@ -65,7 +65,7 @@ class ModelsTestCase(unittest.TestCase):
         relative = fake.family_member(sex='F')
         a1 = Person(
             baptism_name=relative['name'].split()[0],
-            surname=relative['name'].split()[1],
+            last_name=relative['name'].split()[1],
             sex=relative['sex'],
             dob=relative['birthdate'],
             email=relative['mail'],
