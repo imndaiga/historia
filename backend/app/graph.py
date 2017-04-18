@@ -49,6 +49,27 @@ class Graph:
         G.remove_node(node_id)
         self.save(G)
 
+    def save(self, G):
+        if self.gpickle_path is not None:
+            nx.write_gpickle(G, self.gpickle_path)
+        else:
+            raise EnvironmentError
+
+    def load_or_create(self):
+        if self.gpickle_path is not None:
+            if os.path.exists(self.gpickle_path):
+                G = nx.read_gpickle(self.gpickle_path)
+            else:
+                G = nx.MultiDiGraph()
+                self.save(G)
+            return G
+        else:
+            raise EnvironmentError
+
+    @property
+    def current(self):
+        return self.load_or_create()
+
     def get_subgraph(self, source, gtype=nx.Graph):
         subgraph = gtype()
         MDG = self.current
@@ -89,16 +110,6 @@ class Graph:
                             else:
                                 ret_dict[u_id] = _selfid_to_uid_path
         return ret_dict
-
-    @property
-    def current(self):
-        return self._load()
-
-    def save(self, G):
-        if self.gpickle_path is not None:
-            nx.write_gpickle(G, self.gpickle_path)
-        else:
-            raise EnvironmentError
 
     def get_relation_tree(self, source, target, readable=True):
         '''
@@ -230,17 +241,6 @@ class Graph:
             return ret_list
         else:
             return None
-
-    def _load(self):
-        if self.gpickle_path is not None:
-            if os.path.exists(self.gpickle_path):
-                G = nx.read_gpickle(self.gpickle_path)
-            else:
-                G = nx.MultiDiGraph()
-                self.save(G)
-            return G
-        else:
-            raise EnvironmentError
 
     @staticmethod
     def count_subgraph_weights(**kwargs):
