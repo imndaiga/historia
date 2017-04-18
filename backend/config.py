@@ -37,17 +37,17 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+        'sqlite:///' + os.path.join(basedir, 'data', 'data-dev.sqlite')
     GRAPH_PATH = os.environ.get('DEV_GRAPH_PATH') or os.path.join(
-        basedir, 'graph-dev.gpickle')
+        basedir, 'data', 'graph-dev.gpickle')
 
 
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
+        'sqlite:///' + os.path.join(basedir, 'data', 'data-test.sqlite')
     GRAPH_PATH = os.environ.get('TEST_GRAPH_PATH') or os.path.join(
-        basedir, 'graph-test.gpickle')
+        basedir, 'data', 'graph-test.gpickle')
     # Disable Cross-Site-Request-Forgery Protection to enable
     # Flask-Test and Selenium testing suites to function properly
     WTF_CSRF_ENABLED = False
@@ -55,9 +55,9 @@ class TestingConfig(Config):
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+        'sqlite:///' + os.path.join(basedir, 'data', 'data.sqlite')
     GRAPH_PATH = os.environ.get('GRAPH_PATH') or os.path.join(
-        basedir, 'graph.gpickle')
+        basedir, 'data', 'graph.gpickle')
 
 
 config = {

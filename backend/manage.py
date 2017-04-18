@@ -38,8 +38,10 @@ manager.add_command('forge', seed)
 if __name__ == '__main__':
     with app.app_context():
         basedir = os.path.abspath(os.path.dirname(__file__))
-        if app.config['DEBUG'] and \
-                (basedir in app.config['SQLALCHEMY_DATABASE_URI']):
-            if not os.path.exists('data-dev.sqlite'):
-                print('No development database present')
+        data_dir = os.path.join(basedir, 'data')
+        if not os.path.exists(data_dir):
+            os.mkdir(data_dir)
+        if basedir in app.config['SQLALCHEMY_DATABASE_URI']:
+            if not os.path.exists(app.config['SQLALCHEMY_DATABASE_URI']):
+                print('No development database is present!')
     manager.run()
