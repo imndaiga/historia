@@ -97,11 +97,8 @@ ENV/
 
 ##### PROJECT STUFF #####
 
-# Sqlite stuff
-*.sqlite
-
-# Gpickle stuff
-*.gpickle
+# Data stuff
+*data/
 
 # Sublime stuff
 *sublime*
