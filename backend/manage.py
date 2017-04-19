@@ -22,6 +22,11 @@ def test():
     tests = unittest.TestLoader().discover('tests')
     unittest.TextTestRunner(verbosity=2).run(tests)
 
+
+@manager.command
+def create_db():
+    db.create_all()
+
 # Attach functions to app-runtime flags
 
 
