@@ -21,7 +21,6 @@ Lock.on('authenticated', function (authResult) {
     localStorage.setItem('profile', JSON.stringify(profile))
     localStorage.setItem('id_token', authResult.idToken)
     Vue.prototype.$http.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
-    console.log(Vue)
   })
 })
 
