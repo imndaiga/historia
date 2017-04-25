@@ -10,7 +10,6 @@
     "bootstrap-css-only": "^3.3.7",
     "express": "^4.15.2",
     "font-awesome": "^4.7.0",
-    "jsonwebtoken": "^7.3.0",
     "npm-font-open-sans": "^1.0.3",
     "nuxt": "latest",
     "particles.js": "^2.0.0",
