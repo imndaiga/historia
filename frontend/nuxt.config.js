@@ -6,7 +6,7 @@ module.exports = {
     title: 'jina',
     meta: [
       { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0' },
       { hid: 'description', name: 'description', content: 'Nuxt.js project' }
     ],
     link: [
@@ -60,14 +60,15 @@ module.exports = {
   plugins: [
     { src: '~plugins/vuelidate', ssr: false },
     { src: '~plugins/axios', ssr: false },
-    { src: '~plugins/login', ssr: false },
-    { src: '~plugins/logout', ssr: false }
+    { src: '~plugins/lock.js', ssr: false }
   ],
   /*
   * Set up client environment
   */
   env: {
-    backendUrl: process.env.BACKEND_URL || 'http://localhost:5000'
+    backendUrl: process.env.BACKEND_URL || 'http://localhost:5000',
+    clientID: process.env.AUTH0_CLIENT_ID || '',
+    clientDomain: process.env.AUTH0_CLIENT_Domain || ''
   },
   /*
   * Set up router

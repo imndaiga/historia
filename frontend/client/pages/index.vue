@@ -20,7 +20,6 @@
             </div>
           </div>
         </div>
-        <base-modal-form></base-modal-form>
       </div>
     </div>
     <footer class='footer'>
@@ -34,55 +33,19 @@
 </template>
 
 <script>
-  import BaseModalForm from '~components/BaseModalForm.vue'
   var PJSConf = require('~static/particlesjs.json')
+
   if (process.browser) {
     require('particles.js')
   }
+
   export default {
-    components: {
-      BaseModalForm: BaseModalForm
-    },
-    data: function () {
-      return {
-        login_form: {
-          data: [
-            {
-              type: 'email-input',
-              placeholder: 'Enter Email Address',
-              label: 'Email',
-              validators: ['required', 'email'],
-              field_name: 'email',
-              classes: '',
-              key: 1
-            },
-            {
-              type: 'password-input',
-              placeholder: 'Enter Password',
-              label: 'Password',
-              validators: ['required'],
-              field_name: 'password',
-              classes: '',
-              key: 2
-            }
-          ],
-          modal_title: 'Login',
-          modal_icon: 'fa fa-sign-in fa-fw',
-          modal_submit_message: 'Log In',
-          inline: false,
-          resource_urls: {
-            submit_url: 'login',
-            search_url: ''
-          }
-        }
-      }
-    },
     mounted: function () {
       window.particlesJS('particlesjs', PJSConf)
     },
     methods: {
       login: function () {
-        this.$nuxt.$emit('open-modal', JSON.stringify(this.login_form))
+        this.lock.show()
       }
     }
   }

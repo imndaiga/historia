@@ -72,8 +72,10 @@
           duration: 0
         }
         if (action === 'logout') {
-          var self = this
-          this.logout()
+          this.lock.logout()
+          localStorage.removeItem('id_token')
+          localStorage.removeItem('profile')
+          this.$http.defaults.headers.common['Authorization'] = 'Bearer ' + null
           this.$nuxt.$router.push('/', function () {
             self.$nuxt.$store.dispatch('alert', loggedOutAlert)
           })
