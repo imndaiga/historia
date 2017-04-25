@@ -68,7 +68,7 @@ module.exports = {
   env: {
     backendUrl: process.env.BACKEND_URL || 'http://localhost:5000',
     clientID: process.env.AUTH0_CLIENT_ID || '',
-    clientDomain: process.env.AUTH0_CLIENT_Domain || ''
+    clientDomain: process.env.AUTH0_CLIENT_DOMAIN || ''
   },
   /*
   * Set up router
