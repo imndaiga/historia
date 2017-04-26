@@ -65,20 +65,12 @@
     },
     methods: {
       performAction: function (action) {
-        var loggedOutAlert = {
-          message: 'You have been logged out',
-          type: 'alert-warning',
-          dismissable: false,
-          duration: 0
-        }
         if (action === 'logout') {
           this.lock.logout()
           localStorage.removeItem('id_token')
           localStorage.removeItem('profile')
+          this.$store.dispatch('logout', null)
           this.$http.defaults.headers.common['Authorization'] = 'Bearer ' + null
-          this.$nuxt.$router.push('/', function () {
-            self.$nuxt.$store.dispatch('alert', loggedOutAlert)
-          })
         }
       },
       setOpenMenu: function (pageName) {
