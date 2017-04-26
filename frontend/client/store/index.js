@@ -5,11 +5,15 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    alert: {}
+    alert: {},
+    authUser: null
   },
   mutations: {
     SET_ALERT: function (state, alertObject) {
       state.alert = alertObject
+    },
+    SET_USER: function (state, userProfile) {
+      state.authUser = userProfile
     }
   },
   actions: {
@@ -23,6 +27,12 @@ const store = new Vuex.Store({
     },
     dismiss_alert: function ({ commit }) {
       return commit('SET_ALERT', {})
+    },
+    login: function ({ commit }, profile) {
+      return commit('SET_USER', profile)
+    },
+    logout: function ({ commit }) {
+      return commit('SET_USER', null)
     }
   }
 })
