@@ -69,7 +69,7 @@
             path_type: 'internal',
             caption: 'Info',
             icon: 'fa fa-info-circle fa-fw fa-lg',
-            link: 'relationships',
+            link: 'index',
             reference: 'Read more about the miminani project',
             key: 1
           },
