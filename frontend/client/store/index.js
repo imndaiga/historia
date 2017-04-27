@@ -28,8 +28,8 @@ const store = new Vuex.Store({
     dismiss_alert: function ({ commit }) {
       return commit('SET_ALERT', {})
     },
-    login: function ({ commit }, profile) {
-      return commit('SET_USER', profile)
+    login: function ({ commit }, { email }) {
+      return commit('SET_USER', email)
     },
     logout: function ({ commit }) {
       return commit('SET_USER', null)
