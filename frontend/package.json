@@ -1,7 +1,7 @@
 {
-  "name": "frontend",
+  "name": "historia",
   "version": "1.0.0",
-  "description": "A Vue.js project",
+  "description": "Official frontend client for historia",
   "author": "squarenomad",
   "private": true,
   "scripts": {
