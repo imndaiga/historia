@@ -1,8 +1,6 @@
-# miminani
+# historia
 
-### miminani is a Kiswahili portmanteau derived from **_"Mimi Nani?"_**. A question that asks **_"Who Am I?"_**
-
-**miminani** is a web app designed and developed to be a global personal addressing system. It is built on top of a social graph that computatively populates user family trees and generational lineages using their social network connections (only facebook support is currently under consideration).
+**historia** is a web app designed and developed to be a global personal addressing system. It is built on top of a social graph that computatively populates user family trees and generational lineages using their social network connections (only facebook support is currently under consideration).
 
 Submitted data can used for statistical research into social genealogical structures. The project can also be extended to enable for varied social network analyses e.g. an Electronic Medical Record ([EMR](https://en.wikipedia.org/wiki/Electronic_health_record)) System.
 
@@ -29,6 +27,10 @@ Developer usage is simple enough and powered by docker. Currently, this app is c
 Instructions on how to locally run, develop or test your own app instance coming soon! :hourglass_flowing_sand:
 
 ### Changelog
+
+#### Version 0.4.5
+- Client powered by [NuxtJS.](https://nuxtjs.org/)
+- Docker/[PostgreSQL](https://www.postgresql.org/) powered database.
 
 #### Version 0.4
 - Frontend served with [express.js.](http://expressjs.com/)

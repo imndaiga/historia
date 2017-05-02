@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class='jumbotron'>
-      <img src="~assets/img/logo.png" alt="jina" class="logo" width="80" height="94" style="display: block; margin: auto; position: relative; z-index: 1;"/>
+      <img src="~assets/img/logo.png" alt="jina" class="logo" width="117" height="90" style="display: block; margin: auto; position: relative; z-index: 1;"/>
       <div id='particlesjs'></div>
       <div class='container-fluid'>
         <div class='welcome-banner row'>
