@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import WelcomeView from '@/components/WelcomeView'
+import WelcomeView from '@/pages/WelcomeView'
 
 Vue.use(Router)
 
