@@ -33,8 +33,9 @@
 </template>
 
 <script>
-  var PJSConf = require('../../static/particlesjs.json')
+  import auth from '../auth'
   require('particles.js')
+  var PJSConf = require('../../static/particlesjs.json')
 
   export default {
     mounted: function () {
@@ -43,6 +44,7 @@
     methods: {
       login: function () {
         console.log('logging in!')
+        auth.login()
       }
     }
   }

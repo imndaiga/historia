@@ -11,6 +11,9 @@ module.exports = {
   entry: {
     app: './src/main.js'
   },
+  externals: {
+    Auth0Lock: 'Auth0Lock'
+  },
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',
