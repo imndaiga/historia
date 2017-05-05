@@ -7,26 +7,26 @@
       <router-link v-for="page in pages" v-if="page.navs.length == 0" :to="{name: page.view}" tag="li" active-class="active" :key="page.key" v-on:click.native="setOpenMenu(page.title)">
         <a>
           <icon :name="page.icon"></icon>
-          {{page.title}}
+          <span class="nav-title">{{page.title}}</span>
         </a>
       </router-link>
       <li v-else-if="page.navs.length > 0" :key="page.key" :class="{'active': current_Page == page.title}">
         <a v-on:click="setOpenMenu(page.title)">
           <icon :name="page.icon" ></icon>
-          {{page.title}}
+          <span class="nav-title">{{page.title}}</span>
           <icon name="chevron-down" class="reveal-icon"></icon>
         </a>
         <ul :class="['nav', 'nav-app-submenu', 'collapse', {'in': open_submenu == page.title}]">
           <router-link v-for="menu in page.navs" v-if="menu.view" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.key" v-on:click.native="setOpenMenu(page.title)">
             <a>
               <icon :name="menu.icon"></icon>
-              {{menu.title}}
+              <span class="nav-title">{{menu.title}}</span>
             </a>
           </router-link>
           <li v-else>
             <a v-on:click="performAction(menu.action)">
               <icon :name="menu.icon"></icon>
-              {{menu.title}}
+              <span class="nav-title">{{menu.title}}</span>
             </a>
           </li>
         </ul>
@@ -87,6 +87,9 @@
 </script>
 
 <style scoped>
+  .fa-icon {
+    position: absolute;
+  }
   .nav-app-brand {
     margin-top: 10px;
     margin-bottom: 30px;
@@ -96,7 +99,6 @@
     padding-bottom: 15px;
     border-bottom: 1px solid #eee
   }
-
   .nav-app-menu {
     margin-right: -21px; /* 20px padding + 1px border */
     margin-bottom: 0px;
@@ -120,13 +122,14 @@
     color: #fff;
     background-color: #428bca
   }
+  .nav-title {
+    padding-left: 25px;
+  }
   .nav-app-menu > li > a > .fa-icon {
-    margin-right: 15px;
+    top: 25px;
   }
   .nav-app-menu > li > a > .reveal-icon {
-    position: absolute;
     right: 20px;
-    top: 25px;
     color:  rgba(150, 150, 150, 0.5)
   }
 
@@ -150,9 +153,6 @@
     color: #fff;
     background-color: #91acc3
   }
-  .nav-app-submenu > li > a > .fa-icon {
-    margin-right: 15px;
-  }
 
   .nav-app-footer {
     position: absolute;
@@ -171,6 +171,9 @@
   .nav-app-footer > ul > li > a:focus {
     color: #525252;
     text-decoration: none
+  }
+  .nav-app-footer > ul > li > a > .fa-icon {
+    position: static;
   }
 
   /* Landscape phones and portrait tablets */
