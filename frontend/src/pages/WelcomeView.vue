@@ -33,7 +33,7 @@
 </template>
 
 <script>
-  import auth from '../auth'
+  import auth from '../utils/auth'
   require('particles.js')
   var PJSConf = require('../../static/particlesjs.json')
 

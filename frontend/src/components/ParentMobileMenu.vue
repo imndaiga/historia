@@ -11,7 +11,7 @@
 
 <script>
   import ChildAppMenu from './ChildMainMenu.vue'
-  import bus from '../bus'
+  import bus from '../utils/bus'
   export default {
     components: {
       ChildMenu: ChildAppMenu
