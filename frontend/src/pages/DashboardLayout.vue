@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="col-lg-10 col-lg-push-2 col-md-9 col-md-push-3 col-sm-8 col-sm-push-4 col-xs-12">
-      <app-view-header></app-view-header>
+      <app-view-header class="hidden-lg hidden-md hidden-sm"></app-view-header>
       <!-- insert child views here -->
     </div>
     <app-sidebar class="hidden-xs" :pages="pages" :footer="footer"></app-sidebar>

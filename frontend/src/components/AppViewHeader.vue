@@ -1,5 +1,5 @@
 <template>
-  <div class="hidden-lg hidden-md hidden-sm header">
+  <div class="header">
     <a v-on:click="openMobileMenu" class="header-title">
       <icon name="bars"></icon>
       {{current_Panel}}
