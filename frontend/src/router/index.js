@@ -10,10 +10,11 @@ import visualisation from '@/pages/visualisation'
 import relationships from '@/pages/relationships'
 
 import auth from '../utils/auth'
+import bus from '../utils/bus'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
@@ -49,3 +50,9 @@ export default new Router({
     }
   ]
 })
+
+router.afterEach(function (to, from) {
+  bus.$emit('reset-ui')
+})
+
+export default router
