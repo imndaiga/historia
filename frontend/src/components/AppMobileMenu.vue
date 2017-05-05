@@ -42,6 +42,9 @@
         document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
         this.open_mobile_menu = true
       }.bind(this))
+      bus.$on('reset-ui', function () {
+        this.closeMobileMenu()
+      }.bind(this))
     }
   }
 </script>
