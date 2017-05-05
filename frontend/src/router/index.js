@@ -5,6 +5,8 @@ import dashboardTemplate from '@/templates/dashboard'
 import userIndex from '@/pages/user/user'
 import userSettings from '@/pages/user/settings'
 import userHome from '@/pages/user/home'
+import visualisation from '@/pages/visualisation'
+import relationships from '@/pages/relationships'
 
 Vue.use(Router)
 
@@ -22,11 +24,22 @@ export default new Router({
       children: [
         {
           path: '/user',
+          name: 'user',
           component: userIndex,
           children: [
             { path: 'settings', name: 'settings', component: userSettings },
             { path: 'home', name: 'home', component: userHome }
           ]
+        },
+        {
+          path: '/visualisation',
+          name: 'visualisation',
+          component: visualisation
+        },
+        {
+          path: '/relationships',
+          name: 'relationships',
+          component: relationships
         }
       ]
     }

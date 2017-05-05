@@ -52,14 +52,14 @@
           },
           {
             title: 'visualisation',
-            view: 'dashboard',
+            view: 'visualisation',
             navs: [],
             icon: 'eye',
             key: 2
           },
           {
             title: 'relationships',
-            view: 'dashboard',
+            view: 'relationships',
             navs: [],
             icon: 'globe',
             key: 3
