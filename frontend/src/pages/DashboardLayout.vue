@@ -10,13 +10,13 @@
 </template>
 
 <script>
-  import ParentSidebarMenu from '@/components/ParentSidebarMenu.vue'
-  import ParentMobileMenu from '@/components/ParentMobileMenu.vue'
+  import AppSidebarMenu from '@/components/AppSidebarMenu.vue'
+  import AppMobileMenu from '@/components/AppMobileMenu.vue'
   import AppViewHeader from '@/components/AppViewHeader.vue'
   export default {
     components: {
-      AppSidebar: ParentSidebarMenu,
-      AppMobileMenu: ParentMobileMenu,
+      AppSidebar: AppSidebarMenu,
+      AppMobileMenu: AppMobileMenu,
       AppViewHeader: AppViewHeader
     },
     data: function () {
