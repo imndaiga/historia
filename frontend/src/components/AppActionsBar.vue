@@ -68,12 +68,6 @@
     padding-left: 15px;
   }
 
-  @media (min-width: 1200px) {
-    .well {
-      padding: 40px;
-    }
-  }
-
   @media (max-width: 767px) {
     .well {
       margin: 10px;
