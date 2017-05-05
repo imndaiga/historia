@@ -52,6 +52,7 @@
 
 <script>
   import 'vue-awesome/icons'
+  import auth from '../utils/auth'
   export default {
     props: {
       pages: {
@@ -71,7 +72,8 @@
     methods: {
       performAction: function (action) {
         if (action === 'logout') {
-          console.log('logging out!')
+          auth.logout()
+          this.$router.push('/')
         }
       },
       setOpenMenu: function (pageName) {

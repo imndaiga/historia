@@ -3,7 +3,7 @@ import Auth0Lock from 'Auth0Lock'
 var lockOptions = {
   auth: {
     params: {
-      scope: 'openid email'
+      scope: 'email'
     }
   }
 }
@@ -33,7 +33,27 @@ var logout = function () {
   localStorage.removeItem('profile')
 }
 
+var checkAuth = function () {
+  if (localStorage.getItem('id_token')) {
+    return true
+  } else {
+    return false
+  }
+}
+
+var requireAuth = function (to, from, next) {
+  if (!checkAuth()) {
+    console.log('user not authorised!')
+    var path = '/'
+    next({ path: path })
+  } else {
+    next()
+  }
+}
+
 export default {
   login,
-  logout
+  logout,
+  checkAuth,
+  requireAuth
 }
