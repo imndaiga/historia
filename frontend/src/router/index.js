@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import WelcomeView from '@/pages/WelcomeView'
-import DashboardLayout from '@/pages/DashboardLayout'
+import index from '@/pages/index'
+import dashboardLayout from '@/pages/DashboardLayout'
 
 Vue.use(Router)
 
@@ -9,14 +9,13 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'welcome',
-      component: WelcomeView
+      name: 'index',
+      component: index
     },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: DashboardLayout
+      component: dashboardLayout,
     }
-
   ]
 })
