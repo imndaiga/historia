@@ -10,7 +10,7 @@
           <span class="nav-title">{{page.title}}</span>
         </a>
       </router-link>
-      <li v-else-if="page.navs.length > 0" :key="page.key" :class="{'active': current_Page == page.title}">
+      <li v-else-if="page.navs.length > 0" :key="page.key" :class="{'active': current_Page.parent == page.title}">
         <a v-on:click="setOpenMenu(page.title)">
           <icon :name="page.icon" ></icon>
           <span class="nav-title">{{page.title}}</span>
@@ -65,7 +65,7 @@
     },
     data: function () {
       return {
-        open_submenu: this.current_Page
+        open_submenu: ''
       }
     },
     methods: {
@@ -80,7 +80,10 @@
     },
     computed: {
       current_Page: function () {
-        return this.$route.name
+        return {
+          name: this.$route.name,
+          parent: this.$route.path.split('/').slice(-2)[0]
+        }
       }
     }
   }
@@ -131,6 +134,9 @@
   .nav-app-menu > li > a > .reveal-icon {
     right: 20px;
     color:  rgba(150, 150, 150, 0.5)
+  }
+  .nav-app-menu > .active > a > .reveal-icon {
+    color:  #fff
   }
 
   .nav-app-submenu {
