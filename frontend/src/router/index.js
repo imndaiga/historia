@@ -4,6 +4,7 @@ import index from '@/pages/index'
 import dashboardLayout from '@/pages/DashboardLayout'
 import userIndex from '@/pages/user/user'
 import userSettings from '@/pages/user/settings'
+import userHome from '@/pages/user/home'
 
 Vue.use(Router)
 
@@ -23,7 +24,8 @@ export default new Router({
           path: '/user',
           component: userIndex,
           children: [
-            { path: 'settings', name: 'settings', component: userSettings }
+            { path: 'settings', name: 'settings', component: userSettings },
+            { path: 'home', name: 'home', component: userHome }
           ]
         }
       ]

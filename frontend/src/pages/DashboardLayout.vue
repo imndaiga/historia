@@ -28,7 +28,7 @@
               {
                 title: 'home',
                 info: 'View your progress',
-                view: 'dashboard',
+                view: 'home',
                 icon: 'home',
                 key: 1
               },
