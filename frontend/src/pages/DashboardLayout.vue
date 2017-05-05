@@ -2,7 +2,7 @@
   <div>
     <div class="col-lg-10 col-lg-push-2 col-md-9 col-md-push-3 col-sm-8 col-sm-push-4 col-xs-12">
       <app-view-header class="hidden-lg hidden-md hidden-sm"></app-view-header>
-      <!-- insert child views here -->
+      <router-view></router-view>
     </div>
     <app-sidebar class="hidden-xs" :pages="pages" :footer="footer"></app-sidebar>
     <app-mobile-menu class="hidden-lg hidden-md hidden-sm" :pages="pages" :footer="footer"></app-mobile-menu>
@@ -35,7 +35,7 @@
               {
                 title: 'settings',
                 info: 'Configure your profile settings',
-                view: 'dashboard',
+                view: 'settings',
                 icon: 'cog',
                 key: 2
               },
