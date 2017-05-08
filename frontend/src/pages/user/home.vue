@@ -15,13 +15,13 @@
           {
             message: 'Add Relative',
             icon: 'user-plus',
-            action: 'open_add_relative_modal',
+            action: 'open-modal',
             key: 1
           },
           {
             message: 'Add Relationship',
             icon: 'link',
-            action: 'open_add_relation_modal',
+            action: 'open-modal',
             key: 2
           }
         ]
