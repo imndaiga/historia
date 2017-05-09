@@ -13,9 +13,12 @@
   "dependencies": {
     "bootstrap-css-only": "^3.3.7",
     "particles.js": "^2.0.0",
+    "pikaday": "^1.5.1",
     "vue": "^2.2.6",
     "vue-awesome": "^2.3.1",
-    "vue-router": "^2.3.1"
+    "vue-multiselect": "^2.0.0-beta.15",
+    "vue-router": "^2.3.1",
+    "vuelidate": "^0.4.3"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",
