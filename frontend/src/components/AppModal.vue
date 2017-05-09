@@ -2,17 +2,22 @@
   <div v-if="open_modal" class="modal-mask">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div v-if="title.length > 0 && header_icon.length > 0" class="modal-header">
-          <icon :name="header_icon"></icon>
-          <span class="modal-title">{{modal_title}}</span>
+        <div v-if="header_icon.length > 0 || title.length > 0 || submit_message.length === 0" class="modal-header">
+          <div class="row">
+            <div class="col-xs-11">
+              <icon v-if="header_icon.length > 0" :name="header_icon"></icon>
+              <span v-if="title.length > 0" class="modal-title">{{title}}</span>
+            </div>
+            <a v-if="submit_message.length === 0" class="col-xs-1" v-on:click="closeModal">&times;</a>
+          </div>
         </div>
         <div class="modal-body">
-          <a v-if="title.length === 0 && header_icon.length === 0" v-on:click="closeModal">&times;</a>
-          <component is=""></component>
+          <child-form v-if="form.length > 0" :raw_form="form" submit_url="/submit" search_url="/search" :inline="false"></child-form>
+          <p class="alert-message" v-else-if="alert.length > 0">{{alert}}</p>
         </div>
         <div v-if="submit_message.length > 0" class="modal-footer">
           <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
-          <button type="submit" v-on:click="submitForm" :class="['btn', 'btn-primary']">{{submit_message}}</button>
+          <button type="submit" v-on:click="submitForm" :class="['btn', 'btn-primary', {'disabled-button' : !modal_is_active}]">{{submit_message}}</button>
         </div>
       </div>
     </div>
@@ -20,14 +25,22 @@
 </template>
 
 <script>
+  import ChildForm from './ChildForm'
   import bus from '../utils/bus'
+
   export default {
+    components: {
+      ChildForm: ChildForm
+    },
     data: function () {
       return {
         open_modal: false,
         title: '',
         header_icon: '',
-        submit_message: ''
+        submit_message: '',
+        modal_is_active: false,
+        alert: '',
+        form: []
       }
     },
     methods: {
@@ -37,18 +50,24 @@
         this.title = ''
         this.header_icon = ''
         this.submit_message = ''
+        this.modal_is_active = false
       },
       submitForm: function () {
         bus.$emit('submit-form')
       }
     },
     created: function () {
-      bus.$on('open-modal', function (title, icon, submitMessage) {
+      bus.$on('modal-data-ready', function (title, icon, form, submitMessage, alert) {
         document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
         this.open_modal = true
-        this.modal_title = title || ''
+        this.title = title || ''
+        this.form = form || []
         this.header_icon = icon || ''
         this.submit_message = submitMessage || ''
+        this.alert = alert || ''
+      }.bind(this))
+      bus.$on('form-field-activated', function () {
+        this.modal_is_active = true
       }.bind(this))
     }
   }
@@ -62,16 +81,14 @@
 
   .modal-body {
     min-height: 100px;
-    max-height: calc(100vh - 250px);
+    max-height: calc(100vh - 180px);
     overflow-y: auto
   }
 
-  .modal-body a {
-    position: absolute;
-    top: 10px;
-    right: 20px;
+  .modal-header {
     font-size: 25px;
-    margin-left: 50px;
+  }
+  .modal-header a {
     text-decoration: none;
     cursor: pointer;
     color: black;
@@ -92,5 +109,15 @@
     font-size: 20px;
     font-weight: 600;
     padding-left: 10px
+  }
+
+  .disabled-button {
+    display: none
+  }
+
+  .alert-message {
+    font-size: 40px;
+    font-weight: 600;
+    text-align: center;
   }
 </style>
