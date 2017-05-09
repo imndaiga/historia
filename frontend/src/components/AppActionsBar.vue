@@ -7,7 +7,7 @@
       <div class="col-lg-10 col-md-9 col-sm-7 col-xs-12">
         <div class="btn-group btn-group-justified">
           <div v-for="button in buttons" class="btn-group">
-            <button class="btn btn-lg btn-default" v-on:click="performAction(button.action)">
+            <button class="btn btn-lg btn-default" v-on:click="performAction(button.action, button.target)">
               <icon :name="button.icon"></icon>
               <span class="button-message hidden-xs hidden-sm">{{ button.message }}</span>
             </button>
@@ -32,8 +32,8 @@
       }
     },
     methods: {
-      performAction: function (actionTrigger) {
-        bus.$emit(actionTrigger)
+      performAction: function (actionTrigger, actionTarget) {
+        bus.$emit(actionTrigger, actionTarget)
       }
     }
   }
