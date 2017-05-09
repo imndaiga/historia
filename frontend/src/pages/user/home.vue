@@ -1,12 +1,19 @@
 <template>
-  <actions-bar :title="actions_bar_title" :buttons="action_buttons"></actions-bar>
+  <div>
+    <actions-bar :title="actions_bar_title" :buttons="action_buttons"></actions-bar>
+    <app-modal></app-modal>
+  </div>
 </template>
 
 <script>
   import AppActionsBar from '@/components/AppActionsBar.vue'
+  import AppModal from '@/components/AppModal.vue'
+  import bus from '../../utils/bus'
+
   export default {
     components: {
-      ActionsBar: AppActionsBar
+      ActionsBar: AppActionsBar,
+      AppModal: AppModal
     },
     data: function () {
       return {
@@ -16,16 +23,107 @@
             message: 'Add Relative',
             icon: 'user-plus',
             action: 'open-modal',
+            target: 'relative_form',
             key: 1
           },
           {
             message: 'Add Relationship',
             icon: 'link',
             action: 'open-modal',
+            target: 'relationship_form',
             key: 2
           }
-        ]
+        ],
+        forms: {
+          relative_form: [
+            {
+              type: 'search-input',
+              placeholder: 'Search for Relative',
+              label: 'From',
+              validators: ['required'],
+              field_name: 'from_person',
+              classes: '',
+              SelectLabel: '',
+              DeselectLabel: '',
+              key: 1
+            },
+            {
+              type: 'search-input',
+              placeholder: 'Search for Relative',
+              label: 'To',
+              validators: ['required'],
+              field_name: 'to_person',
+              classes: '',
+              SelectLabel: '',
+              DeselectLabel: '',
+              key: 2
+            },
+            {
+              type: 'multiselect-input',
+              placeholder: 'Choose a Relation',
+              label: 'Relation',
+              validators: ['required'],
+              field_name: 'relation_name',
+              classes: '',
+              multiselect_options: ['Parent', 'Partner', 'Sibling', 'Step-Parent', 'Step-Sibling', 'Child'],
+              SelectLabel: '',
+              DeselectLabel: '',
+              key: 3
+            }
+          ],
+          relationship_form: [
+            {
+              type: 'alpha-input',
+              placeholder: 'Enter First Name',
+              label: 'First Name',
+              validators: ['required', 'alpha'],
+              field_name: 'first_name',
+              classes: '',
+              key: 1
+            },
+            {
+              type: 'alpha-input',
+              placeholder: 'Enter Ethnic Name',
+              label: 'Ethnic Name',
+              validators: ['required', 'alpha'],
+              field_name: 'ethnic_name',
+              classes: '',
+              key: 2
+            },
+            {
+              type: 'alpha-input',
+              placeholder: 'Enter Last Name',
+              label: 'Last Name',
+              validators: ['required', 'alpha'],
+              field_name: 'last_name',
+              classes: '',
+              key: 3
+            },
+            {
+              type: 'email-input',
+              placeholder: 'Enter Email Address',
+              label: 'Email',
+              validators: ['email'],
+              field_name: 'email',
+              classes: '',
+              key: 4
+            },
+            {
+              type: 'pikaday-input',
+              placeholder: 'Select Birth Date',
+              label: 'Date of Birth',
+              field_name: 'birth_date',
+              classes: '',
+              key: 8
+            }
+          ]
+        }
       }
+    },
+    created: function () {
+      bus.$on('open-modal', function (modalInput) {
+        bus.$emit('modal-data-ready', 'Edit', 'edit', this.forms[modalInput], 'Save', null)
+      }.bind(this))
     }
   }
 </script>
