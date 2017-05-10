@@ -1,19 +1,16 @@
 <template>
   <div>
     <actions-bar :title="actions_bar_title" :buttons="action_buttons"></actions-bar>
-    <app-modal></app-modal>
   </div>
 </template>
 
 <script>
   import AppActionsBar from '@/components/AppActionsBar.vue'
-  import AppModal from '@/components/AppModal.vue'
   import bus from '../../utils/bus'
 
   export default {
     components: {
-      ActionsBar: AppActionsBar,
-      AppModal: AppModal
+      ActionsBar: AppActionsBar
     },
     data: function () {
       return {

@@ -6,6 +6,7 @@
     </div>
     <app-sidebar class="hidden-xs" :pages="pages" :footer="footer"></app-sidebar>
     <app-mobile-menu class="hidden-lg hidden-md hidden-sm" :pages="pages" :footer="footer"></app-mobile-menu>
+    <app-modal></app-modal>
   </div>
 </template>
 
@@ -13,11 +14,13 @@
   import AppSidebarMenu from '@/components/AppSidebarMenu.vue'
   import AppMobileMenu from '@/components/AppMobileMenu.vue'
   import AppViewHeader from '@/components/AppViewHeader.vue'
+  import AppModal from '@/components/AppModal.vue'
   export default {
     components: {
       AppSidebar: AppSidebarMenu,
       AppMobileMenu: AppMobileMenu,
-      AppViewHeader: AppViewHeader
+      AppViewHeader: AppViewHeader,
+      AppModal: AppModal
     },
     data: function () {
       return {
