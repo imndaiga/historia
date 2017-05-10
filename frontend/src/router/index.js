@@ -19,7 +19,8 @@ const router = new Router({
     {
       path: '/',
       name: 'index',
-      component: index
+      component: index,
+      beforeEnter: auth.autoRoute
     },
     {
       path: '/dashboard',

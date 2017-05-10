@@ -3,7 +3,7 @@ import Auth0Lock from 'Auth0Lock'
 var lockOptions = {
   auth: {
     params: {
-      scope: 'email'
+      scope: 'openid email'
     }
   }
 }
@@ -22,6 +22,10 @@ lock.on('authenticated', function (authResult) {
       localStorage.setItem('profile', JSON.stringify(profile))
     }
   })
+
+  if (!(navigator.userAgent.indexOf('Chrome') !== -1)) {
+    location.reload()
+  }
 })
 
 var login = function () {
@@ -51,9 +55,20 @@ var requireAuth = function (to, from, next) {
   }
 }
 
+var autoRoute = function (to, from, next) {
+  if (checkAuth()) {
+    console.log('user is already authorised!')
+    var path = '/user/home'
+    next({ path: path })
+  } else {
+    next()
+  }
+}
+
 export default {
   login,
   logout,
   checkAuth,
-  requireAuth
+  requireAuth,
+  autoRoute
 }

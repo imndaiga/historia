@@ -40,9 +40,6 @@
   export default {
     mounted: function () {
       window.particlesJS('particlesjs', PJSConf)
-      if (auth.checkAuth()) {
-        this.$router.push('/user/home')
-      }
     },
     methods: {
       login: function () {
