@@ -11,21 +11,16 @@ var lockOptions = {
 const lock = new Auth0Lock(process.env.AUTH0_ID, process.env.AUTH0_DOMAIN, lockOptions)
 
 lock.on('authenticated', function (authResult) {
-  localStorage.setItem('id_token', authResult.idToken)
-
   lock.getUserInfo(authResult.accessToken, function (error, profile) {
     if (error) {
       // Handle error
       console.log('Error loading the Profile', error)
-    } else {
-      // Set the token and user profile in local storage
-      localStorage.setItem('profile', JSON.stringify(profile))
+      return
     }
-  })
-
-  if (!(navigator.userAgent.indexOf('Chrome') !== -1)) {
+    localStorage.setItem('id_token', authResult.idToken)
+    localStorage.setItem('profile', JSON.stringify(profile))
     location.reload()
-  }
+  })
 })
 
 var login = function () {
