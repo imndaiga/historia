@@ -8,7 +8,9 @@ var lockOptions = {
   }
 }
 
-const lock = new Auth0Lock(process.env.AUTH0_ID, process.env.AUTH0_DOMAIN, lockOptions)
+var id = process.env.AUTH0_ID
+var domain = process.env.AUTH0_DOMAIN
+const lock = new Auth0Lock(id, domain, lockOptions)
 
 lock.on('authenticated', function (authResult) {
   lock.getUserInfo(authResult.accessToken, function (error, profile) {
