@@ -6,12 +6,14 @@
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
-    "start": "node build/dev-server.js",
+    "start": "http-server dist/",
     "build": "node build/build.js",
+    "deploy": "node build/build.js && http-server dist/",
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
     "bootstrap-css-only": "^3.3.7",
+    "http-server": "^0.10.0",
     "particles.js": "^2.0.0",
     "pikaday": "^1.5.1",
     "vue": "^2.2.6",
