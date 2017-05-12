@@ -1,4 +1,5 @@
 import Auth0Lock from 'Auth0Lock'
+import axios from 'axios'
 
 var lockOptions = {
   auth: {
@@ -12,6 +13,10 @@ var id = process.env.AUTH0_ID
 var domain = process.env.AUTH0_DOMAIN
 const lock = new Auth0Lock(id, domain, lockOptions)
 
+if (localStorage.getItem('id_token')) {
+  axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
+}
+
 lock.on('authenticated', function (authResult) {
   lock.getUserInfo(authResult.accessToken, function (error, profile) {
     if (error) {
@@ -21,6 +26,7 @@ lock.on('authenticated', function (authResult) {
     }
     localStorage.setItem('id_token', authResult.idToken)
     localStorage.setItem('profile', JSON.stringify(profile))
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
     location.reload()
   })
 })
@@ -44,7 +50,7 @@ var checkAuth = function () {
 
 var requireAuth = function (to, from, next) {
   if (!checkAuth()) {
-    console.log('user not authorised!')
+    console.log('frontend client says: unauthorised!')
     var path = '/'
     next({ path: path })
   } else {
@@ -54,7 +60,7 @@ var requireAuth = function (to, from, next) {
 
 var autoRoute = function (to, from, next) {
   if (checkAuth()) {
-    console.log('user is already authorised!')
+    console.log('frontend client says: user is already authorised!')
     var path = '/user/home'
     next({ path: path })
   } else {
