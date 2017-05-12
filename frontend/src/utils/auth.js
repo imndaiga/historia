@@ -1,5 +1,6 @@
 import Auth0Lock from 'Auth0Lock'
 import axios from 'axios'
+import router from '../router'
 
 var lockOptions = {
   auth: {
@@ -27,7 +28,7 @@ lock.on('authenticated', function (authResult) {
     localStorage.setItem('id_token', authResult.idToken)
     localStorage.setItem('profile', JSON.stringify(profile))
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
-    location.reload()
+    router.replace({name: 'home'})
   })
 })
 
