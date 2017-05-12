@@ -12,6 +12,7 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
+    "axios": "^0.16.1",
     "bootstrap-css-only": "^3.3.7",
     "http-server": "^0.10.0",
     "particles.js": "^2.0.0",
