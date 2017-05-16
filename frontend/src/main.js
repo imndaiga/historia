@@ -16,7 +16,7 @@ HTTP.interceptors.response.use(function (response) {
 }, function (error) {
   // Do something with backend response error
   if (error.response.status === 401) {
-    console.log('backend says: unauthorized, logging out ...')
+    console.log('backend says: unauthorized with message: ', error.response.data)
     auth.logout()
     router.replace('/')
   }
