@@ -52,7 +52,7 @@
 
 <script>
   import 'vue-awesome/icons'
-  import auth from '../utils/auth'
+  import auth from '@/utils/auth'
   export default {
     props: {
       pages: {

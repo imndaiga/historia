@@ -19,7 +19,7 @@
 </template>
 
 <script>
-  import bus from '../utils/bus'
+  import bus from '@/utils/bus'
   export default {
     props: {
       title: {

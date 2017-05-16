@@ -11,10 +11,10 @@
 </template>
 
 <script>
-  import AppSidebarMenu from '@/components/AppSidebarMenu.vue'
-  import AppMobileMenu from '@/components/AppMobileMenu.vue'
-  import AppViewHeader from '@/components/AppViewHeader.vue'
-  import AppModal from '@/components/AppModal.vue'
+  import AppSidebarMenu from '@/components/AppSidebarMenu'
+  import AppMobileMenu from '@/components/AppMobileMenu'
+  import AppViewHeader from '@/components/AppViewHeader'
+  import AppModal from '@/components/AppModal'
   export default {
     components: {
       AppSidebar: AppSidebarMenu,

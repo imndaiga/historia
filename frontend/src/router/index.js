@@ -9,8 +9,8 @@ import userHome from '@/pages/user/home'
 import visualisation from '@/pages/visualisation'
 import relationships from '@/pages/relationships'
 
-import auth from '../utils/auth'
-import bus from '../utils/bus'
+import auth from '@/utils/auth'
+import bus from '@/utils/bus'
 
 Vue.use(Router)
 

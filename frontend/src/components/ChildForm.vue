@@ -67,7 +67,7 @@
   import { required, email, alpha } from 'vuelidate/lib/validators'
   import { validationMixin } from 'vuelidate'
   import Multiselect from 'vue-multiselect'
-  import bus from '../utils/bus'
+  import bus from '@/utils/bus'
 
   var Pikaday = require('pikaday')
 

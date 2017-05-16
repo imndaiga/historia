@@ -6,7 +6,7 @@
 
 <script>
   import AppActionsBar from '@/components/AppActionsBar.vue'
-  import bus from '../../utils/bus'
+  import bus from '@/utils/bus'
 
   export default {
     components: {

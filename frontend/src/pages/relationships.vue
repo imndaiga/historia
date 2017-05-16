@@ -3,7 +3,7 @@
 </template>
 
 <script>
-  import AppTable from '../components/AppTable.vue'
+  import AppTable from '@/components/AppTable'
   export default {
     components: {
       AppTable: AppTable

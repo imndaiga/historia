@@ -26,7 +26,7 @@
 
 <script>
   import ChildForm from './ChildForm'
-  import bus from '../utils/bus'
+  import bus from '@/utils/bus'
 
   export default {
     components: {
