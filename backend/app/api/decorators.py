@@ -6,8 +6,11 @@ from ..models import Person
 from .. import db, seed
 
 jwt_secret = os.environ.get('JWT_SECRET', 'superSECRETth!ng')
-client_id = os.environ.get('AUTH0_ID', None)
+client_id = os.environ.get('AUTH0_ID', 'None')
 
+# Strip start and end quotes
+client_id = client_id.strip('\'')
+jwt_secret = jwt_secret.strip('\'')
 
 def handle_error(error, status_code):
     resp = jsonify(error)
