@@ -12,7 +12,7 @@
           </div>
         </div>
         <div class="modal-body">
-          <child-form v-if="form.length > 0" :raw_form="form" submit_url="/submit" search_url="/search" :inline="false"></child-form>
+          <child-form v-if="form.length > 0" :raw_form="form" submit_url="/submit" search_url="/search"></child-form>
           <p class="alert-message" v-else-if="alert.length > 0">{{alert}}</p>
         </div>
         <div v-if="submit_message.length > 0" class="modal-footer">

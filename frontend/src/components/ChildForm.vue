@@ -1,5 +1,5 @@
 <template>
-  <form v-on:submit.prevent="submitForm" :class="{'form-inline': inline}">
+  <form v-on:submit.prevent="submitForm">
     <div v-for="field in raw_form" v-if="validateField(field.field_name).exists" :class="['form-group', field.classes, {'has-error': validateField(field.field_name).has_error}]">
       <div v-if="field.type == 'hidden-input'" style="display: none;" :key="field.key">
         <label>{{ field.label }}</label>
@@ -96,10 +96,6 @@
       },
       search_url: {
         type: String,
-        required: true
-      },
-      inline: {
-        type: Boolean,
         required: true
       }
     },

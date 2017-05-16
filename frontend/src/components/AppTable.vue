@@ -73,8 +73,7 @@
           }
         })
         .then(function (response) {
-          var form = response.data.form
-          // var inline = response.data.inline
+          var form = response.data
           bus.$emit('modal-data-ready', fullName, 'edit', form, 'Save Changes', null)
         }).catch(function (error) {
           console.log(error)

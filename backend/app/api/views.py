@@ -268,7 +268,7 @@ class personAPI(Resource):
                 'field_name': 'birth_date'
             }
         ]
-        return {'form': relative, 'inline': False}
+        return relative
 
     def get(self):
         args = self.reqparse.parse_args()
@@ -310,8 +310,7 @@ class familyAPI(Resource):
                             'Parent', 'Sibling', 'Step-Parent',
                             'Step-Sibling', 'Child'
                         ],
-                        'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12' +
-                                   ' inline-split',
+                        'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12',
                         'SelectLabel': '',
                         'DeselectLabel': ''
                     }
@@ -329,7 +328,7 @@ class familyAPI(Resource):
                         'DeselectLabel': ''
                     }
                 )
-        return {'form': family_array, 'inline': True}
+        return family_array
 
     def get(self):
         args = self.reqparse.parse_args()
