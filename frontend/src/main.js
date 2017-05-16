@@ -8,7 +8,7 @@ import axios from 'axios'
 import auth from './utils/auth'
 
 var HTTP = axios.create({
-  baseURL: process.env.backendUrl
+  baseURL: process.env.BACKEND_URL
 })
 
 HTTP.interceptors.response.use(function (response) {
