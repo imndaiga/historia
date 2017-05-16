@@ -11,7 +11,7 @@
           </thead>
           <tbody>
             <tr v-for="record in table_Data">
-              <td class="center-content" v-for="(value, key) in record" v-if="key != 'id'">{{ value }}</td>
+              <td class="center-content" v-for="(value, key) in record" v-if="key !== 'id'">{{ value }}</td>
               <td class="center-content">
                 <button type="button" v-on:click="openRecord(record.id, [record.first_name, record.ethnic_name, record.last_name], '/api/person')" class="btn btn-default btn-sm" title="Edit">
                   <icon name="user"></icon>

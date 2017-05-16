@@ -4,19 +4,19 @@
       <img src="../assets/logo.png" alt="jina" class="logo" width="93" height="77" />
     </ul>
     <ul class="nav nav-app-menu">
-      <router-link v-for="page in pages" v-if="page.navs.length == 0" :to="{name: page.view}" tag="li" active-class="active" :key="page.key" v-on:click.native="setOpenMenu(page.title)">
+      <router-link v-for="page in pages" v-if="page.navs.length === 0" :to="{name: page.view}" tag="li" active-class="active" :key="page.key" v-on:click.native="setOpenMenu(page.title)">
         <a>
           <icon :name="page.icon"></icon>
           <span class="nav-title">{{page.title}}</span>
         </a>
       </router-link>
-      <li v-else-if="page.navs.length > 0" :key="page.key" :class="{'active': current_Page.parent == page.title}">
+      <li v-else-if="page.navs.length > 0" :key="page.key" :class="{'active': current_Page.parent === page.title}">
         <a v-on:click="setOpenMenu(page.title)">
           <icon :name="page.icon" ></icon>
           <span class="nav-title">{{page.title}}</span>
           <icon name="chevron-down" class="reveal-icon"></icon>
         </a>
-        <ul :class="['nav', 'nav-app-submenu', 'collapse', {'in': open_submenu == page.title}]">
+        <ul :class="['nav', 'nav-app-submenu', 'collapse', {'in': open_submenu === page.title}]">
           <router-link v-for="menu in page.navs" v-if="menu.view" :to="{name: menu.view}" tag="li" active-class="active" :key="menu.key" v-on:click.native="setOpenMenu(page.title)">
             <a>
               <icon :name="menu.icon"></icon>
@@ -33,14 +33,14 @@
       </li>
     </ul>
     <div class="nav-app-footer">
-      <button type="button" v-for="item in footer" v-if="item.type == 'footer_button'" :class="item.class" v-on:click="performAction(item.action)">{{item.caption}}</button>
+      <button type="button" v-for="item in footer" v-if="item.type === 'footer_button'" :class="item.class" v-on:click="performAction(item.action)">{{item.caption}}</button>
       <ul class="list-inline">
-        <router-link v-for="item in footer" v-if="item.path_type == 'internal'" active-class="active" :to="{name: item.link}" tag="li" :key="item.key">
+        <router-link v-for="item in footer" v-if="item.path_type === 'internal'" active-class="active" :to="{name: item.link}" tag="li" :key="item.key">
           <a>
             <icon :name="item.icon"></icon>
           </a>
         </router-link>
-        <li v-else-if="item.path_type == 'external'">
+        <li v-else-if="item.path_type === 'external'">
           <a :href="item.link">
             <icon :name="item.icon"></icon>
           </a>
