@@ -10,6 +10,9 @@ from networkx.readwrite import json_graph
 import random
 import math
 
+def getUser():
+    return Person.query.filter_by(
+        email=_app_ctx_stack.top.current_user['email']).first()
 
 class pingAPI(Resource):
     decorators = [requires_auth]
@@ -28,8 +31,7 @@ class graphAPI(Resource):
     decorators = [requires_auth]
 
     def __init__(self):
-        self.user_id = _app_ctx_stack.top.current_user['id']
-        self.current_user = Person.query.filter_by(id=self.user_id).first()
+        self.current_user = getUser()
         super(graphAPI, self).__init__()
 
     def getNodeColor(self, node_id):
@@ -113,8 +115,7 @@ class relationshipsAPI(Resource):
     decorators = [requires_auth]
 
     def __init__(self):
-        self.user_id = _app_ctx_stack.top.current_user['id']
-        self.current_user = Person.query.filter_by(id=self.user_id).first()
+        self.current_user = getUser()
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('data', type=dict, location='json')
         self.reqparse.add_argument('id', type=int, location='json')

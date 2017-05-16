@@ -6,6 +6,7 @@ from ..models import Person
 from .. import db, seed
 
 jwt_secret = os.environ.get('JWT_SECRET', 'superSECRETth!ng')
+client_id = os.environ.get('AUTH0_ID', None)
 
 
 def handle_error(error, status_code):
@@ -28,7 +29,7 @@ def requires_auth(f):
             return handle_error({'code': 'invalid_header',
                                  'description':
                                      'Authorization header must start with'
-                                     'Bearer'}, 401)
+                                     ' Bearer'}, 401)
         elif len(parts) == 1:
             return handle_error({'code': 'invalid_header',
                                  'description':
@@ -44,7 +45,8 @@ def requires_auth(f):
         try:
             payLoad = jwt.decode(
                 token,
-                jwt_secret
+                jwt_secret,
+                audience=client_id
             )
         except jwt.ExpiredSignature:
             return handle_error({'code': 'token_expired',
@@ -53,17 +55,21 @@ def requires_auth(f):
             return handle_error({'code': 'token_invalid_signature',
                                  'description':
                                      'token signature is invalid'}, 401)
-        except Exception:
+        except jwt.InvalidAudienceError:
+            return handle_error({'code': 'invalid_audience',
+                                 'description': 'Incorrect audience,'
+                                 ' expected: ' + client_id}, 401)
+        except Exception as e:
             return handle_error({'code': 'invalid_header',
                                  'description': 'Unable to parse'
                                  ' authentication token'}, 400)
-        user_id = payLoad['id']
-        print('Validating ID: {}'.format(user_id))
+        user_email = payLoad['email']
+        print('Validating ID: {}'.format(user_email))
         (person, created_status) = seed._get_or_create_one(
             session=db.session,
             model=Person,
             create_method='auto',
-            id=user_id
+            email=user_email
         )
         if (created_status is True):
             print('User registered')
