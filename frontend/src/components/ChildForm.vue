@@ -24,7 +24,7 @@
         </div>
       </div>
       <div v-else-if="field.type === 'pikaday-input'" class="input-group">
-        <input type="text" class="form-control" :name="field.field_name" :placeholder="field.placeholder" :ref="field.field_name"  v-model.trim="form_object[field.field_name].value" v-on:input="touchField(field.field_name)" readonly :key="field.key">
+        <input type="text" class="form-control" :name="field.field_name" :placeholder="field.placeholder" :ref="field.field_name" :value="form_object[field.field_name].value" v-on:input="touchField(field.field_name)" readonly :key="field.key">
         <div class="input-group-btn">
           <button type="button" :ref="field.field_name+'-btn'" :class="['btn', 'btn-default', {'disabled-button': field.value !== undefined && !form_object[field.field_name].activated}]">
             <icon name="calendar"></icon>
@@ -101,7 +101,8 @@
     },
     data: function () {
       return {
-        form_object: this.createFormObject()
+        form_object: this.createFormObject(),
+        picker: {}
       }
     },
     validations: function () {
