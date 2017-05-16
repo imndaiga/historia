@@ -81,7 +81,7 @@
 
   .modal-body {
     min-height: 100px;
-    max-height: calc(100vh - 180px);
+    max-height: calc(100vh - 260px);
     overflow-y: auto
   }
 

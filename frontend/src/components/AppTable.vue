@@ -150,6 +150,6 @@
   }
 
   .app-table {
-    margin: 4%;
+    margin: 2%;
   }
 </style>
