@@ -2,7 +2,7 @@
   <div v-if="open_modal" class="modal-mask">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div v-if="header_icon.length > 0 || title.length > 0 || submit_message.length === 0" class="modal-header">
+        <div v-if="header_icon.length > 0 || title.length > 0 || submit_message.length === 0" class="modal-header" :style="{ 'background-color': header_color}">
           <div class="row">
             <div class="col-xs-11">
               <icon v-if="header_icon.length > 0" :name="header_icon"></icon>
@@ -44,7 +44,8 @@
         modal_is_active: false,
         alert: '',
         form: [],
-        message: ''
+        message: '',
+        header_color: 'default'
       }
     },
     methods: {
@@ -52,8 +53,12 @@
         document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
         this.open_modal = false
         this.title = ''
+        this.form = []
         this.header_icon = ''
         this.submit_message = ''
+        this.alert = ''
+        this.message = ''
+        this.header_color = 'default'
         this.modal_is_active = false
       },
       submitForm: function () {
@@ -61,7 +66,7 @@
       }
     },
     created: function () {
-      bus.$on('modal-data-ready', function (title, icon, form, submitMessage, alert, message) {
+      bus.$on('modal-data-ready', function (title, icon, form, submitMessage, alert, message, color) {
         document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
         this.open_modal = true
         this.title = title || ''
@@ -70,6 +75,7 @@
         this.submit_message = submitMessage || ''
         this.alert = alert || ''
         this.message = message || ''
+        this.header_color = color || 'default'
       }.bind(this))
       bus.$on('form-field-activated', function () {
         this.modal_is_active = true
@@ -79,6 +85,10 @@
 </script>
 
 <style scoped>
+  .modal-content {
+    border-radius: 0px;
+  }
+
   .modal-dialog {
     margin-top: 80px;
     overflow-y: initial !important
