@@ -6,18 +6,21 @@
           <div class="row">
             <div class="col-xs-11">
               <icon v-if="header_icon.length > 0" :name="header_icon"></icon>
-              <span v-if="title.length > 0" class="modal-title">{{title}}</span>
+              <span v-if="title.length > 0" class="modal-title">{{ title }}</span>
             </div>
             <a v-if="submit_message.length === 0" class="col-xs-1" v-on:click="closeModal">&times;</a>
           </div>
         </div>
         <div class="modal-body">
           <child-form v-if="form.length > 0" :raw_form="form" submit_url="/submit" search_url="/search"></child-form>
-          <p class="alert-message" v-else-if="alert.length > 0">{{alert}}</p>
+          <div v-else-if="alert.length > 0">
+            <p class="alert-header">{{ alert }}</p>
+            <p class="alert-message" v-if="message.length > 0">{{ message }}</p>
+          </div>
         </div>
         <div v-if="submit_message.length > 0" class="modal-footer">
           <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
-          <button type="submit" v-on:click="submitForm" :class="['btn', 'btn-primary', {'disabled-button' : !modal_is_active}]">{{submit_message}}</button>
+          <button type="submit" v-on:click="submitForm" :class="['btn', 'btn-primary', {'disabled-button' : !modal_is_active}]">{{ submit_message }}</button>
         </div>
       </div>
     </div>
@@ -40,7 +43,8 @@
         submit_message: '',
         modal_is_active: false,
         alert: '',
-        form: []
+        form: [],
+        message: ''
       }
     },
     methods: {
@@ -57,7 +61,7 @@
       }
     },
     created: function () {
-      bus.$on('modal-data-ready', function (title, icon, form, submitMessage, alert) {
+      bus.$on('modal-data-ready', function (title, icon, form, submitMessage, alert, message) {
         document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
         this.open_modal = true
         this.title = title || ''
@@ -65,6 +69,7 @@
         this.header_icon = icon || ''
         this.submit_message = submitMessage || ''
         this.alert = alert || ''
+        this.message = message || ''
       }.bind(this))
       bus.$on('form-field-activated', function () {
         this.modal_is_active = true
@@ -115,9 +120,15 @@
     display: none
   }
 
-  .alert-message {
-    font-size: 40px;
+  .alert-header {
+    font-size: 20px;
     font-weight: 600;
+    text-align: center;
+  }
+
+  .alert-message {
+    font-size: 15px;
+    font-weight: 400;
     text-align: center;
   }
 </style>
