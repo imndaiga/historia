@@ -28,20 +28,22 @@
         </table>
       </div>
     </div>
-    <p v-else class="page-message text-center">No Relationship Data Available</p>
+    <app-reload v-else message="No Relationship Data Available" v-on:reload-resource="forceReload"></app-reload>
     <div class="row" v-show="table_Data.length > 0">
-      <app-paginator class="col-lg-3 col-lg-push-5 col-md-4 col-md-push-4 col-sm-5 col-sm-push-4 col-xs-6 col-xs-push-4" :resource_url="resource_url" v-on:update="updateTable" :options="options"></app-paginator>
+      <app-paginator class="col-lg-3 col-lg-push-5 col-md-4 col-md-push-4 col-sm-5 col-sm-push-4 col-xs-6 col-xs-push-4" :resource_url="resource_url" v-on:update="updateTable" :options="options" ref="paginator"></app-paginator>
     </div>
   </div>
 </template>
 
 <script>
   import AppPaginator from './AppPaginator.vue'
+  import AppReload from './AppReload.vue'
   import bus from '@/utils/bus'
 
   export default {
     components: {
-      AppPaginator: AppPaginator
+      AppPaginator: AppPaginator,
+      AppReload: AppReload
     },
     props: {
       resource_url: {
@@ -64,6 +66,9 @@
     methods: {
       updateTable: function (data) {
         this.raw_table_data = data
+      },
+      forceReload: function (data) {
+        this.$refs.paginator.fetchData()
       },
       openRecord: function (personId, nameList, resourceUrl) {
         var fullName = nameList.filter(function (val) { return val }).join(' ')
@@ -142,11 +147,6 @@
 
   button {
     font-size: 15px;
-  }
-
-  .page-message {
-    margin-top: 20%;
-    font-size: 20px
   }
 
   .app-table {

@@ -1,6 +1,6 @@
 <template>
   <div id="sigma-parent">
-    <p v-if="!graph_Is_Ready" class="page-message text-center">No Relationship Data Available</p>
+    <app-reload v-if="!graph_Is_Ready" message="No Relationship Data Available" v-on:reload-resource="forceReload"></app-reload>
     <div id="sigma-container" class="col-lg-12 col-md-12 col-sm-12 col-xs-12"></div>
   </div>
 </template>
@@ -9,7 +9,12 @@
   import 'sigma/build/sigma.min.js'
   import 'sigma/plugins/sigma.layout.forceAtlas2/supervisor.js'
   import 'sigma/plugins/sigma.layout.forceAtlas2/worker.js'
+  import AppReload from '@/components/AppReload'
+
   export default {
+    components: {
+      AppReload: AppReload
+    },
     data: function () {
       return {
         graph: {},
@@ -48,6 +53,9 @@
         setTimeout(function () {
           self.s.stopForceAtlas2()
         }, 500)
+      },
+      forceReload: function (data) {
+        this.getData()
       }
     },
     computed: {
