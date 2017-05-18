@@ -7,11 +7,11 @@
         <div class='welcome-banner row'>
           <div class='col-lg-7 col-md-8 col-sm-8 col-xs-12 col-lg-push-1 col-md-push-1 col-sm-push-1'>
             <div>
-              <p class="header"><em>Connecting</em> African Histories.</p>
+              <p class="header">Connecting Shared Histories.</p>
               <p class="intro">History is a collection of stories. We help you tell yours.</p>
               <hr>
               <p class='welcome-action'>
-                <a class='btn btn-success btn-lg' v-on:click='login()'>Tell your story</a>
+                <a class='btn btn-success btn-lg' v-on:click='login()'>Start here</a>
                 <a href='#'>
                   <i class='fa fa-external-link fa-fw'></i>
                   Learn more
