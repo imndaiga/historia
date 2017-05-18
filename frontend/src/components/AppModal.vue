@@ -12,7 +12,7 @@
           </div>
         </div>
         <div class="modal-body">
-          <child-form v-if="form.length > 0" :raw_form="form" submit_url="/submit" search_url="/search"></child-form>
+          <child-form v-if="form.length > 0" :raw_form="form" submit_url="/submit" search_url="/search" ref="form"></child-form>
           <div v-else-if="alert.length > 0">
             <p class="alert-header">{{ alert }}</p>
             <p class="alert-message" v-if="message.length > 0">{{ message }}</p>
@@ -62,7 +62,7 @@
         this.modal_is_active = false
       },
       submitForm: function () {
-        bus.$emit('submit-form')
+        this.$refs.form.submitForm()
       }
     },
     created: function () {
