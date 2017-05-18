@@ -4,11 +4,11 @@
       <div class="modal-content">
         <div v-if="header_icon.length > 0 || title.length > 0 || submit_message.length === 0" class="modal-header" :style="{ 'background-color': header_color}">
           <div class="row">
-            <div class="col-xs-11">
+            <div class="col-xs-11" :style="{ color : header_Text_Color }">
               <icon v-if="header_icon.length > 0" :name="header_icon"></icon>
-              <span v-if="title.length > 0" class="modal-title">{{ title }}</span>
+              <span v-if="title.length > 0" class="modal-header-text">{{ title }}</span>
             </div>
-            <a v-if="submit_message.length === 0" class="col-xs-1" v-on:click="closeModal">&times;</a>
+            <a v-if="submit_message.length === 0" class="col-xs-1" v-on:click="closeModal" :style="{ color : header_Text_Color }">&times;</a>
           </div>
         </div>
         <div class="modal-body">
@@ -75,11 +75,16 @@
         this.submit_message = submitMessage || ''
         this.alert = alert || ''
         this.message = message || ''
-        this.header_color = color || 'default'
+        this.header_color = color || '#00c4a9'
       }.bind(this))
       bus.$on('form-field-activated', function () {
         this.modal_is_active = true
       }.bind(this))
+    },
+    computed: {
+      header_Text_Color: function () {
+        return this.header_color !== 'default' ? '#fff' : '#000'
+      }
     }
   }
 </script>
@@ -120,9 +125,9 @@
     display: table
   }
 
-  .modal-title {
+  .modal-header-text {
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 400;
     padding-left: 10px
   }
 
