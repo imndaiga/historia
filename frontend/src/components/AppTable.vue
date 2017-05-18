@@ -71,7 +71,7 @@
         this.$refs.paginator.fetchData()
       },
       paginateLoadError: function () {
-        bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.')
+        bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.', 'red')
       },
       openRecord: function (personId, nameList, resourceUrl) {
         var fullName = nameList.filter(function (val) { return val }).join(' ')
@@ -85,7 +85,7 @@
           bus.$emit('modal-data-ready', fullName, 'edit', form, 'Save Changes', null)
         }).catch(function (error) {
           console.log(error)
-          bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while performing action.')
+          bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while performing action.', 'red')
         })
       },
       deleteRecord: function (recordId) {
@@ -107,7 +107,7 @@
           }
         }).catch(function (error) {
           console.log(error)
-          bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while performing action.')
+          bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while performing action.', 'red')
         })
       }
     },

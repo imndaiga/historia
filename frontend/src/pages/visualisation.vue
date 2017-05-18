@@ -35,7 +35,7 @@
             self.renderGraph()
           }).catch(function (error) {
             console.log(error)
-            bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.')
+            bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.', 'red')
           })
         this.loading = false
       },
