@@ -6,7 +6,9 @@
 </template>
 
 <script>
-  import Sigma from 'sigma'
+  import 'sigma/build/sigma.min.js'
+  import 'sigma/plugins/sigma.layout.forceAtlas2/supervisor.js'
+  import 'sigma/plugins/sigma.layout.forceAtlas2/worker.js'
   export default {
     data: function () {
       return {
@@ -25,13 +27,14 @@
           function (response) {
             self.graph = response.data.graph
             self.renderGraph()
-            self.loading = false
           }).catch(function (error) {
             console.log(error)
-            self.loading = false
           })
+        this.loading = false
       },
       renderGraph: function () {
+        var self = this
+        var Sigma = window.sigma
         this.s = new Sigma({
           graph: this.graph,
           container: 'sigma-container',
@@ -41,7 +44,10 @@
             labelThreshold: 12
           }
         })
-        this.s.refresh()
+        this.s.startForceAtlas2({worker: true, barnesHutOptimize: false})
+        setTimeout(function () {
+          self.s.stopForceAtlas2()
+        }, 500)
       }
     },
     computed: {

@@ -64,6 +64,11 @@ module.exports = {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
+      },
+      {
+        test: /sigma.*\.js?$/, // the test to only select sigma files
+        exclude: [resolve('src')], // you ony need to check node_modules, so remove your application files
+        loader: 'script-loader' // loading as script
       }
     ]
   }
