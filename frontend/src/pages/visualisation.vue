@@ -10,6 +10,7 @@
   import 'sigma/plugins/sigma.layout.forceAtlas2/supervisor.js'
   import 'sigma/plugins/sigma.layout.forceAtlas2/worker.js'
   import AppReload from '@/components/AppReload'
+  import bus from '@/utils/bus'
 
   export default {
     components: {
@@ -34,6 +35,7 @@
             self.renderGraph()
           }).catch(function (error) {
             console.log(error)
+            bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.')
           })
         this.loading = false
       },

@@ -30,7 +30,7 @@
     </div>
     <app-reload v-else message="No Relationship Data Available" v-on:reload-resource="forceReload"></app-reload>
     <div class="row" v-show="table_Data.length > 0">
-      <app-paginator class="col-lg-3 col-lg-push-5 col-md-4 col-md-push-4 col-sm-5 col-sm-push-4 col-xs-6 col-xs-push-4" :resource_url="resource_url" v-on:update="updateTable" :options="options" ref="paginator"></app-paginator>
+      <app-paginator class="col-lg-3 col-lg-push-5 col-md-4 col-md-push-4 col-sm-5 col-sm-push-4 col-xs-6 col-xs-push-4" :resource_url="resource_url" v-on:update="updateTable" v-on:request-error="paginateLoadError" :options="options" ref="paginator"></app-paginator>
     </div>
   </div>
 </template>
@@ -70,6 +70,9 @@
       forceReload: function (data) {
         this.$refs.paginator.fetchData()
       },
+      paginateLoadError: function () {
+        bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.')
+      },
       openRecord: function (personId, nameList, resourceUrl) {
         var fullName = nameList.filter(function (val) { return val }).join(' ')
         this.$http.get(resourceUrl, {
@@ -82,6 +85,7 @@
           bus.$emit('modal-data-ready', fullName, 'edit', form, 'Save Changes', null)
         }).catch(function (error) {
           console.log(error)
+          bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while performing action.')
         })
       },
       deleteRecord: function (recordId) {
@@ -103,6 +107,7 @@
           }
         }).catch(function (error) {
           console.log(error)
+          bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while performing action.')
         })
       }
     },
