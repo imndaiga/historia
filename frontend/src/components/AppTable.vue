@@ -157,4 +157,8 @@
   .app-table {
     margin: 2%;
   }
+
+  .center-content {
+    text-align: center
+  }
 </style>
