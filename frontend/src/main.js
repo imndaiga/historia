@@ -15,10 +15,12 @@ HTTP.interceptors.response.use(function (response) {
   return response
 }, function (error) {
   // Do something with backend response error
-  if (error.response.status === 401) {
-    console.log('backend says: unauthorized with message: ', error.response.data)
-    auth.logout()
-    router.replace('/')
+  if (error.response) {
+    if (error.response.status === 401) {
+      console.log('backend says: unauthorized with message: ', error.response.data)
+      auth.logout()
+      router.replace('/')
+    }
   }
   return Promise.reject(error)
 })
