@@ -266,4 +266,8 @@
     word-spacing: 1px;
     font-size: 90%
   }
+
+  button {
+    z-index: 0 !important;
+  }
 </style>
