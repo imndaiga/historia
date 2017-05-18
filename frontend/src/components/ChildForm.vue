@@ -7,7 +7,7 @@
       </div>
       <label v-else>{{ field.label }}</label>
       <span class="form-group__message" v-if="validateField(field.field_name).is_required"> *</span>
-      <div v-if="['alpha-input', 'email-input'].indexOf(field.type) !== -1" :class="{'input-group': field.value !== undefined && !form_object[field.field_name].activated}">
+      <div v-if="['alpha-input', 'email-input'].indexOf(field.type) !== -1" :class="['alpha-input', {'input-group': field.value !== undefined && !form_object[field.field_name].activated}]">
         <input type="text" class="form-control" :name="field.field_name" v-model.trim="form_object[field.field_name].value" :placeholder="field.placeholder" v-on:input="touchField(field.field_name)" :key="field.key" :readonly="field.value !== undefined && !form_object[field.field_name].activated">
         <div v-if="field.value !== undefined && !form_object[field.field_name].activated" class="input-group-btn">
           <button type="button" class="btn btn-warning" v-on:click="activateField(field.field_name)">
@@ -15,7 +15,7 @@
           </button>
         </div>
       </div>
-      <div v-if="field.type === 'password-input'" :class="{'input-group': field.value != undefined && !form_object[field.field_name].activated}">
+      <div v-if="field.type === 'password-input'" :class="['password-input', {'input-group': field.value != undefined && !form_object[field.field_name].activated}]">
         <input type="password" class="form-control" :name="field.field_name" v-model.trim="form_object[field.field_name].value" :placeholder="field.placeholder" v-on:input="touchField(field.field_name)" :key="field.key" :readonly="field.value !== undefined && !form_object[field.field_name].activated">
         <div v-if="field.value !== undefined  && !form_object[field.field_name].activated" class="input-group-btn">
           <button type="button" class="btn btn-warning" v-on:click="activateField(field.field_name)">
@@ -23,8 +23,8 @@
           </button>
         </div>
       </div>
-      <div v-else-if="field.type === 'pikaday-input'" class="input-group">
-        <input type="text" class="form-control" :name="field.field_name" :placeholder="field.placeholder" :ref="field.field_name" :value="form_object[field.field_name].value" v-on:input="touchField(field.field_name)" readonly :key="field.key">
+      <div v-else-if="field.type === 'pikaday-input'" class="pikaday-input input-group">
+        <input type="text" class="form-control" :name="field.field_name" :placeholder="field.placeholder" :ref="field.field_name" :value="form_object[field.field_name].value" v-on:input="touchField(field.field_name)" :readonly="!form_object[field.field_name].activated" :key="field.key">
         <div class="input-group-btn">
           <button type="button" :ref="field.field_name+'-btn'" :class="['btn', 'btn-default', {'disabled-button': field.value !== undefined && !form_object[field.field_name].activated}]">
             <icon name="calendar"></icon>
@@ -34,7 +34,7 @@
           </button>
         </div>
       </div>
-      <div v-else-if="field.type === 'multiselect-input'" :class="{'input-group': field.value !== undefined  && !form_object[field.field_name].activated}">
+      <div v-else-if="field.type === 'multiselect-input'" :class="['multiselect-input', {'input-group': field.value !== undefined  && !form_object[field.field_name].activated}]">
         <multiselect :options="field.multiselect_options" :placeholder="field.placeholder" deselect-label="Remove" select-label="Select" v-model="form_object[field.field_name].value" v-on:input="touchField(field.field_name)" :key="field.key" :disabled="field.value !== undefined && !form_object[field.field_name].activated" :select-label="field.SelectLabel" :deselect-label="field.DeselectLabel"></multiselect>
         <div v-if="field.value !== undefined  && !form_object[field.field_name].activated" class="input-group-btn">
           <button type="button" class="btn btn-warning" v-on:click="activateField(field.field_name)">
@@ -42,7 +42,7 @@
           </button>
         </div>
       </div>
-      <div v-else-if="field.type === 'search-input'" :class="{'input-group': field.value !== undefined  && !form_object[field.field_name].activated}">
+      <div v-else-if="field.type === 'search-input'" :class="['search-input', {'input-group': field.value !== undefined  && !form_object[field.field_name].activated}]">
         <multiselect :options="form_object[field.field_name].options" :placeholder="field.placeholder" :loading="form_object[field.field_name].loading" :options-limit="10" :searchable="true" :internal-search="false" v-on:search-change="asyncFind(field.field_name, $event)" v-model="form_object[field.field_name].value" v-on:input="touchField(field.field_name)" :key="field.key" :disabled="field.value !== undefined && !form_object[field.field_name].activated" :select-label="field.SelectLabel" :deselect-label="field.DeselectLabel">
           <span slot="noResult">Oops! Person not found.</span>
         </multiselect>
@@ -57,7 +57,7 @@
       <span class="form-group__message" v-else-if="validateField(field.field_name).failed_alpha">{{ field.label }} is not valid</span>
       <span class="form-group__message" v-else-if="validateField(field.field_name).failed_email">Invalid email address</span>
     </div>
-    <div v-for="field in form_object" v-if="field.type === 'submit-button'" class="form-group">
+    <div v-for="field in form_object" v-if="field.type === 'submit-button'" class="form-group__buttons form-group">
       <button type="submit" :class="field.button_class">{{ field.button_message }}</button>
     </div>
   </form>
@@ -222,6 +222,7 @@
           onSelect: function () {
             var date = this.getMoment().format('Do MMMM YYYY')
             self.form_object[pikadayFieldName].value = date
+            self.activateField(pikadayFieldName)
           }
         })
       }
@@ -243,7 +244,9 @@
     min-height: 40px;
     box-shadow: none
   }
-  .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+  .form-control[disabled],
+  .form-control[readonly],
+  fieldset[disabled] .form-control {
     opacity: 0.6;
     background-color: #fff;
     pointer-events: none
