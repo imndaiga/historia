@@ -18,14 +18,14 @@
         action_buttons: [
           {
             message: 'Add Relative',
-            icon: 'user-plus',
+            icon: 'link',
             action: 'open-modal',
             target: 'relative_form',
             key: 1
           },
           {
             message: 'Add Relationship',
-            icon: 'link',
+            icon: 'user-plus',
             action: 'open-modal',
             target: 'relationship_form',
             key: 2
@@ -119,7 +119,15 @@
     },
     created: function () {
       bus.$on('open-modal', function (modalInput) {
-        bus.$emit('modal-data-ready', 'Edit', 'edit', this.forms[modalInput], 'Save', null)
+        var header = 'Edit'
+        var icon = 'edit'
+        for (var index in this.action_buttons) {
+          if (this.action_buttons[index].target === modalInput) {
+            icon = this.action_buttons[index].icon
+            header = this.action_buttons[index].message
+          }
+        }
+        bus.$emit('modal-data-ready', header, icon, this.forms[modalInput], 'Save', null)
       }.bind(this))
     }
   }
