@@ -13,15 +13,18 @@
             <tr v-for="record in table_Data">
               <td class="center-content" v-for="(value, key) in record" v-if="key !== 'id'">{{ value }}</td>
               <td class="center-content">
-                <button type="button" v-on:click="openRecord(record.id, [record.first_name, record.ethnic_name, record.last_name], '/api/person')" class="btn btn-default btn-sm" title="Edit">
-                  <icon name="user"></icon>
-                </button>
-                <button type="button" v-on:click="openRecord(record.id,  [record.first_name, record.ethnic_name, record.last_name], 'api/person/family')" class="btn btn-default btn-sm" title="Edit">
-                  <icon name="link"></icon>
-                </button>
-                <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteRecord(record.id)" title="Delete">
-                  <icon name="trash-o"></icon>
-                </button>
+                <div ref="tooltip-template" id="tooltip-template" class="hidden-xs hidden-sm">
+                  <button type="button" v-on:click="openRecord(record.id, getFullName([record.first_name, record.ethnic_name, record.last_name]), '/api/person')" :class="['btn', 'btn-default', 'btn-sm', 'tooltip-item']" title="Edit" :action="['open-record', 'api/person', getFullName([record.first_name, record.ethnic_name, record.last_name]), record.id]">
+                    <icon name="user"></icon>
+                  </button>
+                  <button type="button" v-on:click="openRecord(record.id,  getFullName([record.first_name, record.ethnic_name, record.last_name]), 'api/person/family')" :class="['btn', 'btn-default', 'btn-sm', 'tooltip-item']" title="Edit" :action="['open-record', 'api/person/family', getFullName([record.first_name, record.ethnic_name, record.last_name]), record.id]">
+                    <icon name="link"></icon>
+                  </button>
+                  <button type="button" v-on:click="deleteRecord(record.id)" :class="['btn', 'btn-danger', 'btn-sm', 'tooltip-item']" title="Delete" :action="['delete-record', null, null, record.id]">
+                    <icon name="trash-o"></icon>
+                  </button>
+                </div>
+                <app-tooltip class="hidden-md hidden-lg" :anchor_key="record.id"></app-tooltip>
               </td>
             </tr>
           </tbody>
@@ -38,12 +41,14 @@
 <script>
   import AppPaginator from './AppPaginator.vue'
   import AppReload from './AppReload.vue'
+  import AppTooltip from './AppTooltip'
   import bus from '@/utils/bus'
 
   export default {
     components: {
       AppPaginator: AppPaginator,
-      AppReload: AppReload
+      AppReload: AppReload,
+      AppTooltip: AppTooltip
     },
     props: {
       resource_url: {
@@ -73,8 +78,7 @@
       paginateLoadError: function () {
         bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.', 'red')
       },
-      openRecord: function (personId, nameList, resourceUrl) {
-        var fullName = nameList.filter(function (val) { return val }).join(' ')
+      openRecord: function (personId, fullName, resourceUrl) {
         this.$http.get(resourceUrl, {
           params: {
             id: personId
@@ -109,6 +113,9 @@
           console.log(error)
           bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while performing action.', 'red')
         })
+      },
+      getFullName: function (nameList) {
+        return nameList.filter(function (val) { return val }).join(' ')
       }
     },
     computed: {
