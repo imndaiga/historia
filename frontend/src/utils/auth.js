@@ -1,6 +1,6 @@
 import Auth0Lock from 'Auth0Lock'
-import axios from 'axios'
 import router from '../router'
+import axios from 'axios'
 
 var lockOptions = {
   auth: {
@@ -13,10 +13,6 @@ var lockOptions = {
 var id = process.env.AUTH0_ID
 var domain = process.env.AUTH0_DOMAIN
 const lock = new Auth0Lock(id, domain, lockOptions)
-
-if (localStorage.getItem('id_token')) {
-  axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
-}
 
 lock.on('authenticated', function (authResult) {
   lock.getUserInfo(authResult.accessToken, function (error, profile) {
@@ -31,6 +27,10 @@ lock.on('authenticated', function (authResult) {
     router.replace({name: 'home'})
   })
 })
+
+if (localStorage.getItem('id_token')) {
+  axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
+}
 
 var login = function () {
   lock.show()
