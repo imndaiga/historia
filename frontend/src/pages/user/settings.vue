@@ -1,10 +1,8 @@
 <template>
-  <p>Hello, welcome to Settings!</p>
 </template>
 
 <script>
-  export default {
-  }
+  export default {}
 </script>
 
 <style scoped>
