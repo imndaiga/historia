@@ -194,7 +194,7 @@
   }
 
   .app-table {
-    margin: 2%;
+    margin: 8% 2%;
   }
 
   .center-content {
