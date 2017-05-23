@@ -2,6 +2,14 @@
   <div id="sigma-parent">
     <app-reload v-if="!graph_Is_Ready" message="No Relationship Data Available" v-on:reload-resource="forceReload"></app-reload>
     <div id="sigma-container" class="col-lg-12 col-md-12 col-sm-12 col-xs-12"></div>
+    <div class="toolbox">
+      <div ref="tooltip-template-1" class="tooltip-template">
+        <button type="button" v-for="button in toolbar_actions" v-on:click="performAction(button.action)" :class="button.class" :title="button.title" :action="[button.action]">
+          <icon :name="button.icon"></icon>
+        </button>
+      </div>
+      <app-tooltip v-if="graph_Is_Ready" :anchor_key="1" anchor_icon="sliders" position="bottom"></app-tooltip>
+    </div>
   </div>
 </template>
 
@@ -10,18 +18,34 @@
   import 'sigma/plugins/sigma.layout.forceAtlas2/supervisor.js'
   import 'sigma/plugins/sigma.layout.forceAtlas2/worker.js'
   import AppReload from '@/components/AppReload'
+  import AppTooltip from '@/components/AppTooltip'
   import bus from '@/utils/bus'
 
   export default {
     components: {
-      AppReload: AppReload
+      AppReload: AppReload,
+      AppTooltip: AppTooltip
     },
     data: function () {
       return {
         graph: {},
         resource_url: '/api/graph',
         loading: false,
-        s: { graph: '' }
+        s: { graph: '' },
+        toolbar_actions: [
+          {
+            title: 'Play',
+            action: 'play-forceatlas',
+            class: 'btn btn-sm btn-default action-button',
+            icon: 'play'
+          },
+          {
+            title: 'Pause',
+            action: 'pause-forceatlas',
+            class: 'btn btn-sm btn-default action-button',
+            icon: 'pause'
+          }
+        ]
       }
     },
     methods: {
@@ -71,6 +95,12 @@
     },
     created: function () {
       this.getData()
+      bus.$on('play-forceatlas', function () {
+        this.s.startForceAtlas2({worker: true, barnesHutOptimize: false})
+      }.bind(this))
+      bus.$on('pause-forceatlas', function () {
+        this.s.stopForceAtlas2()
+      }.bind(this))
     }
   }
 </script>
@@ -82,9 +112,25 @@
   #sigma-container {
     position: absolute;
     height: 100vh;
+    padding: 0;
   }
   .page-message {
     margin-top: 20%;
     font-size: 20px
+  }
+  .tooltip-template {
+    display: none
+  }
+  .toolbox {
+    position: absolute;
+    z-index: 1000;
+    margin: 3% 0 0 3%
+  }
+  .fa-icon {
+    width: auto;
+    height: 1em;
+  }
+  button {
+    font-size: 15px;
   }
 </style>
