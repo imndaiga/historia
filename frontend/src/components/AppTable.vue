@@ -65,21 +65,21 @@
             url: '/api/person',
             title: 'Edit',
             action: 'edit-record',
-            class: 'btn btn-sm btn-default',
+            class: 'btn btn-sm btn-default action-button',
             icon: 'user'
           },
           {
             url: '/api/person/family',
             title: 'Edit',
             action: 'edit-record',
-            class: 'btn btn-sm btn-default',
+            class: 'btn btn-sm btn-default action-button',
             icon: 'link'
           },
           {
             url: '',
             title: 'Delete',
             action: 'delete-record',
-            class: 'btn btn-sm btn-danger',
+            class: 'btn btn-sm btn-danger action-button',
             icon: 'trash-o'
           }
         ]
@@ -199,5 +199,9 @@
 
   .center-content {
     text-align: center
+  }
+
+  .action-button {
+    margin-left: 3px;
   }
 </style>
