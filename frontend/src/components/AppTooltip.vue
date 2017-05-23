@@ -24,7 +24,7 @@
       return {
         tooltip: {},
         key: this.anchor_key,
-        tippy: {}
+        tippy: null
       }
     },
     mounted: function () {
@@ -49,8 +49,11 @@
     },
     created: function () {
       bus.$on('modal-data-ready', function () {
-        var popper = this.tippy.getPopperElement(document.querySelector('#tooltip-' + this.key))
-        this.tippy.hide(popper)
+        var tippyRef = document.querySelector('#tooltip-' + this.key)
+        if (tippyRef) {
+          var popper = this.tippy.getPopperElement(tippyRef)
+          this.tippy.hide(popper)
+        }
       }.bind(this))
     }
   }
