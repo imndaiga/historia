@@ -1,7 +1,7 @@
 <template>
   <div>
     <a :id="'tooltip-' + key" class="tooltip-anchor" title="Incompatible browser" v-on:click="setUpTooltip">
-      <icon name="ellipsis-h"></icon>
+      <icon :name="this.anchor_icon"></icon>
     </a>
     <div id="template" style="display: none;">
       <span>Empty</span>
@@ -18,6 +18,14 @@
       anchor_key: {
         required: true,
         type: Number
+      },
+      anchor_icon: {
+        required: true,
+        type: String
+      },
+      position: {
+        required: true,
+        type: String
       }
     },
     data: function () {
@@ -29,9 +37,9 @@
     },
     mounted: function () {
       this.tippy = new Tippy('#tooltip-' + this.key, {
-        html: this.$parent.$refs['tooltip-template-' + this.key][0] || '#template',
+        html: this.tooltipTemplate || '#template',
         trigger: 'click',
-        position: 'left',
+        position: this.position,
         animation: 'shift',
         arrow: true,
         arrowSize: 'small',
@@ -55,6 +63,11 @@
           this.tippy.hide(popper)
         }
       }.bind(this))
+    },
+    computed: {
+      tooltipTemplate: function () {
+        return this.$parent.$refs['tooltip-template-' + this.key] instanceof HTMLElement ? this.$parent.$refs['tooltip-template-' + this.key] : this.$parent.$refs['tooltip-template-' + this.key][0]
+      }
     }
   }
 </script>

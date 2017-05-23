@@ -18,7 +18,7 @@
                     <icon :name="button.icon"></icon>
                   </button>
                 </div>
-                <app-tooltip class="hidden-md hidden-lg" :anchor_key="record.id"></app-tooltip>
+                <app-tooltip class="hidden-md hidden-lg" :anchor_key="record.id" anchor_icon="ellipsis-h" position="left"></app-tooltip>
               </td>
             </tr>
           </tbody>
