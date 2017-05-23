@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a :id="'tooltip-' + key" class="tooltip-anchor" title="Incompatible browser">
+    <a :id="'tooltip-' + key" class="tooltip-anchor" title="Incompatible browser" v-on:click="setUpTooltip">
       <icon name="ellipsis-h"></icon>
     </a>
     <div id="template" style="display: none;">
@@ -11,6 +11,7 @@
 
 <script>
   import Tippy from 'tippy.js'
+  import bus from '@/utils/bus'
 
   export default {
     props: {
@@ -22,13 +23,13 @@
     data: function () {
       return {
         tooltip: {},
-        key: this.anchor_key
+        key: this.anchor_key,
+        tippy: {}
       }
     },
     mounted: function () {
-      const ref = document.getElementById('tooltip-' + this.key)
-      var tippy = new Tippy(ref, {
-        html: this.$parent.$refs['tooltip-template'][0] || '#template',
+      this.tippy = new Tippy('#tooltip-' + this.key, {
+        html: this.$parent.$refs['tooltip-template-' + this.key][0] || '#template',
         trigger: 'click',
         position: 'left',
         animation: 'shift',
@@ -37,17 +38,32 @@
         interactive: true,
         size: 'big',
         theme: 'light',
-        hideDelay: 300,
         appendTo: document.querySelector('#app')
       })
-      tippy
+      this.tippy
+    },
+    methods: {
+      setUpTooltip: function () {
+        bus.$emit('set-up-tooltip')
+      }
+    },
+    created: function () {
+      bus.$on('modal-data-ready', function () {
+        var popper = this.tippy.getPopperElement(document.querySelector('#tooltip-' + this.key))
+        this.tippy.hide(popper)
+      }.bind(this))
     }
   }
 </script>
 
-<style scoped>
-  .fa-icon {
-    width: auto;
-    height: 1.2em
+<style>
+  .tippy-popper {
+    border: none;
+    outline: none
+  }
+  .tooltip-anchor,
+  .tooltip-anchor:focus,
+  .tooltip-anchor:hover {
+    color: grey
   }
 </style>
