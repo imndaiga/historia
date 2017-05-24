@@ -1,7 +1,7 @@
 <template>
   <div>
     <a :id="'tooltip-' + key" class="tooltip-anchor" title="Incompatible browser" v-on:click="setUpTooltip">
-      <icon :name="this.anchor_icon"></icon>
+      <icon :name="this.icon"></icon>
     </a>
     <div id="template" style="display: none;">
       <span>Empty</span>
@@ -13,6 +13,10 @@
   import Tippy from 'tippy.js'
   import Vue from 'vue'
   import bus from '@/utils/bus'
+
+  var anchorKey = 1
+  var iconName = 'ellipsis-h'
+  var tooltipPosition = 'right'
 
   var triggerTooltip = function () {
     let [emission, resourceUrl, modalHeader, recordId] = this.getAttribute('action').split(',')
@@ -42,7 +46,10 @@
   }
 
   Vue.directive('tooltip', {
-    bind: function () {
+    bind: function (el, binding) {
+      anchorKey = binding.value.key
+      iconName = binding.value.icon
+      tooltipPosition = binding.value.position
       bus.$on('set-up-tooltip', function () {
         addHandlers()
       })
@@ -50,24 +57,11 @@
   })
 
   export default {
-    props: {
-      anchor_key: {
-        required: true,
-        type: Number
-      },
-      anchor_icon: {
-        required: true,
-        type: String
-      },
-      position: {
-        required: true,
-        type: String
-      }
-    },
     data: function () {
       return {
         tooltip: {},
-        key: this.anchor_key,
+        key: anchorKey,
+        icon: iconName,
         tippy: null
       }
     },
@@ -75,7 +69,7 @@
       this.tippy = new Tippy('#tooltip-' + this.key, {
         html: this.tooltipTemplate || '#template',
         trigger: 'click',
-        position: this.position,
+        position: tooltipPosition,
         animation: 'shift',
         arrow: true,
         arrowSize: 'small',
