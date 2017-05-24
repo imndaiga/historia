@@ -13,7 +13,7 @@
             <tr v-for="record in table_Data">
               <td v-for="(value, key) in record" v-if="key !== 'id'">{{ value }}</td>
               <td class="center-content">
-                <div :ref="'tooltip-template-' + record.id" class="hidden-xs hidden-sm" v-tooltip="{ key: record.id, icon: 'ellipsis-h', position: 'left' }">
+                <div :ref="'tooltip-template-' + record.id" class="hidden-xs hidden-sm" v-tooltip="{ key: record.id, icon: 'ellipsis-h', position: 'left', arrow_size: 'small' }">
                   <button type="button" v-for="button in row_actions" v-on:click="performAction(button.action, record.id, getFullName([record.first_name, record.ethnic_name, record.last_name]), button.url)" :class="button.class" :title="button.title" :action="[button.action, button.url, getFullName([record.first_name, record.ethnic_name, record.last_name]), record.id]">
                     <icon :name="button.icon"></icon>
                   </button>

@@ -14,9 +14,12 @@
   import Vue from 'vue'
   import bus from '@/utils/bus'
 
-  var anchorKey = 1
-  var iconName = 'ellipsis-h'
-  var tooltipPosition = 'right'
+  var anchorKey
+  var iconName
+  var tooltipPosition
+  var arrow
+  var arrowSize
+  var tooltipOffset
 
   var triggerTooltip = function () {
     let [emission, resourceUrl, modalHeader, recordId] = this.getAttribute('action').split(',')
@@ -47,9 +50,12 @@
 
   Vue.directive('tooltip', {
     bind: function (el, binding) {
-      anchorKey = binding.value.key
-      iconName = binding.value.icon
-      tooltipPosition = binding.value.position
+      anchorKey = binding.value.key || 0
+      iconName = binding.value.icon || 'ellipsis-h'
+      tooltipPosition = binding.value.position || 'right'
+      arrow = binding.value.arrow || true
+      arrowSize = binding.value.arrow_size || 'regular'
+      tooltipOffset = binding.value.offset || 0
       bus.$on('set-up-tooltip', function () {
         addHandlers()
       })
@@ -70,9 +76,10 @@
         html: this.tooltipTemplate || '#template',
         trigger: 'click',
         position: tooltipPosition,
+        arrow: arrow,
+        arrowSize: arrowSize,
+        offset: tooltipOffset,
         animation: 'shift',
-        arrow: true,
-        arrowSize: 'small',
         interactive: true,
         size: 'big',
         theme: 'light',
