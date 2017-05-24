@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a :id="'tooltip-' + key" class="tooltip-anchor" title="Incompatible browser" v-on:click="openTooltip">
+    <a :id="'tooltip-' + key" class="tooltip-anchor" title="Incompatible browser" v-on:click="openTooltip" :style="{ 'font-size': anchor_size }">
       <icon :name="this.icon"></icon>
     </a>
     <div id="template" style="display: none;">
@@ -20,6 +20,7 @@
   var arrow
   var arrowSize
   var tooltipOffset
+  var anchorFontSize
 
   var triggerTooltip = function () {
     let [emission, resourceUrl, modalHeader, recordId] = this.getAttribute('action').split(',')
@@ -56,6 +57,7 @@
       arrow = binding.value.arrow || true
       arrowSize = binding.value.arrow_size || 'regular'
       tooltipOffset = binding.value.offset || 0
+      anchorFontSize = binding.value.icon_size || '15px'
     }
   })
 
@@ -65,6 +67,7 @@
         tooltip: {},
         key: anchorKey,
         icon: iconName,
+        anchor_size: anchorFontSize,
         tippy: null,
         open_tooltip: false
       }
@@ -122,14 +125,5 @@
   }
 </script>
 
-<style>
-  .tippy-popper {
-    border: none;
-    outline: none
-  }
-  .tooltip-anchor,
-  .tooltip-anchor:focus,
-  .tooltip-anchor:hover {
-    color: grey
-  }
+<style scoped>
 </style>

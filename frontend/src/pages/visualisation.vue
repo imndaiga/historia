@@ -3,7 +3,7 @@
     <app-reload v-if="!graph_Is_Ready" message="No Relationship Data Available" v-on:reload-resource="forceReload"></app-reload>
     <div id="sigma-container" class="col-lg-12 col-md-12 col-sm-12 col-xs-12"></div>
     <div class="toolbox">
-      <div ref="tooltip-template-1" class="tooltip-template" v-tooltip="{ key: 1, icon: 'sliders', position: 'bottom', offset: 70 }">
+      <div ref="tooltip-template-1" class="tooltip-template" v-tooltip="{ key: 1, icon: 'sliders', position: 'bottom', offset: 70, icon_size: '25px' }">
         <p class="tooltip-header">Toolbar</p>
         <p class="tooltip-info">Control Visualisation Parameters</p>
         <button type="button" v-for="button in toolbar_actions" v-on:click="performAction(button.action)" :class="button.class" :title="button.title" :action="[button.action]">
@@ -127,10 +127,6 @@
     position: absolute;
     z-index: 1000;
     margin: 3% 0 0 3%
-  }
-  .fa-icon {
-    width: auto;
-    height: 1em;
   }
   button {
     font-size: 15px;
