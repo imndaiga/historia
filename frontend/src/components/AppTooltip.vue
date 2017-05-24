@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a :id="'tooltip-' + key" class="tooltip-anchor" title="Incompatible browser" v-on:click="setUpTooltip">
+    <a :id="'tooltip-' + key" class="tooltip-anchor" title="Incompatible browser" v-on:click="openTooltip">
       <icon :name="this.icon"></icon>
     </a>
     <div id="template" style="display: none;">
@@ -56,9 +56,6 @@
       arrow = binding.value.arrow || true
       arrowSize = binding.value.arrow_size || 'regular'
       tooltipOffset = binding.value.offset || 0
-      bus.$on('set-up-tooltip', function () {
-        addHandlers()
-      })
     }
   })
 
@@ -68,7 +65,8 @@
         tooltip: {},
         key: anchorKey,
         icon: iconName,
-        tippy: null
+        tippy: null,
+        open_tooltip: false
       }
     },
     mounted: function () {
@@ -88,18 +86,32 @@
       this.tippy
     },
     methods: {
-      setUpTooltip: function () {
-        bus.$emit('set-up-tooltip')
+      getPopper: function () {
+        var tippyRef = document.querySelector('#tooltip-' + this.key)
+        var popper
+        if (tippyRef) {
+          popper = this.tippy.getPopperElement(tippyRef)
+        } else {
+          popper = null
+        }
+        return popper
+      },
+      openTooltip: function () {
+        this.open_tooltip = true
+        addHandlers()
+      },
+      closeTooltip: function (tooltipChildren) {
+        this.open_tooltip = false
+        removeHandlers(tooltipChildren)
+        var popper = this.getPopper()
+        if (popper) {
+          this.tippy.hide(popper)
+        }
       }
     },
     created: function () {
       bus.$on('hide-tooltip', function (tooltipContentChildren) {
-        removeHandlers(tooltipContentChildren)
-        var tippyRef = document.querySelector('#tooltip-' + this.key)
-        if (tippyRef) {
-          var popper = this.tippy.getPopperElement(tippyRef)
-          this.tippy.hide(popper)
-        }
+        this.closeTooltip(tooltipContentChildren)
       }.bind(this))
     },
     computed: {
