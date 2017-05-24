@@ -11,7 +11,43 @@
 
 <script>
   import Tippy from 'tippy.js'
+  import Vue from 'vue'
   import bus from '@/utils/bus'
+
+  var triggerTooltip = function () {
+    let [emission, resourceUrl, modalHeader, recordId] = this.getAttribute('action').split(',')
+    bus.$emit(emission, recordId, modalHeader, resourceUrl)
+    bus.$emit('hide-tooltip', this.parentElement.children)
+  }
+
+  var addHandlers = function () {
+    setTimeout(function () {
+      var tooltipChildren = document.getElementsByClassName('tippy-tooltip-content')[0].children
+      for (var i = 0; i < tooltipChildren.length; i++) {
+        let child = tooltipChildren[i]
+        if (child.nodeName === 'BUTTON') {
+          child.addEventListener('click', triggerTooltip)
+        }
+      }
+    }, 500)
+  }
+
+  var removeHandlers = function (tooltipChildren) {
+    for (var i = 0; i < tooltipChildren.length; i++) {
+      let child = tooltipChildren[i]
+      if (child.nodeName === 'BUTTON') {
+        child.removeEventListener('click', triggerTooltip)
+      }
+    }
+  }
+
+  Vue.directive('tooltip', {
+    bind: function () {
+      bus.$on('set-up-tooltip', function () {
+        addHandlers()
+      })
+    }
+  })
 
   export default {
     props: {
@@ -56,7 +92,8 @@
       }
     },
     created: function () {
-      bus.$on('modal-data-ready', function () {
+      bus.$on('hide-tooltip', function (tooltipContentChildren) {
+        removeHandlers(tooltipContentChildren)
         var tippyRef = document.querySelector('#tooltip-' + this.key)
         if (tippyRef) {
           var popper = this.tippy.getPopperElement(tippyRef)
