@@ -40,11 +40,6 @@
 </script>
 
 <style scoped>
-  .fa-icon {
-    width: auto;
-    height: 1em;
-  }
-
   .row {
     line-height: 45px;
     height: 45px;

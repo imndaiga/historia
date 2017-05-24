@@ -184,11 +184,6 @@
 </script>
 
 <style scoped>
-  .fa-icon {
-    width: auto;
-    height: 1em;
-  }
-
   button {
     font-size: 15px;
   }

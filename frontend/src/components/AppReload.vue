@@ -48,7 +48,5 @@
   .fa-icon {
     padding-top: 4px;
     margin-right: 5px;
-    width: auto;
-    height: 1em;
   }
 </style>

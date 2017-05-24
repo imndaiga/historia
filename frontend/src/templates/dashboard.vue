@@ -93,5 +93,18 @@
   }
 </script>
 
-<style scoped>
+<style>
+  .fa-icon {
+    width: auto;
+    height: 1em;
+  }
+  .tippy-popper {
+    border: none;
+    outline: none
+  }
+  .tooltip-anchor,
+  .tooltip-anchor:focus,
+  .tooltip-anchor:hover {
+    color: grey
+  }
 </style>

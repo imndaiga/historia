@@ -1,8 +1,8 @@
 <template>
   <div class="header">
-    <a v-on:click="openMobileMenu" class="header-title">
+    <a v-on:click="openMobileMenu">
       <icon name="bars"></icon>
-      {{current_Panel}}
+      <span class="header-title">{{current_Panel}}</span>
     </a>
   </div>
 </template>
@@ -31,7 +31,7 @@
     border-bottom: 1px solid #eee;
     text-indent: 50px;
   }
-  .header > a > .fa-icon{
+  .fa-icon {
     position: absolute;
     left: 20px;
     top: 33px;
@@ -42,6 +42,7 @@
     color: black;
     text-decoration: none;
     cursor: pointer;
+    font-size: 20px
   }
   .header-title {
     font-size: 30px;

@@ -105,8 +105,6 @@
 
 <style scoped>
   .fa-icon {
-    width: auto;
-    height: 1em;
     margin: 3px;
   }
   button {
