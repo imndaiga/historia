@@ -1,13 +1,13 @@
 <template>
-  <div class="well">
-    <div class="row">
-      <div class="col-lg-2 col-md-3 col-sm-5 hidden-xs">
-        <span class="actions-bar-title">{{ title }}</span>
+  <div class="well" :style="styles.well">
+    <div class="row" :style="styles.row">
+      <div :class="styles.titleDivClass">
+        <span :style="styles.title">{{ title }}</span>
       </div>
-      <div class="col-lg-10 col-md-9 col-sm-7 col-xs-12">
+      <div :class="styles.buttonDivClass">
         <div class="btn-group btn-group-justified">
           <div v-for="button in buttons" class="btn-group">
-            <button class="btn btn-lg btn-default" v-on:click="performAction(button.action, button.target)">
+            <button :style="styles.button" class="btn btn-lg btn-default" v-on:click="performAction(button.action, button.target)" :action="button.action">
               <icon :name="button.icon"></icon>
               <span class="button-message hidden-xs hidden-sm">{{ button.message }}</span>
             </button>
@@ -29,6 +29,10 @@
       buttons: {
         type: Array,
         required: true
+      },
+      styles: {
+        type: Object,
+        required: true
       }
     },
     methods: {
@@ -40,29 +44,9 @@
 </script>
 
 <style scoped>
-  .row {
-    line-height: 45px;
-    height: 45px;
-  }
-
-  .well {
-    margin: 20px;
-    background-color: #fff
-  }
-
-  .actions-bar-title {
-    font-weight: 600;
-    margin-left: 10px;
-    font-size: 19px
-  }
-
-  button {
-    font-size: 17px;
-  }
   .button-message {
-    padding-left: 15px;
+    padding-left: 4%;
   }
-
   @media (max-width: 767px) {
     .well {
       margin: 10px;

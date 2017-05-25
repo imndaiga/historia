@@ -6,9 +6,7 @@
       <div ref="tooltip-template-1" class="tooltip-template" v-tooltip="{ key: 1, icon: 'sliders', position: 'bottom', offset: 70, icon_size: '25px' }">
         <p class="tooltip-header">Toolbar</p>
         <p class="tooltip-info">Control Visualisation Parameters</p>
-        <button type="button" v-for="button in toolbar_actions" v-on:click="performAction(button.action)" :class="button.class" :title="button.title" :action="[button.action]">
-          <icon :name="button.icon"></icon>
-        </button>
+        <actions-bar title="Playback" :buttons="toolbar_actions" :styles="actions_bar_style"></actions-bar>
       </div>
       <app-tooltip v-if="graph_Is_Ready"></app-tooltip>
     </div>
@@ -22,11 +20,13 @@
   import AppReload from '@/components/AppReload'
   import AppTooltip from '@/components/AppTooltip'
   import bus from '@/utils/bus'
+  import AppActionsBar from '@/components/AppActionsBar'
 
   export default {
     components: {
       AppReload: AppReload,
-      AppTooltip: AppTooltip
+      AppTooltip: AppTooltip,
+      ActionsBar: AppActionsBar
     },
     data: function () {
       return {
@@ -38,16 +38,24 @@
           {
             title: 'Play',
             action: 'play-forceatlas',
-            class: 'btn btn-sm btn-default action-button',
+            message: 'Play',
             icon: 'play'
           },
           {
             title: 'Pause',
             action: 'pause-forceatlas',
-            class: 'btn btn-sm btn-default action-button',
+            message: 'Pause',
             icon: 'pause'
           }
-        ]
+        ],
+        actions_bar_style: {
+          well: 'background-color: #fff; max-width: 300px',
+          row: 'line-height: 22px; height: 22px',
+          titleDivClass: 'col-lg-4 col-md-4 col-sm-5 hidden-xs',
+          title: 'font-weight: 600; margin-left: 10px; font-size: 15px',
+          buttonDivClass: 'col-lg-8 col-md-8 col-sm-7 col-xs-12',
+          button: 'font-size: 13px; padding: 4px'
+        }
       }
     },
     methods: {

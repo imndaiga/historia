@@ -1,6 +1,6 @@
 <template>
   <div>
-    <actions-bar :title="actions_bar_title" :buttons="action_buttons"></actions-bar>
+    <actions-bar :title="actions_bar_title"  :buttons="action_buttons" :styles="actions_bar_style"></actions-bar>
   </div>
 </template>
 
@@ -31,6 +31,14 @@
             key: 2
           }
         ],
+        actions_bar_style: {
+          well: 'margin: 20px; background-color: #fff',
+          row: 'line-height: 45px; height: 45px',
+          titleDivClass: 'col-lg-2 col-md-3 col-sm-5 hidden-xs',
+          title: 'font-weight: 600; margin-left: 10px; font-size: 19px',
+          buttonDivClass: 'col-lg-10 col-md-9 col-sm-7 col-xs-12',
+          button: 'font-size: 17px;'
+        },
         forms: {
           relative_form: [
             {
