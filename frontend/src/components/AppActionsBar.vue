@@ -48,7 +48,7 @@
     padding-left: 4%;
   }
   .fa-icon {
-    vertical-align: -8%
+    vertical-align: -10%
   }
   @media (max-width: 767px) {
     .well {
