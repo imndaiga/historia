@@ -30,12 +30,10 @@
 
   var addHandlers = function () {
     setTimeout(function () {
-      var tooltipChildren = document.getElementsByClassName('tippy-tooltip-content')[0].children
-      for (var i = 0; i < tooltipChildren.length; i++) {
-        let child = tooltipChildren[i]
-        if (child.nodeName === 'BUTTON') {
-          child.addEventListener('click', triggerTooltip)
-        }
+      var buttons = document.getElementsByClassName('tippy-tooltip-content')[0].getElementsByTagName('button')
+      for (var i = 0; i < buttons.length; i++) {
+        let button = buttons[i]
+        button.addEventListener('click', triggerTooltip)
       }
     }, 500)
   }
