@@ -189,7 +189,7 @@
   }
 
   .app-table {
-    margin: 8% 2%;
+    margin: 2%;
   }
 
   .center-content {
@@ -198,5 +198,11 @@
 
   .action-button {
     margin-left: 3px;
+  }
+
+  @media (min-width: 768px) and (max-width: 992px) {
+    .app-table {
+      margin: 13% 0 0 0;
+    }
   }
 </style>
