@@ -47,6 +47,9 @@
   .button-message {
     padding-left: 4%;
   }
+  .fa-icon {
+    vertical-align: -8%
+  }
   @media (max-width: 767px) {
     .well {
       margin: 10px;

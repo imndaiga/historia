@@ -90,6 +90,10 @@
 </script>
 
 <style scoped>
+  .fa-icon {
+    vertical-align: -17%
+  }
+
   .modal-content {
     border-radius: 0px;
   }
