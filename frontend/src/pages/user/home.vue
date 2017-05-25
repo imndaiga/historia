@@ -1,16 +1,26 @@
 <template>
   <div>
     <actions-bar :title="actions_bar_title"  :buttons="action_buttons" :styles="actions_bar_style"></actions-bar>
+    <card header="User" headerIcon="user">
+      Welcome <span style="font-weight: 600">{{ user.nickname }}</span>!
+    </card>
+    <card>
+      <div class="add-panel" v-on:click="AddPanel">
+        <icon name="plus"></icon>
+      </div>
+    </card>
   </div>
 </template>
 
 <script>
   import AppActionsBar from '@/components/AppActionsBar.vue'
+  import AppCard from '@/components/AppCard.vue'
   import bus from '@/utils/bus'
 
   export default {
     components: {
-      ActionsBar: AppActionsBar
+      ActionsBar: AppActionsBar,
+      Card: AppCard
     },
     data: function () {
       return {
@@ -32,7 +42,7 @@
           }
         ],
         actions_bar_style: {
-          well: 'margin: 20px; background-color: #fff',
+          well: 'margin: 20px; background-color: #fff; border-radius: 0px',
           row: 'line-height: 45px; height: 45px',
           titleDivClass: 'col-lg-2 col-md-3 col-sm-5 hidden-xs',
           title: 'font-weight: 600; margin-left: 10px; font-size: 19px',
@@ -122,7 +132,8 @@
               key: 8
             }
           ]
-        }
+        },
+        user: JSON.parse(localStorage.getItem('profile'))
       }
     },
     created: function () {
@@ -137,9 +148,24 @@
         }
         bus.$emit('modal-data-ready', header, icon, this.forms[modalInput], 'Save', null)
       }.bind(this))
+    },
+    methods: {
+      AddPanel: function () {
+        console.log('add panel')
+      }
     }
   }
 </script>
 
 <style scoped>
+  .add-panel {
+    font-size: 48px;
+    text-align: center;
+    color: lightgrey;
+    cursor: pointer;
+  }
+  .add-panel:focus,
+  .add-panel:hover {
+    color: grey;
+  }
 </style>
