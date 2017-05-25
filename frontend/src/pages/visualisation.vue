@@ -151,6 +151,8 @@
   .tooltip-info {
     text-align: center;
     font-size: 12px;
-    margin-bottom: 15px
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee
   }
 </style>
