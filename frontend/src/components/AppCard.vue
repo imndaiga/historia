@@ -5,7 +5,7 @@
         <icon v-if="headerIcon" :name="headerIcon"></icon>
         <span v-if="header" class="header-text">{{ header }}</span>
       </div>
-      <div class="panel-body">
+      <div class="panel-body" :style="{ 'padding': bodyPadding }">
         <slot></slot>
       </div>
     </div>
@@ -20,6 +20,10 @@
         required: false
       },
       headerIcon: {
+        type: String,
+        required: false
+      },
+      bodyPadding: {
         type: String,
         required: false
       }
@@ -48,5 +52,8 @@
     padding-left: 4%;
     font-weight: 600;
     font-size: 15px
+  }
+  .panel {
+    min-height: 120px
   }
 </style>
