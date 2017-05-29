@@ -29,7 +29,6 @@ class Link(db.Model):
 
 
 class Person(db.Model):
-    """all miminani subscribed Nodes"""
     __tablename__ = 'persons'
 
     id = db.Column(db.Integer, primary_key=True)

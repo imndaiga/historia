@@ -8,7 +8,7 @@ from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
 import os
 
-app = create_app(os.getenv('MIMINANI_CONFIG') or 'default')
+app = create_app(os.getenv('HISTORIA_CONFIG') or 'default')
 
 # Instantiate extensions that modify app-runtimes here
 manager = Manager(app)

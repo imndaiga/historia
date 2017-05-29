@@ -17,11 +17,11 @@ class Config:
     SEED_AUTO = os.environ.get('SEED_AUTO')
 
     # App context environment variables
-    MIMINANI_MAIL_SUBJECT_PREFIX = '[MIMINANI]'
-    MIMINANI_MAIL_SENDER = 'MIMINANI <admin@miminani.com>'
-    MIMINANI_ADMIN = os.environ.get('MIMINANI_ADMIN')
+    HISTORIA_MAIL_SUBJECT_PREFIX = '[HISTORIA]'
+    HISTORIA_MAIL_SENDER = 'HISTORIA <admin@historia.com>'
+    HISTORIA_ADMIN = os.environ.get('HISTORIA_ADMIN')
 
-    MIMINANI_GRAPHIQL = True
+    HISTORIA_GRAPHIQL = True
 
     RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY')
     RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY')

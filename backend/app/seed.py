@@ -97,7 +97,7 @@ class Seed(Command):
 
     def generate_trees(self, size, units, verbose, faker_index, layers):
         for i in range(1, units + 1):
-            admin_email = os.environ.get('MIMINANI_ADMIN')
+            admin_email = os.environ.get('HISTORIA_ADMIN')
             admin_person = self.Person.query.filter_by(
                 email=admin_email).first()
             family_unit = fake.family(seed=i, size=size)
