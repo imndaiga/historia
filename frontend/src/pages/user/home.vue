@@ -1,10 +1,8 @@
 <template>
   <div>
     <actions-bar :title="actions_bar_title"  :buttons="action_buttons" :styles="actions_bar_style"></actions-bar>
-    <card header="User" headerIcon="user">
-      Welcome <span style="font-weight: 600">{{ user.nickname }}</span>!
-    </card>
-    <card>
+    <card :header="'Welcome ' + user.nickname + '!'" headerIcon="user"></card>
+    <card bodyPadding="0px">
       <div class="add-panel" v-on:click="AddPanel">
         <icon name="plus"></icon>
       </div>
@@ -159,13 +157,16 @@
 
 <style scoped>
   .add-panel {
-    font-size: 48px;
+    font-size: 60px;
     text-align: center;
     color: lightgrey;
     cursor: pointer;
+    min-height: 120px;
+    padding-top: 7%
   }
   .add-panel:focus,
   .add-panel:hover {
     color: grey;
+    background-color: #f5f5f5;
   }
 </style>
