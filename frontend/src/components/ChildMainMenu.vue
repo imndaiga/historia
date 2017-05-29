@@ -115,7 +115,7 @@
   }
   .nav-app-menu > li > a {
     padding-left: 20px;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 400;
     line-height: 50px;
     text-transform: capitalize;
@@ -178,7 +178,8 @@
   .nav-app-footer > ul > li > a:hover,
   .nav-app-footer > ul > li > a:focus {
     color: #525252;
-    text-decoration: none
+    text-decoration: none;
+    font-size: 18px;
   }
   .nav-app-footer > ul > li > a > .fa-icon {
     position: static;
