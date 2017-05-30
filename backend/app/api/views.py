@@ -345,14 +345,23 @@ class familyAPI(Resource):
         return {'message': 'missing person_id'}
 
 
-class userAPI(Resource):
+class statisticsAPI(Resource):
+    decorators = [requires_auth]
+
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('id', type=int, location='args')
-        super(userAPI, self).__init__()
+        super(statisticsAPI, self).__init__()
 
     def get(self):
-        pass
+        args = self.reqparse.parse_args()
+        person_id = args['id']
+        if person_id is not None:
+            user = Person.query.get(person_id)
+        else:
+            user = getUser()
+        nodeSize = graph.get_subgraph(user).number_of_nodes()
+        return {'nodeSize': nodeSize}
 
 
 api.add_resource(relationshipsAPI, '/relationships', endpoint='relationships')
@@ -360,5 +369,5 @@ api.add_resource(searchAPI, '/search', endpoint='search')
 api.add_resource(graphAPI, '/graph', endpoint='graph')
 api.add_resource(personAPI, '/person', endpoint='person')
 api.add_resource(familyAPI, '/person/family', endpoint='family')
-api.add_resource(userAPI, '/user', endpoint='user')
+api.add_resource(statisticsAPI, '/user/statistics', endpoint='statistics')
 api.add_resource(pingAPI, '/ping', endpoint='ping')
