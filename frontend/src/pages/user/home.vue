@@ -1,7 +1,14 @@
 <template>
   <div>
     <actions-bar :title="actions_bar_title"  :buttons="action_buttons" :styles="actions_bar_style"></actions-bar>
-    <card :header="'Welcome ' + user.nickname + '!'" headerIcon="user"></card>
+    <card :header="'Welcome ' + user.nickname + '!'" headerIcon="user">
+      <ul class="list-group">
+        <li class="list-group-item list-group-item-success">
+          <span>You have {{ userNodeSize }} members in your history tree!</span>
+        </li>
+      </ul>
+
+    </card>
     <card bodyPadding="0px">
       <div class="add-panel" v-on:click="AddPanel">
         <icon name="plus"></icon>
@@ -131,10 +138,12 @@
             }
           ]
         },
-        user: JSON.parse(localStorage.getItem('profile'))
+        user: JSON.parse(localStorage.getItem('profile')),
+        userNodeSize: {}
       }
     },
     created: function () {
+      this.getData()
       bus.$on('open-modal', function (modalInput) {
         var header = 'Edit'
         var icon = 'edit'
@@ -149,7 +158,17 @@
     },
     methods: {
       AddPanel: function () {
-        console.log('add panel')
+        bus.$emit('modal-data-ready', 'Pin History', 'thumb-tack', null, null, 'Under development!', null, null)
+      },
+      getData: function () {
+        var self = this
+        this.$http.get('api/user/statistics')
+        .then(function (reponse) {
+          self.userNodeSize = reponse.data.nodeSize
+        }).catch(function (error) {
+          console.log(error)
+          bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.', 'red')
+        })
       }
     }
   }
