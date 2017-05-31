@@ -1,14 +1,16 @@
 <template>
   <div id="sigma-parent">
-    <app-reload v-if="!graph_Is_Ready" message="No Relationship Data Available" v-on:reload-resource="forceReload"></app-reload>
-    <div id="sigma-container" class="col-lg-12 col-md-12 col-sm-12 col-xs-12"></div>
-    <div class="toolbox">
-      <div ref="tooltip-template-1" class="tooltip-template" v-tooltip="{ key: 1, icon: 'sliders', position: 'bottom', offset: 120, icon_size: '25px' }">
-        <p class="tooltip-header">Toolbar</p>
-        <p class="tooltip-info">Control Visualisation Parameters</p>
-        <actions-bar title="Playback" :buttons="toolbar_actions" :styles="actions_bar_style"></actions-bar>
+    <app-reload v-if="nodeNumber === 0" message="No Relationship Data Available" v-on:reload-resource="forceReload"></app-reload>
+    <div v-show="nodeNumber > 0">
+      <div id="sigma-container" class="col-lg-12 col-md-12 col-sm-12 col-xs-12"></div>
+      <div class="toolbox">
+        <div ref="tooltip-template-1" class="tooltip-template" v-tooltip="{ key: 1, icon: 'sliders', position: 'bottom', offset: 120, icon_size: '25px' }">
+          <p class="tooltip-header">Toolbar</p>
+          <p class="tooltip-info">Control Visualisation Parameters</p>
+          <actions-bar title="Playback" :buttons="toolbar_actions" :styles="actions_bar_style"></actions-bar>
+        </div>
+        <app-tooltip></app-tooltip>
       </div>
-      <app-tooltip v-if="graph_Is_Ready"></app-tooltip>
     </div>
   </div>
 </template>
@@ -32,7 +34,6 @@
       return {
         graph: {},
         resource_url: '/api/graph',
-        loading: false,
         s: { graph: '' },
         toolbar_actions: [
           {
@@ -55,23 +56,24 @@
           title: 'font-weight: 600; margin-left: 10px; font-size: 15px',
           buttonDivClass: 'col-lg-8 col-md-8 col-sm-7 col-xs-12',
           button: 'font-size: 14px; padding: 7px; margin-top: -6px;'
-        }
+        },
+        nodeNumber: 0
       }
     },
     methods: {
       getData: function () {
-        this.loading = true
         var self = this
         this.$http.get(this.resource_url)
         .then(
           function (response) {
             self.graph = response.data.graph
             self.renderGraph()
+            self.nodeNumber = self.graph.nodes.length
           }).catch(function (error) {
             console.log(error)
+            self.nodeNumber = 0
             bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.', 'red')
           })
-        this.loading = false
       },
       renderGraph: function () {
         var self = this
@@ -92,15 +94,6 @@
       },
       forceReload: function (data) {
         this.getData()
-      }
-    },
-    computed: {
-      graph_Is_Ready: function () {
-        if (this.s.graph.nodes) {
-          return true
-        } else {
-          return false
-        }
       }
     },
     created: function () {
