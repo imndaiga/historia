@@ -6,15 +6,15 @@
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
-    "start": "http-server dist/",
+    "start": "node server.js",
     "build": "node build/build.js",
-    "deploy": "node build/build.js && http-server dist/",
+    "deploy": "node build/build.js && node server.js",
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
     "axios": "^0.16.1",
     "bootstrap-css-only": "^3.3.7",
-    "http-server": "^0.10.0",
+    "express": "^4.15.3",
     "particles.js": "^2.0.0",
     "pikaday": "^1.5.1",
     "sigma": "^1.2.0",
