@@ -6,6 +6,7 @@ import router from './router'
 import Icon from 'vue-awesome/components/Icon'
 import axios from 'axios'
 import auth from './utils/auth'
+import store from './store'
 
 import '../node_modules/tippy.js/dist/tippy.css'
 
@@ -36,6 +37,7 @@ Vue.prototype.$http = HTTP
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  store,
   router,
   template: '<App/>',
   components: { App }
