@@ -19,8 +19,6 @@ services:
     image: postgres:latest
     ports:
     - "5400:5432"
-    env_file:
-      - ./.env
 volumes:
   data:
     external: false
