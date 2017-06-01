@@ -144,21 +144,35 @@
     },
     created: function () {
       this.getData()
-      bus.$on('open-modal', function (modalInput) {
-        var header = 'Edit'
-        var icon = 'edit'
+      bus.$on('open-modal', function (targetName) {
         for (var index in this.action_buttons) {
-          if (this.action_buttons[index].target === modalInput) {
-            icon = this.action_buttons[index].icon
-            header = this.action_buttons[index].message
+          if (this.action_buttons[index].target === targetName) {
+            var icon = this.action_buttons[index].icon
+            var header = this.action_buttons[index].message
           }
         }
-        bus.$emit('modal-data-ready', header, icon, this.forms[modalInput], 'Save', null)
+        var modal = {
+          header: header,
+          header_icon: icon,
+          button_submit_message: 'Save',
+          form: this.forms[targetName],
+          color: 'default',
+          type: 'form'
+        }
+        this.$store.dispatch('openModal', modal)
       }.bind(this))
     },
     methods: {
       AddPanel: function () {
-        bus.$emit('modal-data-ready', 'Pin History', 'thumb-tack', null, null, 'Under development!', null, null)
+        var modal = {
+          header: 'Follow History',
+          header_icon: 'thumb-tack',
+          subject: 'Under Development!',
+          message: 'This feature is currently under construction.',
+          color: 'default',
+          type: 'alert'
+        }
+        this.$store.dispatch('openModal', modal)
       },
       getData: function () {
         var self = this
@@ -167,7 +181,15 @@
           self.userNodeSize = reponse.data.nodeSize
         }).catch(function (error) {
           console.log(error)
-          bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.', 'red')
+          var modal = {
+            header: 'Ooops!',
+            header_icon: 'exclamation-circle',
+            subject: 'An error occured!',
+            message: 'Something went wrong while retrieving data.',
+            color: 'red',
+            type: 'alert'
+          }
+          self.$store.dispatch('openModal', modal)
         })
       }
     }

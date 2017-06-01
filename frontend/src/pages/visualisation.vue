@@ -72,7 +72,15 @@
           }).catch(function (error) {
             console.log(error)
             self.nodeNumber = 0
-            bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.', 'red')
+            var modal = {
+              header: 'Ooops!',
+              header_icon: 'exclamation-circle',
+              subject: 'An error occured!',
+              message: 'Something went wrong while retrieving data.',
+              color: 'red',
+              type: 'alert'
+            }
+            self.$store.dispatch('openModal', modal)
           })
       },
       renderGraph: function () {

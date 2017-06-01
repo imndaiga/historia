@@ -93,7 +93,15 @@
         this.$refs.paginator.fetchData()
       },
       paginateLoadError: function () {
-        bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while retrieving data.', 'red')
+        var modal = {
+          header: 'Ooops!',
+          header_icon: 'exclamation-circle',
+          subject: 'An error occured!',
+          message: 'Something went wrong while retrieving data.',
+          color: 'red',
+          type: 'alert'
+        }
+        self.$store.dispatch('openModal', modal)
       },
       performAction: function (action, personId, fullName, resourceUrl) {
         if (action === 'edit-record') {
@@ -103,6 +111,7 @@
         }
       },
       openRecord: function (personId, fullName, resourceUrl) {
+        var self = this
         this.$http.get(resourceUrl, {
           params: {
             id: personId
@@ -110,10 +119,26 @@
         })
         .then(function (response) {
           var form = response.data
-          bus.$emit('modal-data-ready', fullName, 'edit', form, 'Save Changes', null)
+          var modal = {
+            header: fullName,
+            header_icon: 'edit',
+            button_submit_message: 'Save Changes',
+            form: form,
+            color: 'default',
+            type: 'form'
+          }
+          self.$store.dispatch('openModal', modal)
         }).catch(function (error) {
           console.log(error)
-          bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while performing action.', 'red')
+          var modal = {
+            header: 'Ooops!',
+            header_icon: 'exclamation-circle',
+            subject: 'An error occured!',
+            message: 'Something went wrong while performing action.',
+            color: 'red',
+            type: 'alert'
+          }
+          self.$store.dispatch('openModal', modal)
         })
       },
       deleteRecord: function (recordId) {
@@ -135,7 +160,15 @@
           }
         }).catch(function (error) {
           console.log(error)
-          bus.$emit('modal-data-ready', 'Ooops!', 'exclamation-circle', null, null, 'An error occured!', 'Something went wrong while performing action.', 'red')
+          var modal = {
+            header: 'Ooops!',
+            header_icon: 'exclamation-circle',
+            subject: 'An error occured!',
+            message: 'Something went wrong while performing action.',
+            color: 'red',
+            type: 'alert'
+          }
+          self.$store.dispatch('openModal', modal)
         })
       },
       getFullName: function (nameList) {

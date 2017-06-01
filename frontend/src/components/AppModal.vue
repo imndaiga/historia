@@ -1,26 +1,26 @@
 <template>
-  <div v-if="open_modal" class="modal-mask">
+  <div v-if="modalData" class="modal-mask">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div v-if="header_icon.length > 0 || title.length > 0 || submit_message.length === 0" class="modal-header" :style="{ 'background-color': header_color}">
+        <div v-if="modalData.header_icon.length > 0 || modalData.header.length > 0 || modalType === 'alert'" class="modal-header" :style="{ 'background-color': headerColor}">
           <div class="row">
-            <div class="col-xs-11" :style="{ color : header_Text_Color }">
-              <icon v-if="header_icon.length > 0" :name="header_icon"></icon>
-              <span v-if="title.length > 0" class="modal-header-text">{{ title }}</span>
+            <div class="col-xs-11" :style="{ color : headerTextColor }">
+              <icon v-if="modalData.header_icon.length > 0" :name="modalData.header_icon"></icon>
+              <span v-if="modalData.header.length > 0" class="modal-header-text">{{ modalData.header }}</span>
             </div>
-            <a v-if="submit_message.length === 0" class="col-xs-1" v-on:click="closeModal" :style="{ color : header_Text_Color }">&times;</a>
+            <a v-if="modalType === 'alert'" class="col-xs-1" v-on:click="closeModal" :style="{ color : headerTextColor }">&times;</a>
           </div>
         </div>
         <div class="modal-body">
-          <child-form v-if="form.length > 0" :raw_form="form" submit_url="/submit" search_url="/search" ref="form"></child-form>
-          <div v-else-if="alert.length > 0">
-            <p class="alert-header">{{ alert }}</p>
-            <p class="alert-message" v-if="message.length > 0">{{ message }}</p>
+          <child-form v-if="modalType === 'form'" :raw_form="modalData.form" submit_url="/submit" search_url="/search" ref="form"></child-form>
+          <div v-else-if="modalType === 'alert'">
+            <p class="alert-header">{{ modalData.subject }}</p>
+            <p class="alert-message" v-if="modalData.message.length > 0">{{ modalData.message }}</p>
           </div>
         </div>
-        <div v-if="submit_message.length > 0" class="modal-footer">
+        <div v-if="modalType === 'form'" class="modal-footer">
           <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
-          <button type="submit" v-on:click="submitForm" :class="['btn', 'btn-primary', {'disabled-button' : !modal_is_active}]">{{ submit_message }}</button>
+          <button type="submit" v-on:click="submitForm" :class="['btn', 'btn-primary', {'disabled-button' : !modalIsActive}]">{{ modalData.button_submit_message }}</button>
         </div>
       </div>
     </div>
@@ -30,6 +30,7 @@
 <script>
   import ChildForm from './ChildForm'
   import bus from '@/utils/bus'
+  import { mapState } from 'vuex'
 
   export default {
     components: {
@@ -37,54 +38,48 @@
     },
     data: function () {
       return {
-        open_modal: false,
-        title: '',
-        header_icon: '',
-        submit_message: '',
-        modal_is_active: false,
-        alert: '',
-        form: [],
-        message: '',
-        header_color: 'default'
+        modalType: null,
+        modalIsActive: false
       }
     },
     methods: {
       closeModal: function () {
         document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
-        this.open_modal = false
-        this.title = ''
-        this.form = []
-        this.header_icon = ''
-        this.submit_message = ''
-        this.alert = ''
-        this.message = ''
-        this.header_color = 'default'
-        this.modal_is_active = false
+        this.modalIsActive = false
+        this.$store.dispatch('closeModal')
       },
       submitForm: function () {
         this.$refs.form.submitForm()
       }
     },
     created: function () {
-      bus.$on('modal-data-ready', function (title, icon, form, submitMessage, alert, message, color) {
-        document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
-        this.open_modal = true
-        this.title = title || ''
-        this.form = form || []
-        this.header_icon = icon || ''
-        this.submit_message = submitMessage || ''
-        this.alert = alert || ''
-        this.message = message || ''
-        this.header_color = color || '#00c4a9'
-      }.bind(this))
       bus.$on('form-field-activated', function () {
-        this.modal_is_active = true
+        this.modalIsActive = true
       }.bind(this))
     },
     computed: {
-      header_Text_Color: function () {
-        return this.header_color !== 'default' ? '#fff' : '#000'
-      }
+      headerTextColor: function () {
+        return this.modalData.color === '#fff' ? '#000' : '#fff'
+      },
+      headerColor: function () {
+        return this.modalData.color === 'default' ? '#00c4a9' : this.modalData.color
+      },
+      modalData: function () {
+        if (this.form.open) {
+          this.modalType = 'form'
+          return this.form
+        } else if (this.alert.open) {
+          this.modalType = 'alert'
+          return this.alert
+        } else {
+          this.modalType = null
+          return null
+        }
+      },
+      ...mapState({
+        form: 'modal_form',
+        alert: 'modal_alert'
+      })
     }
   }
 </script>
