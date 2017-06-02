@@ -5,11 +5,15 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    modalIsOpen: false
+    modalIsOpen: false,
+    mobileMenuIsOpen: false
   },
   mutations: {
     toggleModal: function (state) {
       state.modalIsOpen = !state.modalIsOpen
+    },
+    toggleMobileMenu: function (state) {
+      state.mobileMenuIsOpen = !state.mobileMenuIsOpen
     }
   },
   actions: {
@@ -18,6 +22,12 @@ export default new Vuex.Store({
     },
     closeModal: function ({ commit }) {
       commit('toggleModal')
+    },
+    openMobileMenu: function ({ commit }) {
+      commit('toggleMobileMenu')
+    },
+    closeMobileMenu: function ({ commit }) {
+      commit('toggleMobileMenu')
     }
   }
 })
