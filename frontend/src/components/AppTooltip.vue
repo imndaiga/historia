@@ -131,5 +131,14 @@
   }
 </script>
 
-<style scoped>
+<style>
+  .tippy-popper {
+    border: none;
+    outline: none
+  }
+  .tooltip-anchor,
+  .tooltip-anchor:focus,
+  .tooltip-anchor:hover {
+    color: grey
+  }
 </style>
