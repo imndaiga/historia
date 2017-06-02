@@ -84,48 +84,46 @@
       },
       openTooltip: function () {
         this.open_tooltip = true
-        this.addHandlers()
+        this.addListeners()
       },
-      closeTooltip: function (tooltipChildren) {
+      closeTooltip: function () {
         this.open_tooltip = false
-        this.removeHandlers(tooltipChildren)
         var popper = this.getPopper()
         if (popper) {
           this.tippy.hide(popper)
         }
       },
-      triggerTooltip: function (element) {
+      triggerTooltipAction: function (event) {
+        var element = event.currentTarget
         let [action, resourceUrl, modalHeader, recordId] = element.getAttribute('action').split(',')
         this.$emit('perform-action', action, recordId, modalHeader, resourceUrl)
-        this.closeTooltip(element.parentElement.getElementsByTagName('button'))
+        this.removeListeners()
+        this.closeTooltip()
       },
-      addHandlers: function () {
+      addListeners: function () {
         var self = this
         setTimeout(function () {
-          var buttons = document.getElementsByClassName('tippy-tooltip-content')[0].getElementsByTagName('button')
-          for (var i = 0; i < buttons.length; i++) {
-            let button = buttons[i]
-            button.addEventListener('click', function () {
-              self.triggerTooltip(this)
-            })
+          for (var i = 0; i < self.tooltipActors.length; i++) {
+            let actor = self.tooltipActors[i]
+            actor.addEventListener('click', self.triggerTooltipAction)
           }
         }, 500)
       },
-      removeHandlers: function (tooltipChildren) {
+      removeListeners: function () {
         var self = this
-        for (var i = 0; i < tooltipChildren.length; i++) {
-          let child = tooltipChildren[i]
-          if (child.nodeName === 'BUTTON') {
-            child.removeEventListener('click', function () {
-              self.triggerTooltip(this)
-            })
-          }
+        for (var i = 0; i < this.tooltipActors.length; i++) {
+          let actor = self.tooltipActors[i]
+          actor.removeEventListener('click', self.triggerTooltipAction)
         }
       }
     },
     computed: {
       tooltipTemplate: function () {
         return this.$parent.$refs['tooltip-template-' + this.anchorKey] instanceof HTMLElement ? this.$parent.$refs['tooltip-template-' + this.anchorKey] : this.$parent.$refs['tooltip-template-' + this.anchorKey][0]
+      },
+      tooltipActors: function () {
+        var tippyElements = document.getElementsByClassName('tippy-tooltip-content')
+        return tippyElements.length > 0 ? tippyElements[0].getElementsByTagName('button') : []
       }
     }
   }
