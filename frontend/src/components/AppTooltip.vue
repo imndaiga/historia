@@ -1,11 +1,12 @@
 <template>
   <div>
-    <a :id="'tooltip-' + anchorKey" class="tooltip-anchor" title="Incompatible browser" v-on:click="openTooltip" :style="{ 'font-size': iconSize }">
+    <a :id="'tooltip-' + anchorKey" :class="['tooltip-anchor', anchorClass]" title="Incompatible browser" v-on:click="openTooltip" :style="{ 'font-size': iconSize }">
       <icon :name="icon"></icon>
     </a>
-    <div id="template" style="display: none;">
+    <div id="default-template" style="display: none;">
       <span>Empty</span>
     </div>
+    <slot name="template"></slot>
   </div>
 </template>
 
@@ -20,6 +21,10 @@
       },
       icon: {
         required: true,
+        type: String
+      },
+      anchorClass: {
+        required: false,
         type: String
       },
       position: {
@@ -57,7 +62,7 @@
     },
     mounted: function () {
       this.tippy = new Tippy('#tooltip-' + this.anchorKey, {
-        html: this.tooltipTemplate || '#template',
+        html: this.$slots.template[0].elm || '#default-template',
         trigger: 'click',
         position: this.position,
         arrow: this.arrow,
@@ -118,9 +123,6 @@
       }
     },
     computed: {
-      tooltipTemplate: function () {
-        return this.$parent.$refs['tooltip-template-' + this.anchorKey] instanceof HTMLElement ? this.$parent.$refs['tooltip-template-' + this.anchorKey] : this.$parent.$refs['tooltip-template-' + this.anchorKey][0]
-      },
       tooltipActors: function () {
         var tippyElements = document.getElementsByClassName('tippy-tooltip-content')
         return tippyElements.length > 0 ? tippyElements[0].getElementsByTagName('button') : []

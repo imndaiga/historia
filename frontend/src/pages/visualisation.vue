@@ -4,12 +4,13 @@
     <div v-show="nodeNumber > 0">
       <div id="sigma-container" class="col-lg-12 col-md-12 col-sm-12 col-xs-12"></div>
       <div class="toolbox">
-        <div ref="tooltip-template-1" class="tooltip-template">
-          <p class="tooltip-header">Toolbar</p>
-          <p class="tooltip-info">Control Visualisation Parameters</p>
-          <actions-bar title="Playback" :buttons="toolbar_actions" :styles="actions_bar_style"></actions-bar>
-        </div>
-        <app-tooltip v-on:perform-action="performAction" :anchorKey="1" icon="sliders" position="bottom" :offset="120" iconSize="25px"></app-tooltip>
+        <app-tooltip v-on:perform-action="performAction" :anchorKey="1" icon="sliders" position="bottom" :offset="120" iconSize="25px">
+          <div slot="template" class="tooltip-template">
+            <p class="tooltip-header">Toolbar</p>
+            <p class="tooltip-info">Control Visualisation Parameters</p>
+            <actions-bar title="Playback" :buttons="toolbar_actions" :styles="actions_bar_style"></actions-bar>
+          </div>
+        </app-tooltip>
       </div>
     </div>
   </div>
