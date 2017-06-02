@@ -25,7 +25,6 @@
 </template>
 
 <script>
-  import bus from '@/utils/bus'
   import { mapState } from 'vuex'
 
   export default {
@@ -66,11 +65,6 @@
         this.$slots.form[0].componentInstance.submitForm()
       }
     },
-    created: function () {
-      bus.$on('form-field-activated', function () {
-        this.modalIsActive = true
-      }.bind(this))
-    },
     computed: {
       headerTextColor: function () {
         return this.color === '#fff' ? '#000' : '#fff'
@@ -81,6 +75,11 @@
       ...mapState({
         modalIsOpen: 'modalIsOpen'
       })
+    },
+    created: function () {
+      this.$on('form-field-activated', function () {
+        this.modalIsActive = true
+      }.bind(this))
     }
   }
 </script>
