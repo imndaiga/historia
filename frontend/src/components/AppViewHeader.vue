@@ -8,11 +8,10 @@
 </template>
 
 <script>
-  import bus from '@/utils/bus'
   export default {
     methods: {
       openMobileMenu: function () {
-        bus.$emit('open-mobile-menu')
+        this.$store.dispatch('openMobileMenu')
       }
     },
     computed: {

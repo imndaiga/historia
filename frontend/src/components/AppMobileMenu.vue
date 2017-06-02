@@ -1,5 +1,5 @@
 <template>
-  <div v-if="open_mobile_menu" class="container-fluid">
+  <div v-if="openMobileMenu" class="container-fluid">
     <div class="row">
       <div class="mobile-menu">
         <a v-on:click="closeMobileMenu">&times;</a>
@@ -11,15 +11,11 @@
 
 <script>
   import ChildAppMenu from './ChildMainMenu.vue'
-  import bus from '@/utils/bus'
+  import { mapState } from 'vuex'
+
   export default {
     components: {
       ChildMenu: ChildAppMenu
-    },
-    data: function () {
-      return {
-        open_mobile_menu: false
-      }
     },
     props: {
       pages: {
@@ -31,20 +27,30 @@
         required: true
       }
     },
+    created: function () {
+      var self = this
+      this.$router.afterEach(function (to, from) {
+        self.$store.dispatch('closeMobileMenu')
+      })
+    },
     methods: {
       closeMobileMenu: function () {
-        document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
-        this.open_mobile_menu = false
+        this.$store.dispatch('closeMobileMenu')
       }
     },
-    created: function () {
-      bus.$on('open-mobile-menu', function () {
-        document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
-        this.open_mobile_menu = true
-      }.bind(this))
-      bus.$on('reset-ui', function () {
-        this.closeMobileMenu()
-      }.bind(this))
+    computed: {
+      ...mapState({
+        openMobileMenu: 'mobileMenuIsOpen'
+      })
+    },
+    watch: {
+      openMobileMenu: function (state) {
+        if (state) {
+          document.getElementsByTagName('body')[0].classList.add('stop-scrolling')
+        } else {
+          document.getElementsByTagName('body')[0].classList.remove('stop-scrolling')
+        }
+      }
     }
   }
 </script>
