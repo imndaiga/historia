@@ -1,6 +1,6 @@
 <template>
   <div>
-    <actions-bar :title="actions_bar_title"  :buttons="action_buttons" :styles="actions_bar_style"></actions-bar>
+    <actions-bar :title="actions_bar_title"  :buttons="action_buttons" :styles="actions_bar_style" v-on:open-modal="openModal"></actions-bar>
     <card :header="'Welcome ' + user.nickname + '!'" headerIcon="user">
       <ul class="list-group">
         <li class="list-group-item list-group-item-success">
@@ -27,7 +27,6 @@
 <script>
   import AppActionsBar from '@/components/AppActionsBar.vue'
   import AppCard from '@/components/AppCard.vue'
-  import bus from '@/utils/bus'
   import { errors } from '@/utils/common'
   import AppModal from '@/components/AppModal.vue'
   import ChildForm from '@/components/ChildForm.vue'
@@ -168,27 +167,6 @@
     },
     created: function () {
       this.getData()
-      bus.$on('open-modal', function (targetName) {
-        for (var index in this.action_buttons) {
-          if (this.action_buttons[index].target === targetName) {
-            var icon = this.action_buttons[index].icon
-            var header = this.action_buttons[index].message
-          }
-        }
-        this.selectedForm = this.forms[targetName]
-        this.modalData = {
-          header: header,
-          headerIcon: icon,
-          submitMessage: 'Save',
-          subject: '',
-          message: '',
-          color: 'default',
-          type: 'form',
-          submitUrl: '',
-          searchUrl: ''
-        }
-        this.$store.dispatch('openModal')
-      }.bind(this))
     },
     methods: {
       AddPanel: function () {
@@ -205,6 +183,27 @@
           this.modalData = errors.connection
           this.$store.dispatch('openModal')
         })
+      },
+      openModal: function (targetForm) {
+        for (var index in this.action_buttons) {
+          if (this.action_buttons[index].target === targetForm) {
+            var icon = this.action_buttons[index].icon
+            var header = this.action_buttons[index].message
+          }
+        }
+        this.selectedForm = this.forms[targetForm]
+        this.modalData = {
+          header: header,
+          headerIcon: icon,
+          submitMessage: 'Save',
+          subject: '',
+          message: '',
+          color: 'default',
+          type: 'form',
+          submitUrl: '',
+          searchUrl: ''
+        }
+        this.$store.dispatch('openModal')
       }
     }
   }

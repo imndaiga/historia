@@ -19,7 +19,6 @@
 </template>
 
 <script>
-  import bus from '@/utils/bus'
   export default {
     props: {
       title: {
@@ -37,7 +36,7 @@
     },
     methods: {
       performAction: function (actionTrigger, actionTarget) {
-        bus.$emit(actionTrigger, actionTarget)
+        this.$emit(actionTrigger, actionTarget)
       }
     }
   }
