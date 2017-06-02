@@ -1,7 +1,7 @@
 <template>
   <div>
-    <a :id="'tooltip-' + key" class="tooltip-anchor" title="Incompatible browser" v-on:click="openTooltip" :style="{ 'font-size': anchor_size }">
-      <icon :name="this.icon"></icon>
+    <a :id="'tooltip-' + anchorKey" class="tooltip-anchor" title="Incompatible browser" v-on:click="openTooltip" :style="{ 'font-size': iconSize }">
+      <icon :name="icon"></icon>
     </a>
     <div id="template" style="display: none;">
       <span>Empty</span>
@@ -11,47 +11,58 @@
 
 <script>
   import Tippy from 'tippy.js'
-  import Vue from 'vue'
-
-  var anchorKey
-  var iconName
-  var tooltipPosition
-  var arrow
-  var arrowSize
-  var tooltipOffset
-  var anchorFontSize
-
-  Vue.directive('tooltip', {
-    bind: function (el, binding) {
-      anchorKey = binding.value.key || 0
-      iconName = binding.value.icon || 'ellipsis-h'
-      tooltipPosition = binding.value.position || 'right'
-      arrow = binding.value.arrow || true
-      arrowSize = binding.value.arrow_size || 'regular'
-      tooltipOffset = binding.value.offset || 0
-      anchorFontSize = binding.value.icon_size || '15px'
-    }
-  })
 
   export default {
+    props: {
+      anchorKey: {
+        required: true,
+        type: Number
+      },
+      icon: {
+        required: true,
+        type: String
+      },
+      position: {
+        required: false,
+        type: String,
+        default: 'right'
+      },
+      arrow: {
+        required: false,
+        type: Boolean,
+        default: true
+      },
+      arrowSize: {
+        required: false,
+        type: String,
+        default: 'regular'
+      },
+      offset: {
+        required: false,
+        type: Number,
+        default: 0
+      },
+      iconSize: {
+        required: false,
+        type: String,
+        default: '15px'
+      }
+    },
     data: function () {
       return {
         tooltip: {},
-        key: anchorKey,
-        icon: iconName,
-        anchor_size: anchorFontSize,
         tippy: null,
         open_tooltip: false
       }
     },
     mounted: function () {
-      this.tippy = new Tippy('#tooltip-' + this.key, {
+      this.tippy = new Tippy('#tooltip-' + this.anchorKey, {
         html: this.tooltipTemplate || '#template',
         trigger: 'click',
-        position: tooltipPosition,
-        arrow: arrow,
-        arrowSize: arrowSize,
-        offset: tooltipOffset,
+        position: this.position,
+        arrow: this.arrow,
+        arrowSize: this.arrowSize,
+        offset: this.offset,
         animation: 'shift',
         interactive: true,
         size: 'big',
@@ -62,7 +73,7 @@
     },
     methods: {
       getPopper: function () {
-        var tippyRef = document.querySelector('#tooltip-' + this.key)
+        var tippyRef = document.querySelector('#tooltip-' + this.anchorKey)
         var popper
         if (tippyRef) {
           popper = this.tippy.getPopperElement(tippyRef)
@@ -114,7 +125,7 @@
     },
     computed: {
       tooltipTemplate: function () {
-        return this.$parent.$refs['tooltip-template-' + this.key] instanceof HTMLElement ? this.$parent.$refs['tooltip-template-' + this.key] : this.$parent.$refs['tooltip-template-' + this.key][0]
+        return this.$parent.$refs['tooltip-template-' + this.anchorKey] instanceof HTMLElement ? this.$parent.$refs['tooltip-template-' + this.anchorKey] : this.$parent.$refs['tooltip-template-' + this.anchorKey][0]
       }
     }
   }
