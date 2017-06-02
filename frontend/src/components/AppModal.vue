@@ -1,26 +1,23 @@
 <template>
-  <div v-if="modalData" class="modal-mask">
+  <div v-if="modalIsOpen" class="modal-mask">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div v-if="modalData.header_icon.length > 0 || modalData.header.length > 0 || modalType === 'alert'" class="modal-header" :style="{ 'background-color': headerColor}">
+        <div v-if="headerIcon.length > 0 || header.length > 0 || type === 'alert'" class="modal-header" :style="{ 'background-color': headerColor}">
           <div class="row">
             <div class="col-xs-11" :style="{ color : headerTextColor }">
-              <icon v-if="modalData.header_icon.length > 0" :name="modalData.header_icon"></icon>
-              <span v-if="modalData.header.length > 0" class="modal-header-text">{{ modalData.header }}</span>
+              <icon v-if="headerIcon.length > 0" :name="headerIcon"></icon>
+              <span v-if="header.length > 0" class="modal-header-text">{{ header }}</span>
             </div>
-            <a v-if="modalType === 'alert'" class="col-xs-1" v-on:click="closeModal" :style="{ color : headerTextColor }">&times;</a>
+            <a v-if="type === 'alert'" class="col-xs-1" v-on:click="closeModal" :style="{ color : headerTextColor }">&times;</a>
           </div>
         </div>
         <div class="modal-body">
-          <child-form v-if="modalType === 'form'" :raw_form="modalData.form" submit_url="/submit" search_url="/search" ref="form"></child-form>
-          <div v-else-if="modalType === 'alert'">
-            <p class="alert-header">{{ modalData.subject }}</p>
-            <p class="alert-message" v-if="modalData.message.length > 0">{{ modalData.message }}</p>
-          </div>
+          <slot name="form"></slot>
+          <slot></slot>
         </div>
-        <div v-if="modalType === 'form'" class="modal-footer">
+        <div v-if="type === 'form'" class="modal-footer">
           <button type="button" class="btn btn-danger" v-on:click="closeModal">Close</button>
-          <button type="submit" v-on:click="submitForm" :class="['btn', 'btn-primary', {'disabled-button' : !modalIsActive}]">{{ modalData.button_submit_message }}</button>
+          <button type="submit" v-on:click="submitForm" :class="['btn', 'btn-primary', {'disabled-button' : !modalIsActive}]">{{ submitMessage }}</button>
         </div>
       </div>
     </div>
@@ -28,17 +25,34 @@
 </template>
 
 <script>
-  import ChildForm from './ChildForm'
   import bus from '@/utils/bus'
   import { mapState } from 'vuex'
 
   export default {
-    components: {
-      ChildForm: ChildForm
+    props: {
+      header: {
+        required: false,
+        type: String
+      },
+      headerIcon: {
+        required: false,
+        type: String
+      },
+      submitMessage: {
+        required: false,
+        type: String
+      },
+      color: {
+        required: false,
+        type: String
+      },
+      type: {
+        required: false,
+        type: String
+      }
     },
     data: function () {
       return {
-        modalType: null,
         modalIsActive: false
       }
     },
@@ -49,7 +63,7 @@
         this.$store.dispatch('closeModal')
       },
       submitForm: function () {
-        this.$refs.form.submitForm()
+        this.$slots.form[0].componentInstance.submitForm()
       }
     },
     created: function () {
@@ -59,26 +73,13 @@
     },
     computed: {
       headerTextColor: function () {
-        return this.modalData.color === '#fff' ? '#000' : '#fff'
+        return this.color === '#fff' ? '#000' : '#fff'
       },
       headerColor: function () {
-        return this.modalData.color === 'default' ? '#00c4a9' : this.modalData.color
-      },
-      modalData: function () {
-        if (this.form.open) {
-          this.modalType = 'form'
-          return this.form
-        } else if (this.alert.open) {
-          this.modalType = 'alert'
-          return this.alert
-        } else {
-          this.modalType = null
-          return null
-        }
+        return this.color === 'default' ? '#00c4a9' : this.color
       },
       ...mapState({
-        form: 'modal_form',
-        alert: 'modal_alert'
+        modalIsOpen: 'modalIsOpen'
       })
     }
   }

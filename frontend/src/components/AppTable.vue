@@ -30,6 +30,13 @@
     <div class="row" v-show="table_Data.length > 0">
       <app-paginator class="col-lg-3 col-lg-push-5 col-md-4 col-md-push-4 col-sm-5 col-sm-push-4 col-xs-6 col-xs-push-4" :resource_url="resource_url" v-on:update="updateTable" v-on:request-error="paginateLoadError" :options="options" ref="paginator"></app-paginator>
     </div>
+    <app-modal :header="modalData.header" :headerIcon="modalData.headerIcon" :submitMessage="modalData.submitMessage" :color="modalData.color" :type="modalData.type" :modalIsOpen="modalData.open">
+      <child-form slot="form" v-if="modalData.type === 'form'" :rawForm="rawForm" :submitUrl="modalData.submitUrl" :searchUrl="modalData.searchUrl"></child-form>
+      <div v-else-if="modalData.type === 'alert'">
+        <p class="alert-header">{{ modalData.subject }}</p>
+        <p class="alert-message" v-if="modalData.message.length > 0">{{ modalData.message }}</p>
+      </div>
+    </app-modal>
   </div>
 </template>
 
@@ -38,12 +45,16 @@
   import AppReload from './AppReload.vue'
   import AppTooltip from './AppTooltip'
   import { errors } from '@/utils/common'
+  import AppModal from './AppModal.vue'
+  import ChildForm from './ChildForm.vue'
 
   export default {
     components: {
       AppPaginator: AppPaginator,
       AppReload: AppReload,
-      AppTooltip: AppTooltip
+      AppTooltip: AppTooltip,
+      AppModal: AppModal,
+      ChildForm: ChildForm
     },
     props: {
       resource_url: {
@@ -83,7 +94,19 @@
             class: 'btn btn-sm btn-danger action-button',
             icon: 'trash-o'
           }
-        ]
+        ],
+        modalData: {
+          header: '',
+          headerIcon: '',
+          submitMessage: '',
+          subject: '',
+          message: '',
+          color: 'default',
+          type: '',
+          submitUrl: '',
+          searchUrl: ''
+        },
+        rawForm: []
       }
     },
     methods: {
@@ -94,7 +117,8 @@
         this.$refs.paginator.fetchData()
       },
       paginateLoadError: function () {
-        this.$store.dispatch('openModal', errors.connection)
+        this.modalData = errors.connection
+        this.$store.dispatch('openModal')
       },
       performAction: function (action, personId, fullName, resourceUrl) {
         if (action === 'edit-record') {
@@ -111,19 +135,23 @@
           }
         })
         .then(function (response) {
-          var form = response.data
-          var modal = {
+          self.rawForm = response.data
+          self.modalData = {
             header: fullName,
-            header_icon: 'edit',
-            button_submit_message: 'Save Changes',
-            form: form,
+            headerIcon: 'edit',
+            submitMessage: 'Save Changes',
+            subject: '',
+            message: '',
             color: 'default',
-            type: 'form'
+            type: 'form',
+            submitUrl: '',
+            searchUrl: ''
           }
-          self.$store.dispatch('openModal', modal)
+          self.$store.dispatch('openModal')
         }).catch(function (error) {
           console.log(error)
-          self.$store.dispatch('openModal', errors.action)
+          self.modalData = errors.action
+          self.$store.dispatch('openModal')
         })
       },
       deleteRecord: function (recordId) {
@@ -145,7 +173,8 @@
           }
         }).catch(function (error) {
           console.log(error)
-          self.$store.dispatch('openModal', errors.action)
+          self.modalData = errors.action
+          self.$store.dispatch('openModal')
         })
       },
       getFullName: function (nameList) {

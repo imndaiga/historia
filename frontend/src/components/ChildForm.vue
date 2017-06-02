@@ -1,6 +1,6 @@
 <template>
   <form v-on:submit.prevent="submitForm">
-    <div v-for="field in raw_form" v-if="validateField(field.field_name).exists" :class="['form-group', field.classes, {'has-error': validateField(field.field_name).has_error}]">
+    <div v-for="field in rawForm" v-if="validateField(field.field_name).exists" :class="['form-group', field.classes, {'has-error': validateField(field.field_name).has_error}]">
       <div v-if="field.type === 'hidden-input'" style="display: none;" :key="field.key">
         <label>{{ field.label }}</label>
         <input type="text" :name="field.field_name" :value="field.placeholder" readonly>
@@ -86,15 +86,15 @@
       multiselect: Multiselect
     },
     props: {
-      raw_form: {
+      rawForm: {
         type: Array,
         required: true
       },
-      submit_url: {
+      submitUrl: {
         type: String,
         required: true
       },
-      search_url: {
+      searchUrl: {
         type: String,
         required: true
       }
@@ -142,23 +142,23 @@
       },
       createFormObject: function () {
         var processed = {}
-        for (var index in this.raw_form) {
-          var key = this.raw_form[index].field_name
-          if (this.raw_form[index].type !== 'submit-button') {
+        for (var index in this.rawForm) {
+          var key = this.rawForm[index].field_name
+          if (this.rawForm[index].type !== 'submit-button') {
             processed[key] = {}
-            if (this.raw_form[index].type === 'search-input') {
+            if (this.rawForm[index].type === 'search-input') {
               processed[key]['loading'] = false
               processed[key]['options'] = []
             }
-            if (Object.keys(this.raw_form[index]).indexOf('value') !== -1) {
-              processed[key]['value'] = this.raw_form[index].value
+            if (Object.keys(this.rawForm[index]).indexOf('value') !== -1) {
+              processed[key]['value'] = this.rawForm[index].value
             } else {
               processed[key]['value'] = ''
             }
             processed[key]['activated'] = false
           }
-          if (this.raw_form[index].validators !== undefined) {
-            var fieldValidators = this.raw_form[index].validators
+          if (this.rawForm[index].validators !== undefined) {
+            var fieldValidators = this.rawForm[index].validators
             processed[key].validators = {}
             for (var index2 in fieldValidators) {
               if (fieldValidators[index2] === 'required') {

@@ -14,6 +14,13 @@
         <icon name="plus"></icon>
       </div>
     </card>
+    <app-modal :header="modalData.header" :headerIcon="modalData.headerIcon" :submitMessage="modalData.submitMessage" :color="modalData.color" :type="modalData.type" :modalIsOpen="modalData.open">
+      <child-form slot="form" v-if="modalData.type === 'form'" :rawForm="selectedForm" :submitUrl="modalData.submitUrl" :searchUrl="modalData.searchUrl"></child-form>
+      <div v-else-if="modalData.type === 'alert'">
+        <p class="alert-header">{{ modalData.subject }}</p>
+        <p class="alert-message" v-if="modalData.message.length > 0">{{ modalData.message }}</p>
+      </div>
+    </app-modal>
   </div>
 </template>
 
@@ -22,11 +29,15 @@
   import AppCard from '@/components/AppCard.vue'
   import bus from '@/utils/bus'
   import { errors } from '@/utils/common'
+  import AppModal from '@/components/AppModal.vue'
+  import ChildForm from '@/components/ChildForm.vue'
 
   export default {
     components: {
       ActionsBar: AppActionsBar,
-      Card: AppCard
+      Card: AppCard,
+      AppModal: AppModal,
+      ChildForm: ChildForm
     },
     data: function () {
       return {
@@ -140,7 +151,19 @@
           ]
         },
         user: JSON.parse(localStorage.getItem('profile')),
-        userNodeSize: {}
+        userNodeSize: {},
+        selectedForm: [],
+        modalData: {
+          header: '',
+          headerIcon: '',
+          submitMessage: '',
+          subject: '',
+          message: '',
+          color: 'default',
+          type: '',
+          submitUrl: '',
+          searchUrl: ''
+        }
       }
     },
     created: function () {
@@ -152,20 +175,25 @@
             var header = this.action_buttons[index].message
           }
         }
-        var modal = {
+        this.selectedForm = this.forms[targetName]
+        this.modalData = {
           header: header,
-          header_icon: icon,
-          button_submit_message: 'Save',
-          form: this.forms[targetName],
+          headerIcon: icon,
+          submitMessage: 'Save',
+          subject: '',
+          message: '',
           color: 'default',
-          type: 'form'
+          type: 'form',
+          submitUrl: '',
+          searchUrl: ''
         }
-        this.$store.dispatch('openModal', modal)
+        this.$store.dispatch('openModal')
       }.bind(this))
     },
     methods: {
       AddPanel: function () {
-        this.$store.dispatch('openModal', errors.development)
+        this.modalData = errors.development
+        this.$store.dispatch('openModal')
       },
       getData: function () {
         var self = this
@@ -174,7 +202,8 @@
           self.userNodeSize = reponse.data.nodeSize
         }).catch(function (error) {
           console.log(error)
-          this.$store.dispatch('openModal', errors.connection)
+          this.modalData = errors.connection
+          this.$store.dispatch('openModal')
         })
       }
     }
