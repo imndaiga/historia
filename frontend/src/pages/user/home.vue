@@ -21,6 +21,7 @@
   import AppActionsBar from '@/components/AppActionsBar.vue'
   import AppCard from '@/components/AppCard.vue'
   import bus from '@/utils/bus'
+  import { errors } from '@/utils/common'
 
   export default {
     components: {
@@ -164,15 +165,7 @@
     },
     methods: {
       AddPanel: function () {
-        var modal = {
-          header: 'Follow History',
-          header_icon: 'thumb-tack',
-          subject: 'Under Development!',
-          message: 'This feature is currently under construction.',
-          color: 'default',
-          type: 'alert'
-        }
-        this.$store.dispatch('openModal', modal)
+        this.$store.dispatch('openModal', errors.development)
       },
       getData: function () {
         var self = this
@@ -181,15 +174,7 @@
           self.userNodeSize = reponse.data.nodeSize
         }).catch(function (error) {
           console.log(error)
-          var modal = {
-            header: 'Ooops!',
-            header_icon: 'exclamation-circle',
-            subject: 'An error occured!',
-            message: 'Something went wrong while retrieving data.',
-            color: 'red',
-            type: 'alert'
-          }
-          self.$store.dispatch('openModal', modal)
+          this.$store.dispatch('openModal', errors.connection)
         })
       }
     }

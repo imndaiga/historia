@@ -37,6 +37,7 @@
   import AppReload from './AppReload.vue'
   import AppTooltip from './AppTooltip'
   import bus from '@/utils/bus'
+  import { errors } from '@/utils/common'
 
   export default {
     components: {
@@ -93,15 +94,7 @@
         this.$refs.paginator.fetchData()
       },
       paginateLoadError: function () {
-        var modal = {
-          header: 'Ooops!',
-          header_icon: 'exclamation-circle',
-          subject: 'An error occured!',
-          message: 'Something went wrong while retrieving data.',
-          color: 'red',
-          type: 'alert'
-        }
-        self.$store.dispatch('openModal', modal)
+        this.$store.dispatch('openModal', errors.connection)
       },
       performAction: function (action, personId, fullName, resourceUrl) {
         if (action === 'edit-record') {
@@ -130,15 +123,7 @@
           self.$store.dispatch('openModal', modal)
         }).catch(function (error) {
           console.log(error)
-          var modal = {
-            header: 'Ooops!',
-            header_icon: 'exclamation-circle',
-            subject: 'An error occured!',
-            message: 'Something went wrong while performing action.',
-            color: 'red',
-            type: 'alert'
-          }
-          self.$store.dispatch('openModal', modal)
+          self.$store.dispatch('openModal', errors.action)
         })
       },
       deleteRecord: function (recordId) {
@@ -160,15 +145,7 @@
           }
         }).catch(function (error) {
           console.log(error)
-          var modal = {
-            header: 'Ooops!',
-            header_icon: 'exclamation-circle',
-            subject: 'An error occured!',
-            message: 'Something went wrong while performing action.',
-            color: 'red',
-            type: 'alert'
-          }
-          self.$store.dispatch('openModal', modal)
+          self.$store.dispatch('openModal', errors.action)
         })
       },
       getFullName: function (nameList) {
