@@ -12,7 +12,6 @@
 <script>
   import Tippy from 'tippy.js'
   import Vue from 'vue'
-  import bus from '@/utils/bus'
 
   var anchorKey
   var iconName
@@ -21,31 +20,6 @@
   var arrowSize
   var tooltipOffset
   var anchorFontSize
-
-  var triggerTooltip = function () {
-    let [emission, resourceUrl, modalHeader, recordId] = this.getAttribute('action').split(',')
-    bus.$emit(emission, recordId, modalHeader, resourceUrl)
-    bus.$emit('hide-tooltip', this.parentElement.children)
-  }
-
-  var addHandlers = function () {
-    setTimeout(function () {
-      var buttons = document.getElementsByClassName('tippy-tooltip-content')[0].getElementsByTagName('button')
-      for (var i = 0; i < buttons.length; i++) {
-        let button = buttons[i]
-        button.addEventListener('click', triggerTooltip)
-      }
-    }, 500)
-  }
-
-  var removeHandlers = function (tooltipChildren) {
-    for (var i = 0; i < tooltipChildren.length; i++) {
-      let child = tooltipChildren[i]
-      if (child.nodeName === 'BUTTON') {
-        child.removeEventListener('click', triggerTooltip)
-      }
-    }
-  }
 
   Vue.directive('tooltip', {
     bind: function (el, binding) {
@@ -99,21 +73,44 @@
       },
       openTooltip: function () {
         this.open_tooltip = true
-        addHandlers()
+        this.addHandlers()
       },
       closeTooltip: function (tooltipChildren) {
         this.open_tooltip = false
-        removeHandlers(tooltipChildren)
+        this.removeHandlers(tooltipChildren)
         var popper = this.getPopper()
         if (popper) {
           this.tippy.hide(popper)
         }
+      },
+      triggerTooltip: function (element) {
+        let [action, resourceUrl, modalHeader, recordId] = element.getAttribute('action').split(',')
+        this.$emit('perform-action', action, recordId, modalHeader, resourceUrl)
+        this.closeTooltip(element.parentElement.getElementsByTagName('button'))
+      },
+      addHandlers: function () {
+        var self = this
+        setTimeout(function () {
+          var buttons = document.getElementsByClassName('tippy-tooltip-content')[0].getElementsByTagName('button')
+          for (var i = 0; i < buttons.length; i++) {
+            let button = buttons[i]
+            button.addEventListener('click', function () {
+              self.triggerTooltip(this)
+            })
+          }
+        }, 500)
+      },
+      removeHandlers: function (tooltipChildren) {
+        var self = this
+        for (var i = 0; i < tooltipChildren.length; i++) {
+          let child = tooltipChildren[i]
+          if (child.nodeName === 'BUTTON') {
+            child.removeEventListener('click', function () {
+              self.triggerTooltip(this)
+            })
+          }
+        }
       }
-    },
-    created: function () {
-      bus.$on('hide-tooltip', function (tooltipContentChildren) {
-        this.closeTooltip(tooltipContentChildren)
-      }.bind(this))
     },
     computed: {
       tooltipTemplate: function () {

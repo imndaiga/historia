@@ -9,7 +9,7 @@
           <p class="tooltip-info">Control Visualisation Parameters</p>
           <actions-bar title="Playback" :buttons="toolbar_actions" :styles="actions_bar_style"></actions-bar>
         </div>
-        <app-tooltip></app-tooltip>
+        <app-tooltip v-on:perform-action="performAction"></app-tooltip>
       </div>
     </div>
   </div>
@@ -21,7 +21,6 @@
   import 'sigma/plugins/sigma.layout.forceAtlas2/worker.js'
   import AppReload from '@/components/AppReload'
   import AppTooltip from '@/components/AppTooltip'
-  import bus from '@/utils/bus'
   import AppActionsBar from '@/components/AppActionsBar'
 
   export default {
@@ -102,16 +101,17 @@
       },
       forceReload: function (data) {
         this.getData()
+      },
+      performAction: function (action) {
+        if (action === 'play-forceatlas') {
+          this.s.startForceAtlas2({worker: true, barnesHutOptimize: false})
+        } else if (action === 'pause-forceatlas') {
+          this.s.stopForceAtlas2()
+        }
       }
     },
     created: function () {
       this.getData()
-      bus.$on('play-forceatlas', function () {
-        this.s.startForceAtlas2({worker: true, barnesHutOptimize: false})
-      }.bind(this))
-      bus.$on('pause-forceatlas', function () {
-        this.s.stopForceAtlas2()
-      }.bind(this))
     }
   }
 </script>

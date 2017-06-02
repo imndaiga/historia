@@ -18,7 +18,7 @@
                     <icon :name="button.icon"></icon>
                   </button>
                 </div>
-                <app-tooltip class="hidden-md hidden-lg"></app-tooltip>
+                <app-tooltip class="hidden-md hidden-lg" v-on:perform-action="performAction"></app-tooltip>
               </td>
             </tr>
           </tbody>
@@ -36,7 +36,6 @@
   import AppPaginator from './AppPaginator.vue'
   import AppReload from './AppReload.vue'
   import AppTooltip from './AppTooltip'
-  import bus from '@/utils/bus'
   import { errors } from '@/utils/common'
 
   export default {
@@ -181,14 +180,6 @@
         }
         return records
       }
-    },
-    created: function () {
-      bus.$on('edit-record', function (personId, fullName, resourceUrl) {
-        this.openRecord(personId, fullName, resourceUrl)
-      }.bind(this))
-      bus.$on('delete-record', function (personId) {
-        this.deleteRecord(personId)
-      }.bind(this))
     }
   }
 </script>
