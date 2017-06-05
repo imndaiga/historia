@@ -14,18 +14,6 @@ def getUser():
     return Person.query.filter_by(
         email=_app_ctx_stack.top.current_user['email']).first()
 
-class pingAPI(Resource):
-    decorators = [requires_auth]
-
-    def get(self):
-        return 'Here is a ping'
-
-    def put(self):
-        return 'Here is a ping'
-
-    def delete(self):
-        return 'Here is a ping'
-
 
 class graphAPI(Resource):
     decorators = [requires_auth]
@@ -370,4 +358,3 @@ api.add_resource(graphAPI, '/graph', endpoint='graph')
 api.add_resource(personAPI, '/person', endpoint='person')
 api.add_resource(familyAPI, '/person/family', endpoint='family')
 api.add_resource(statisticsAPI, '/user/statistics', endpoint='statistics')
-api.add_resource(pingAPI, '/ping', endpoint='ping')
