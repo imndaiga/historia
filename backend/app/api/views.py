@@ -227,34 +227,51 @@ class personAPI(Resource):
                 'value': person.baptism_name or '',
                 'label': 'First Name',
                 'validators': ['required', 'alpha'],
-                'field_name': 'first_name'
+                'field_name': 'first_name',
+                'classes': ''
             },
             {
                 'type': 'alpha-input',
                 'value': person.ethnic_name or '',
                 'label': 'Ethnic Name',
                 'validators': ['required', 'alpha'],
-                'field_name': 'ethnic_name'},
+                'field_name': 'ethnic_name',
+                'classes': ''
+            },
             {
                 'type': 'alpha-input', 'value':
                     person.last_name or '',
                 'label': 'Last Name',
                 'validators': ['required', 'alpha'],
-                'field_name': 'last_name'
+                'field_name': 'last_name',
+                'classes': ''
             },
             {
                 'type': 'email-input', 'value':
                     person.email or '',
                 'label': 'Email', 'validators':
                     ['required', 'email'],
-                'field_name': 'email'
+                'field_name': 'email',
+                'classes': ''
+            },
+            {
+                'type': 'multiselect-input', 'value':
+                    str(person.sex) or '',
+                'label': 'Sex', 'validators':
+                    ['required'],
+                'field_name': 'sex',
+                'multiselect_options': ['Male', 'Female', 'Other'],
+                'SelectLabel': '',
+                'DeselectLabel': '',
+                'classes': ''
             },
             {
                 'type': 'pikaday-input', 'value':
                     str(person.dob) or '',
                 'label': 'Date of Birth', 'validators':
                     [],
-                'field_name': 'birth_date'
+                'field_name': 'birth_date',
+                'classes': ''
             }
         ]
         return relative

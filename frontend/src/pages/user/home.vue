@@ -109,7 +109,7 @@
               label: 'First Name',
               validators: ['required', 'alpha'],
               field_name: 'first_name',
-              classes: '',
+              classes: 'col-lg-4 col-md-4 col-sm-6 col-xs-6',
               key: 1
             },
             {
@@ -118,7 +118,7 @@
               label: 'Ethnic Name',
               validators: ['required', 'alpha'],
               field_name: 'ethnic_name',
-              classes: '',
+              classes: 'col-lg-4 col-md-4 col-sm-6 col-xs-6',
               key: 2
             },
             {
@@ -127,7 +127,7 @@
               label: 'Last Name',
               validators: ['required', 'alpha'],
               field_name: 'last_name',
-              classes: '',
+              classes: 'col-lg-4 col-md-4 col-sm-12 col-xs-12',
               key: 3
             },
             {
@@ -136,7 +136,7 @@
               label: 'Email',
               validators: ['email'],
               field_name: 'email',
-              classes: '',
+              classes: 'col-lg-12 col-md-12 col-sm-12 col-xs-12',
               key: 4
             },
             {
@@ -145,7 +145,7 @@
               label: 'Sex',
               validators: ['required'],
               field_name: 'sex',
-              classes: '',
+              classes: 'col-lg-12 col-md-12 col-sm-12 col-xs-12',
               multiselect_options: ['Male', 'Female', 'Other'],
               SelectLabel: '',
               DeselectLabel: '',
@@ -156,7 +156,7 @@
               placeholder: 'Select Birth Date',
               label: 'Date of Birth',
               field_name: 'birth_date',
-              classes: '',
+              classes: 'col-lg-12 col-md-12 col-sm-12 col-xs-12',
               key: 9
             }
           ]

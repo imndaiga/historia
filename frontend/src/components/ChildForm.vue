@@ -271,6 +271,10 @@
     min-height: 40px
   }
 
+  .input-group {
+    z-index: 0;
+  }
+
   .disabled-button {
     display: none
   }
