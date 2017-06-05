@@ -127,10 +127,19 @@
       submitForm: function () {
         if (!this.$v.$invalid) {
           var formData = {}
-          for (var field in this.form) {
-            formData[field] = this.form[field].value
+          for (var field in this.form_object) {
+            formData[field] = this.form_object[field].value
           }
-          // submit form data here
+          this.$http.put(this.submitUrl, {
+            data: {
+              form: formData
+            }
+          })
+          .then(function (response) {
+            console.log(response)
+          }).catch(function (error) {
+            console.log(error)
+          })
         } else {
           this.$v.$touch()
         }

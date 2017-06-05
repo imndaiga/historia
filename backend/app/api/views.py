@@ -213,6 +213,7 @@ class personAPI(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('id', type=int, location='args')
+        self.reqparse.add_argument('data', type=dict, location='json')
         super(personAPI, self).__init__()
 
     def formatResponse(self, person):
@@ -263,6 +264,12 @@ class personAPI(Resource):
         person_id = args['id']
         person = Person.query.filter_by(id=person_id).one()
         return self.formatResponse(person)
+
+    def put(self):
+        args = self.reqparse.parse_args()
+        print(args.data['form'])
+        return {'message': 'Person added/updated'}
+
 
 
 class familyAPI(Resource):
