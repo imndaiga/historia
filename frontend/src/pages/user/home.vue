@@ -44,14 +44,14 @@
         action_buttons: [
           {
             message: 'Add Relative',
-            icon: 'link',
+            icon: 'user-plus',
             action: 'open-modal',
             target: 'relative_form',
             key: 1
           },
           {
             message: 'Add Relationship',
-            icon: 'user-plus',
+            icon: 'link',
             action: 'open-modal',
             target: 'relationship_form',
             key: 2
@@ -66,7 +66,7 @@
           button: 'font-size: 17px;'
         },
         forms: {
-          relative_form: [
+          relationship_form: [
             {
               type: 'search-input',
               placeholder: 'Search for Relative',
@@ -102,7 +102,7 @@
               key: 3
             }
           ],
-          relationship_form: [
+          relative_form: [
             {
               type: 'alpha-input',
               placeholder: 'Enter First Name',
