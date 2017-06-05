@@ -15,7 +15,7 @@
               <td class="center-content">
                 <app-tooltip v-on:perform-action="performAction" :anchorKey="record.id" icon="ellipsis-h" position="left" arrowSize="small" anchorClass="hidden-lg hidden-md">
                   <div slot="template" class="hidden-xs hidden-sm">
-                    <button type="button" v-for="button in row_actions" v-on:click="performAction(button.action, record.id, getFullName([record.first_name, record.ethnic_name, record.last_name]), button.url)" :class="button.class" :title="button.title" :action="[button.action, button.url, getFullName([record.first_name, record.ethnic_name, record.last_name]), record.id]">
+                    <button type="button" v-for="button in rowActions" v-on:click="performAction(button.action, record.id, getFullName([record.first_name, record.ethnic_name, record.last_name]), button.url)" :class="button.class" :title="button.title" :action="[button.action, button.url, getFullName([record.first_name, record.ethnic_name, record.last_name]), record.id]">
                       <icon :name="button.icon"></icon>
                     </button>
                   </div>
@@ -72,20 +72,24 @@
           next_button_text: '',
           previous_button_text: ''
         },
-        row_actions: [
+        rowActions: [
           {
             url: '/api/person',
             title: 'Edit',
             action: 'edit-record',
             class: 'btn btn-sm btn-default action-button',
-            icon: 'user'
+            icon: 'user',
+            submitUrl: '/api/person',
+            searchUrl: ''
           },
           {
             url: '/api/person/family',
             title: 'Edit',
             action: 'edit-record',
             class: 'btn btn-sm btn-default action-button',
-            icon: 'link'
+            icon: 'link',
+            submitUrl: '/api/relationships',
+            searchUrl: '/api/person'
           },
           {
             url: '',
@@ -112,12 +116,18 @@
       },
       performAction: function (action, personId, fullName, resourceUrl) {
         if (action === 'edit-record') {
-          this.openRecord(personId, fullName, resourceUrl)
+          for (let index in this.rowActions) {
+            if (this.rowActions[index].url === resourceUrl) {
+              var submitUrl = this.rowActions[index].submitUrl
+              var searchUrl = this.rowActions[index].searchUrl
+            }
+          }
+          this.openRecord(personId, fullName, resourceUrl, submitUrl, searchUrl)
         } else if (action === 'delete-record') {
           this.deleteRecord(personId)
         }
       },
-      openRecord: function (personId, fullName, resourceUrl) {
+      openRecord: function (personId, fullName, resourceUrl, submitUrl, searchUrl) {
         var self = this
         this.$http.get(resourceUrl, {
           params: {
@@ -126,7 +136,7 @@
         })
         .then(function (response) {
           self.rawForm = response.data
-          self.modalData = createModalData('edit', fullName, null, null, null, 'form', 'Save Changes')
+          self.modalData = createModalData('edit', fullName, null, null, null, 'form', 'Save Changes', submitUrl, searchUrl)
           self.$store.dispatch('openModal')
         }).catch(function (error) {
           console.log(error)

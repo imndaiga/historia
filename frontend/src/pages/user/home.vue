@@ -149,6 +149,16 @@
             }
           ]
         },
+        resourceUrls: {
+          relative_form: {
+            submitUrl: 'api/person',
+            searchUrl: ''
+          },
+          relationship_form: {
+            submitUrl: 'api/relationships',
+            searchUrl: 'api/person'
+          }
+        },
         user: JSON.parse(localStorage.getItem('profile')),
         userNodeSize: {},
         selectedForm: [],
@@ -182,7 +192,9 @@
           }
         }
         this.selectedForm = this.forms[targetForm]
-        this.modalData = createModalData(icon, header, null, null, null, 'form')
+        var submitUrl = this.resourceUrls[targetForm].submitUrl
+        var searchUrl = this.resourceUrls[targetForm].searchUrl
+        this.modalData = createModalData(icon, header, null, null, null, 'form', 'Save', submitUrl, searchUrl)
         this.$store.dispatch('openModal')
       }
     }
