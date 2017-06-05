@@ -1,7 +1,7 @@
 from . import api
 from flask_restful import Resource, reqparse
 from .decorators import requires_auth
-from .. import graph, db
+from .. import graph, db, seed
 from ..models import Person, Link
 from flask import _app_ctx_stack
 from sqlalchemy import or_
@@ -267,8 +267,26 @@ class personAPI(Resource):
 
     def put(self):
         args = self.reqparse.parse_args()
-        print(args.data['form'])
-        return {'message': 'Person added/updated'}
+        form = args.data['form']
+        new_person = Person(
+            baptism_name = form['first_name'],
+            ethnic_name = form['ethnic_name'],
+            last_name = form['last_name'],
+            email = form['email'],
+            confirmed = False
+        )
+        (created_person, created_status) = seed._get_or_create_one(
+            session=db.session,
+            model=Person,
+            create_method='auto',
+            create_method_kwargs={
+                'person': new_person
+            },
+            email=new_person.email)
+        if created_status is True:
+            return {'person': new_person.id}
+        else:
+            return {'person': -1}
 
 
 
