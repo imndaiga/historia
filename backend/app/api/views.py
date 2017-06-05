@@ -273,6 +273,7 @@ class personAPI(Resource):
             ethnic_name = form['ethnic_name'],
             last_name = form['last_name'],
             email = form['email'],
+            sex = form['sex'],
             confirmed = False
         )
         (created_person, created_status) = seed._get_or_create_one(

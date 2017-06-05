@@ -140,12 +140,24 @@
               key: 4
             },
             {
+              type: 'multiselect-input',
+              placeholder: 'Person\'s Sex',
+              label: 'Sex',
+              validators: ['required'],
+              field_name: 'sex',
+              classes: '',
+              multiselect_options: ['Male', 'Female', 'Other'],
+              SelectLabel: '',
+              DeselectLabel: '',
+              key: 8
+            },
+            {
               type: 'pikaday-input',
               placeholder: 'Select Birth Date',
               label: 'Date of Birth',
               field_name: 'birth_date',
               classes: '',
-              key: 8
+              key: 9
             }
           ]
         },
