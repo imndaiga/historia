@@ -27,9 +27,9 @@
 <script>
   import AppActionsBar from '@/components/AppActionsBar.vue'
   import AppCard from '@/components/AppCard.vue'
-  import { errors } from '@/utils/common'
   import AppModal from '@/components/AppModal.vue'
   import ChildForm from '@/components/ChildForm.vue'
+  import { createModalData, errors } from '@/utils/helper'
 
   export default {
     components: {
@@ -152,17 +152,7 @@
         user: JSON.parse(localStorage.getItem('profile')),
         userNodeSize: {},
         selectedForm: [],
-        modalData: {
-          header: '',
-          headerIcon: '',
-          submitMessage: '',
-          subject: '',
-          message: '',
-          color: 'default',
-          type: '',
-          submitUrl: '',
-          searchUrl: ''
-        }
+        modalData: createModalData()
       }
     },
     created: function () {
@@ -176,8 +166,8 @@
       getData: function () {
         var self = this
         this.$http.get('api/user/statistics')
-        .then(function (reponse) {
-          self.userNodeSize = reponse.data.nodeSize
+        .then(function (response) {
+          self.userNodeSize = response.data.nodeSize
         }).catch(function (error) {
           console.log(error)
           this.modalData = errors.connection
@@ -192,17 +182,7 @@
           }
         }
         this.selectedForm = this.forms[targetForm]
-        this.modalData = {
-          header: header,
-          headerIcon: icon,
-          submitMessage: 'Save',
-          subject: '',
-          message: '',
-          color: 'default',
-          type: 'form',
-          submitUrl: '',
-          searchUrl: ''
-        }
+        this.modalData = createModalData(icon, header, null, null, null, 'form')
         this.$store.dispatch('openModal')
       }
     }

@@ -44,7 +44,7 @@
   import AppPaginator from './AppPaginator.vue'
   import AppReload from './AppReload.vue'
   import AppTooltip from './AppTooltip'
-  import { errors } from '@/utils/common'
+  import { createModalData, errors } from '@/utils/helper'
   import AppModal from './AppModal.vue'
   import ChildForm from './ChildForm.vue'
 
@@ -95,17 +95,7 @@
             icon: 'trash-o'
           }
         ],
-        modalData: {
-          header: '',
-          headerIcon: '',
-          submitMessage: '',
-          subject: '',
-          message: '',
-          color: 'default',
-          type: '',
-          submitUrl: '',
-          searchUrl: ''
-        },
+        modalData: createModalData(),
         rawForm: []
       }
     },
@@ -136,17 +126,7 @@
         })
         .then(function (response) {
           self.rawForm = response.data
-          self.modalData = {
-            header: fullName,
-            headerIcon: 'edit',
-            submitMessage: 'Save Changes',
-            subject: '',
-            message: '',
-            color: 'default',
-            type: 'form',
-            submitUrl: '',
-            searchUrl: ''
-          }
+          self.modalData = createModalData('edit', fullName, null, null, null, 'form', 'Save Changes')
           self.$store.dispatch('openModal')
         }).catch(function (error) {
           console.log(error)
