@@ -159,7 +159,12 @@
               processed[key]['options'] = []
             }
             if (Object.keys(this.rawForm[index]).indexOf('value') !== -1) {
-              processed[key]['value'] = this.rawForm[index].value
+              if (this.rawForm[index].type === 'pikaday-input') {
+                let date = new Date(this.rawForm[index].value.split(' ')[0])
+                processed[key]['value'] = date.toDateString().split(' ').splice(1).toString().replace(/,/g, ' ')
+              } else {
+                processed[key]['value'] = this.rawForm[index].value
+              }
             } else {
               processed[key]['value'] = ''
             }
@@ -235,7 +240,7 @@
           field: this.pikaday_Hooks[0][0],
           trigger: this.pikaday_Hooks[1][0],
           onSelect: function () {
-            var date = this.getMoment().format('Do MMMM YYYY')
+            var date = this.getMoment().format('MMM D YYYY')
             self.form_object[pikadayFieldName].value = date
             self.activateField(pikadayFieldName)
           }

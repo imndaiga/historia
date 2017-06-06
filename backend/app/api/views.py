@@ -7,8 +7,10 @@ from flask import _app_ctx_stack
 from sqlalchemy import or_
 from networkx import NetworkXError
 from networkx.readwrite import json_graph
+from datetime import datetime
 import random
 import math
+
 
 def getUser():
     return Person.query.filter_by(
@@ -285,13 +287,16 @@ class personAPI(Resource):
     def put(self):
         args = self.reqparse.parse_args()
         form = args.data['form']
+        birth_date = datetime.strptime(
+            form['birth_date'], '%b %d %Y')
         new_person = Person(
-            baptism_name = form['first_name'],
-            ethnic_name = form['ethnic_name'],
-            last_name = form['last_name'],
-            email = form['email'],
-            sex = form['sex'],
-            confirmed = False
+            baptism_name=form['first_name'],
+            ethnic_name=form['ethnic_name'],
+            last_name=form['last_name'],
+            email=form['email'],
+            sex=form['sex'],
+            dob=birth_date,
+            confirmed=False
         )
         (created_person, created_status) = seed._get_or_create_one(
             session=db.session,
@@ -305,7 +310,6 @@ class personAPI(Resource):
             return {'person': new_person.id}
         else:
             return {'person': -1}
-
 
 
 class familyAPI(Resource):
