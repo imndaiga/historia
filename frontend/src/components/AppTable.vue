@@ -152,11 +152,14 @@
           }
         })
         .then(function (response) {
-          for (var record in self.raw_table_data) {
-            for (var field in self.raw_table_data[record]) {
-              if (self.raw_table_data[record][field].field_name === 'id') {
-                if (self.raw_table_data[record][field].value === recordId) {
-                  self.raw_table_data.splice(record, 1)
+          var targetId = parseInt(recordId)
+          if (response.data.person === targetId) {
+            for (var record in self.raw_table_data) {
+              for (var field in self.raw_table_data[record]) {
+                if (self.raw_table_data[record][field].field_name === 'id') {
+                  if (self.raw_table_data[record][field].value === targetId) {
+                    self.raw_table_data.splice(record, 1)
+                  }
                 }
               }
             }

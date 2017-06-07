@@ -194,19 +194,16 @@ class relationshipsAPI(Resource):
         if deleted_uid == 1:
             print('{} deleted from database'.format(delete_person_id))
             try:
-                Link.query.filter(
-                    or_(Link.ascendant_id == delete_person_id,
-                        Link.descendant_id == delete_person_id)).delete()
                 db.session.commit()
                 graph.delete_node(delete_person_id)
                 print('{} deleted from graph'.format(delete_person_id))
-                return {'message': 'Relationship deleted'}
+                return {'person': delete_person_id}
             except NetworkXError:
                 print('{} does not exist in graph'.format(delete_person_id))
-                return {'message': 'Graph error'}
+                return {'person': -1}
         else:
             print('{} does not exist in database'.format(delete_person_id))
-            return {'message': 'Database error'}
+            return {'person': -1}
 
 
 class personAPI(Resource):

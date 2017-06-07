@@ -6,9 +6,11 @@ class Link(db.Model):
     """self-referential association table that connects Nodes"""
     __tablename__ = 'links'
 
-    ascendant_id = db.Column(db.Integer, db.ForeignKey('persons.id'),
+    ascendant_id = db.Column(db.Integer,
+                             db.ForeignKey('persons.id', ondelete="CASCADE"),
                              primary_key=True)
-    descendant_id = db.Column(db.Integer, db.ForeignKey('persons.id'),
+    descendant_id = db.Column(db.Integer,
+                              db.ForeignKey('persons.id', ondelete="CASCADE"),
                               primary_key=True)
     link_label = db.Column(db.Integer, default=0)
 
