@@ -11,7 +11,7 @@
           </thead>
           <tbody>
             <tr v-for="record in table_Data">
-              <td v-for="(value, key) in record" v-if="key !== 'id'">{{ value }}</td>
+              <td v-for="(value, key) in record" v-if="key !== 'id'" :key="record.id">{{ value }}</td>
               <td class="center-content">
                 <app-tooltip v-on:perform-action="performAction" :anchorKey="record.id" icon="ellipsis-h" position="left" arrowSize="small" anchorClass="hidden-lg hidden-md">
                   <div slot="template" class="hidden-xs hidden-sm">
@@ -152,18 +152,9 @@
           }
         })
         .then(function (response) {
-          var targetId = parseInt(recordId)
-          if (response.data.person === targetId) {
-            for (var record in self.raw_table_data) {
-              for (var field in self.raw_table_data[record]) {
-                if (self.raw_table_data[record][field].field_name === 'id') {
-                  if (self.raw_table_data[record][field].value === targetId) {
-                    self.raw_table_data.splice(record, 1)
-                  }
-                }
-              }
-            }
-          }
+          var pageNumber = self.$refs.paginator.current_page
+          var reloadUrl = self.resource_url + '?page=' + pageNumber
+          self.$refs.paginator.fetchData(reloadUrl)
         }).catch(function (error) {
           console.log(error)
           self.modalData = errors.action
@@ -190,10 +181,10 @@
       table_Data: function () {
         var records = []
         var entry = {}
-        for (var record in this.raw_table_data) {
-          var fieldName = ''
-          var fieldValue = ''
-          for (var field in this.raw_table_data[record]) {
+        for (let record in this.raw_table_data) {
+          let fieldName = ''
+          let fieldValue = ''
+          for (let field in this.raw_table_data[record]) {
             fieldName = this.raw_table_data[record][field].field_name
             fieldValue = this.raw_table_data[record][field].value
             entry[fieldName] = fieldValue
