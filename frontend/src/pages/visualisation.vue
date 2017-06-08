@@ -12,6 +12,12 @@
           </div>
         </app-tooltip>
       </div>
+      <app-modal :header="modalData.header" :headerIcon="modalData.headerIcon" :submitMessage="modalData.submitMessage" :color="modalData.color" :type="modalData.type" :modalIsOpen="modalData.open">
+        <div v-if="modalData.type === 'alert'">
+          <p class="alert-header">{{ modalData.subject }}</p>
+          <p class="alert-message" v-if="modalData.message.length > 0">{{ modalData.message }}</p>
+        </div>
+    </app-modal>
     </div>
   </div>
 </template>
@@ -23,12 +29,15 @@
   import AppReload from '@/components/AppReload'
   import AppTooltip from '@/components/AppTooltip'
   import AppActionsBar from '@/components/AppActionsBar'
+  import { createModalData, errors } from '@/utils/helper'
+  import AppModal from '@/components/AppModal'
 
   export default {
     components: {
       AppReload: AppReload,
       AppTooltip: AppTooltip,
-      ActionsBar: AppActionsBar
+      ActionsBar: AppActionsBar,
+      AppModal: AppModal
     },
     data: function () {
       return {
@@ -57,7 +66,8 @@
           buttonDivClass: 'col-lg-8 col-md-8 col-sm-7 col-xs-12',
           button: 'font-size: 14px; padding: 7px; margin-top: -6px;'
         },
-        nodeNumber: 0
+        nodeNumber: 0,
+        modalData: createModalData()
       }
     },
     methods: {
@@ -72,15 +82,8 @@
           }).catch(function (error) {
             console.log(error)
             self.nodeNumber = 0
-            var modal = {
-              header: 'Ooops!',
-              header_icon: 'exclamation-circle',
-              subject: 'An error occured!',
-              message: 'Something went wrong while retrieving data.',
-              color: 'red',
-              type: 'alert'
-            }
-            self.$store.dispatch('openModal', modal)
+            self.modalData = errors.connection
+            self.$store.dispatch('openModal')
           })
       },
       renderGraph: function () {
