@@ -27,12 +27,6 @@
         required: true
       }
     },
-    created: function () {
-      var self = this
-      this.$router.afterEach(function (to, from) {
-        self.$store.dispatch('closeMobileMenu')
-      })
-    },
     methods: {
       closeMobileMenu: function () {
         this.$store.dispatch('closeMobileMenu')

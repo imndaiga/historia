@@ -40,5 +40,12 @@ new Vue({
   store,
   router,
   template: '<App/>',
-  components: { App }
+  components: { App },
+  created: function () {
+    var self = this
+    this.$router.afterEach(function (to, from) {
+      self.$store.dispatch('forceMobileMenuExit')
+      self.$store.dispatch('forceModalExit')
+    })
+  }
 })
