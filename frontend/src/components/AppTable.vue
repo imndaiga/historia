@@ -217,7 +217,19 @@
 
   @media (min-width: 768px) and (max-width: 992px) {
     .app-table {
-      margin: 13% 0 0 0;
+      margin: 20% 0 0 0;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .app-table {
+      margin: 2% 0 2% 0;
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .app-table {
+      margin: 8% 0 0 0;
     }
   }
 </style>
