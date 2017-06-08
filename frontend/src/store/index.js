@@ -14,6 +14,12 @@ export default new Vuex.Store({
     },
     toggleMobileMenu: function (state) {
       state.mobileMenuIsOpen = !state.mobileMenuIsOpen
+    },
+    exitModal: function (state) {
+      state.modalIsOpen = false
+    },
+    exitMobileMenu: function (state) {
+      state.mobileMenuIsOpen = false
     }
   },
   actions: {
@@ -23,11 +29,17 @@ export default new Vuex.Store({
     closeModal: function ({ commit }) {
       commit('toggleModal')
     },
+    forceModalExit: function ({ commit }) {
+      commit('exitModal')
+    },
     openMobileMenu: function ({ commit }) {
       commit('toggleMobileMenu')
     },
     closeMobileMenu: function ({ commit }) {
       commit('toggleMobileMenu')
+    },
+    forceMobileMenuExit: function ({ commit }) {
+      commit('exitMobileMenu')
     }
   }
 })
