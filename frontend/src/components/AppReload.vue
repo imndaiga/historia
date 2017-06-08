@@ -24,6 +24,8 @@
     methods: {
       reloadResource: function () {
         this.$emit('reload-resource')
+        this.$store.dispatch('forceMobileMenuExit')
+        this.$store.dispatch('forceModalExit')
       }
     }
   }
