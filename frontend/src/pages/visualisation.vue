@@ -1,7 +1,7 @@
 <template>
   <div id="sigma-parent">
-    <app-reload v-if="nodeNumber === 0" message="No Relationship Data Available" v-on:reload-resource="forceReload"></app-reload>
-    <div v-show="nodeNumber > 0">
+    <app-reload v-if="!graphHasData" message="No Relationship Data Available" v-on:reload-resource="forceReload"></app-reload>
+    <div v-show="graphHasData">
       <div id="sigma-container" class="col-lg-12 col-md-12 col-sm-12 col-xs-12"></div>
       <div class="toolbox">
         <app-tooltip v-on:perform-action="performAction" :anchorKey="1" icon="sliders" position="bottom" :offset="120" iconSize="25px">
@@ -17,7 +17,7 @@
           <p class="alert-header">{{ modalData.subject }}</p>
           <p class="alert-message" v-if="modalData.message.length > 0">{{ modalData.message }}</p>
         </div>
-    </app-modal>
+      </app-modal>
     </div>
   </div>
 </template>
@@ -66,7 +66,6 @@
           buttonDivClass: 'col-lg-8 col-md-8 col-sm-7 col-xs-12',
           button: 'font-size: 14px; padding: 7px; margin-top: -6px;'
         },
-        nodeNumber: 0,
         modalData: createModalData()
       }
     },
@@ -77,11 +76,8 @@
         .then(
           function (response) {
             self.graph = response.data.graph
-            self.renderGraph()
-            self.nodeNumber = self.graph.nodes.length
           }).catch(function (error) {
             console.log(error)
-            self.nodeNumber = 0
             self.modalData = errors.connection
             self.$store.dispatch('openModal')
           })
@@ -116,6 +112,23 @@
     },
     created: function () {
       this.getData()
+    },
+    watch: {
+      graph: function (value) {
+        if (this.graphHasData) {
+          this.renderGraph()
+        }
+      }
+    },
+    computed: {
+      graphHasData: function () {
+        if (Object.keys(this.graph).includes('nodes')) {
+          if (this.graph.nodes.length > 0) {
+            return true
+          }
+        }
+        return false
+      }
     }
   }
 </script>
