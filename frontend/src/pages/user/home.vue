@@ -7,9 +7,8 @@
           <span>You have {{ userNodeSize }} members in your history tree!</span>
         </li>
       </ul>
-
     </card>
-    <card bodyPadding="0px">
+    <card panelStyle="border-style: dashed;" bodyStyle="padding: 0px;">
       <div class="add-panel" v-on:click="AddPanel">
         <icon name="plus"></icon>
       </div>

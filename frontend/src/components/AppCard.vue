@@ -1,11 +1,11 @@
 <template>
   <div class="col-lg-3 col-md-4 col-sm-6 col-xs-6">
-    <div class="panel panel-default">
+    <div class="panel panel-default" :style="panelStyle">
       <div v-if="displayHeader" class="panel-heading">
         <icon v-if="headerIcon" :name="headerIcon"></icon>
         <span v-if="header" class="header-text">{{ header }}</span>
       </div>
-      <div class="panel-body" :style="{ 'padding': bodyPadding }">
+      <div class="panel-body" :style="bodyStyle">
         <slot></slot>
       </div>
     </div>
@@ -23,7 +23,11 @@
         type: String,
         required: false
       },
-      bodyPadding: {
+      panelStyle: {
+        type: String,
+        required: false
+      },
+      bodyStyle: {
         type: String,
         required: false
       }
