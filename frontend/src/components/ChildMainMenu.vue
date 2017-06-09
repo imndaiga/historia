@@ -185,29 +185,22 @@
     position: static;
   }
 
-  /* Landscape phones and portrait tablets */
+  /* Landscape phones and portrait tablets and smaller*/
   @media (max-width: 767px) {
-    .menu {
-      position: relative
-    }
-    .nav-app-footer {
-      height: 100px;
-      bottom: -100px;
-      left: -21px;
-      right: -21px
-    }
-  }
-
-    /* Portrait phones and smaller */
-  @media (max-width: 480px) {
     .menu {
       position: static
     }
     .nav-app-footer {
-      height: auto;
-      bottom: 0;
-      left: 0;
-      right: 0
+      background-color: rgba(214, 214, 214, 0)
+    }
+    .nav-app-footer > ul > li > a,
+    .nav-app-footer > ul > li > a:hover,
+    .nav-app-footer > ul > li > a:focus {
+      font-size: 25px;
+      padding-left: 25px
+    }
+    .nav-app-footer > ul > li:first-child > a {
+      padding-left: 0px
     }
   }
 </style>
