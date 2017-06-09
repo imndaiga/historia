@@ -173,4 +173,10 @@
     padding-bottom: 5px;
     border-bottom: 1px solid #eee
   }
+
+  @media (max-width: 767px) {
+    #sigma-container {
+      height: calc(100vh - 80px);
+    }
+  }
 </style>
