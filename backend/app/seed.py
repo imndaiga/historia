@@ -154,10 +154,10 @@ class Seed(Command):
                 created_status = False
                 while created_status is False:
                     person = self.Person(
-                        baptism_name=relative['name'].split()[0],
+                        first_name=relative['name'].split()[0],
                         last_name=relative['name'].split()[1],
                         sex=relative['sex'],
-                        dob=relative['birthdate'],
+                        birth_date=relative['birthdate'],
                         email=relative['mail'],
                         confirmed=True
                     )
@@ -241,9 +241,9 @@ class Seed(Command):
                     session=self.db.session,
                     model=self.Link,
                     create_method='safe',
-                    ascendant=asc,
+                    ancestor=asc,
                     descendant=des,
-                    link_label=weight)
+                    weight=weight)
                 if created_status is True:
                     _processed_list.append(created_link)
         return _processed_list

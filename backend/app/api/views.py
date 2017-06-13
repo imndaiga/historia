@@ -2,9 +2,8 @@ from . import api
 from flask_restful import Resource, reqparse
 from .decorators import requires_auth
 from .. import graph, db, seed
-from ..models import Person, Link
+from ..models import Person
 from flask import _app_ctx_stack
-from sqlalchemy import or_
 from networkx import NetworkXError
 from networkx.readwrite import json_graph
 from datetime import datetime
@@ -50,7 +49,7 @@ class graphAPI(Resource):
             {
                 'id': node['id'],
                 'label': Person.query.filter_by(
-                    id=node['id']).first().baptism_name,
+                    id=node['id']).first().first_name,
                 'x': random.randrange(1, 10),
                 'y': random.randrange(1, 10),
                 'color': self.getNodeColor(node['id']),
@@ -84,11 +83,11 @@ class searchAPI(Resource):
     def get(self):
         args = self.reqparse.parse_args()
         found_person = db.session.query(Person).filter_by(
-            baptism_name=args['value']).first()
+            first_name=args['value']).first()
         if (found_person is not None):
             print('Person found: {}'.format(found_person))
             listed_names = [
-                found_person.baptism_name or '',
+                found_person.first_name or '',
                 found_person.ethnic_name or '',
                 found_person.last_name or ''
             ]
@@ -125,7 +124,7 @@ class relationshipsAPI(Resource):
                 },
                 {
                     'type': 'alpha-input',
-                    'value': relation.baptism_name or '',
+                    'value': relation.first_name or '',
                     'label': 'First Name',
                     'validators': ['required', 'alpha'],
                     'field_name': 'first_name'
@@ -223,7 +222,7 @@ class personAPI(Resource):
             },
             {
                 'type': 'alpha-input',
-                'value': person.baptism_name or '',
+                'value': person.first_name or '',
                 'label': 'First Name',
                 'validators': ['required', 'alpha'],
                 'field_name': 'first_name',
@@ -266,7 +265,7 @@ class personAPI(Resource):
             },
             {
                 'type': 'pikaday-input', 'value':
-                    str(person.dob) or '',
+                    str(person.birth_date) or '',
                 'label': 'Date of Birth', 'validators':
                     [],
                 'field_name': 'birth_date',
@@ -287,12 +286,12 @@ class personAPI(Resource):
         birth_date = datetime.strptime(
             form['birth_date'], '%b %d %Y')
         new_person = Person(
-            baptism_name=form['first_name'],
+            first_name=form['first_name'],
             ethnic_name=form['ethnic_name'],
             last_name=form['last_name'],
             email=form['email'],
             sex=form['sex'],
-            dob=birth_date,
+            birth_date=birth_date,
             confirmed=False
         )
         (created_person, created_status) = seed._get_or_create_one(
@@ -325,7 +324,7 @@ class familyAPI(Resource):
                 relation = relation_degree[1]
                 target = Person.query.get(target_id)
                 listed_names = [
-                    target.baptism_name or '',
+                    target.first_name or '',
                     target.ethnic_name or '',
                     target.last_name or ''
                 ]

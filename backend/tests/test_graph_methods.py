@@ -15,13 +15,13 @@ class GraphTestCase(unittest.TestCase):
         self.reset()
         seed.run(family_units=1, family_size=4, layers=0, verbose=False)
         self.p1 = db.session.query(Person).filter_by(
-            baptism_name='Patricia').first()
+            first_name='Patricia').first()
         self.p2 = db.session.query(Person).filter_by(
-            baptism_name='Tina').first()
+            first_name='Tina').first()
         self.p3 = db.session.query(Person).filter_by(
-            baptism_name='Kerry').first()
+            first_name='Kerry').first()
         self.p4 = db.session.query(Person).filter_by(
-            baptism_name='Paige').first()
+            first_name='Paige').first()
 
     def tearDown(self):
         db.session.remove()
@@ -142,10 +142,10 @@ class GraphTestCase(unittest.TestCase):
     def test_subgraph_null_relations(self):
         relative = fake.family_member(sex='F')
         a1 = Person(
-            baptism_name=relative['name'].split()[0],
+            first_name=relative['name'].split()[0],
             last_name=relative['name'].split()[1],
             sex=relative['sex'],
-            dob=relative['birthdate'],
+            birth_date=relative['birthdate'],
             email=relative['mail'],
             confirmed=True
         )
@@ -182,10 +182,10 @@ class GraphTestCase(unittest.TestCase):
     def test_subgraph_edge_count_parent_in_law(self):
         relative = fake.family_member(sex='F')
         a1 = Person(
-            baptism_name=relative['name'].split()[0],
+            first_name=relative['name'].split()[0],
             last_name=relative['name'].split()[1],
             sex=relative['sex'],
-            dob=relative['birthdate'],
+            birth_date=relative['birthdate'],
             email=relative['mail'],
             confirmed=True
         )
@@ -202,10 +202,10 @@ class GraphTestCase(unittest.TestCase):
     def test_subgraph_edge_count_child_in_law(self):
         relative = fake.family_member(sex='F')
         a1 = Person(
-            baptism_name=relative['name'].split()[0],
+            first_name=relative['name'].split()[0],
             last_name=relative['name'].split()[1],
             sex=relative['sex'],
-            dob=relative['birthdate'],
+            birth_date=relative['birthdate'],
             email=relative['mail'],
             confirmed=True
         )
@@ -222,19 +222,19 @@ class GraphTestCase(unittest.TestCase):
     def test_subgraph_edge_count_grandchild(self):
         relative = fake.family_member(sex='F')
         a1 = Person(
-            baptism_name=relative['name'].split()[0],
+            first_name=relative['name'].split()[0],
             last_name=relative['name'].split()[1],
             sex=relative['sex'],
-            dob=relative['birthdate'],
+            birth_date=relative['birthdate'],
             email=relative['mail'],
             confirmed=True
         )
         relative = fake.family_member(sex='M')
         a2 = Person(
-            baptism_name=relative['name'].split()[0],
+            first_name=relative['name'].split()[0],
             last_name=relative['name'].split()[1],
             sex=relative['sex'],
-            dob=relative['birthdate'],
+            birth_date=relative['birthdate'],
             email=relative['mail'],
             confirmed=True
         )
@@ -251,19 +251,19 @@ class GraphTestCase(unittest.TestCase):
     def test_subgraph_edge_count_grandparent(self):
         relative = fake.family_member(sex='F')
         a1 = Person(
-            baptism_name=relative['name'].split()[0],
+            first_name=relative['name'].split()[0],
             last_name=relative['name'].split()[1],
             sex=relative['sex'],
-            dob=relative['birthdate'],
+            birth_date=relative['birthdate'],
             email=relative['mail'],
             confirmed=True
         )
         relative = fake.family_member(sex='M')
         a2 = Person(
-            baptism_name=relative['name'].split()[0],
+            first_name=relative['name'].split()[0],
             last_name=relative['name'].split()[1],
             sex=relative['sex'],
-            dob=relative['birthdate'],
+            birth_date=relative['birthdate'],
             email=relative['mail'],
             confirmed=True
         )

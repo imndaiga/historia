@@ -30,10 +30,10 @@ class Graph:
         G = self.current
         relation_links = self.Link.query.all()
         for link in relation_links:
-            source = link.ascendant_id
+            source = link.ancestor_id
             target = link.descendant_id
-            weight = link.link_label
-            key = link.ascendant_id
+            weight = link.weight
+            key = link.ancestor_id
             if not G.has_edge(source, target, key=key):
                 G.add_edge(source, target, key=key, weight=weight)
         self.save(G)

@@ -14,13 +14,13 @@ class SeedTestCase(unittest.TestCase):
         graph.clear()
         seed.run(family_units=1, family_size=4, layers=0, verbose=False)
         self.p1 = db.session.query(Person).filter_by(
-            baptism_name='Tina').first()
+            first_name='Tina').first()
         self.p2 = db.session.query(Person).filter_by(
-            baptism_name='Patricia').first()
+            first_name='Patricia').first()
         self.p3 = db.session.query(Person).filter_by(
-            baptism_name='Paige').first()
+            first_name='Paige').first()
         self.p4 = db.session.query(Person).filter_by(
-            baptism_name='Kerry').first()
+            first_name='Kerry').first()
 
     @staticmethod
     def reset():
@@ -38,10 +38,10 @@ class SeedTestCase(unittest.TestCase):
     def test_seed_count_is_valid(self):
         relative = fake.family_member(sex='F')
         a1 = Person(
-            baptism_name=relative['name'].split()[0],
+            first_name=relative['name'].split()[0],
             last_name=relative['name'].split()[1],
             sex=relative['sex'],
-            dob=relative['birthdate'],
+            birth_date=relative['birthdate'],
             email=relative['mail'],
             confirmed=True
         )
