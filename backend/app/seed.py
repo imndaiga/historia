@@ -7,7 +7,6 @@ from .faker import fake
 
 class Seed(Command):
     """Create fake seed data and store in database"""
-    # This function should be protected
 
     option_list = (
         Option('--units', '-u', dest='family_units'),
@@ -47,7 +46,7 @@ class Seed(Command):
                 email=admin_email).first()
             family_unit = fake.family(seed=i, size=size)
             if admin_email is not None and admin_person is None:
-                family_unit['parents'][1]['mail'] = admin_email
+                family_unit['parents'][1]['email'] = admin_email
                 if verbose:
                     print('NOTICE: Admin added')
             (parents, children, _) = self._faker_iterator(
@@ -99,12 +98,13 @@ class Seed(Command):
                 created_status = False
                 while created_status is False:
                     person = self.Person(
-                        first_name=relative['name'].split()[0],
-                        last_name=relative['name'].split()[1],
+                        first_name=relative['first_name'],
+                        last_name=relative['last_name'],
+                        ethnic_name=relative['ethnic_name'],
                         sex=relative['sex'],
-                        birth_date=relative['birthdate'],
-                        email=relative['mail'],
-                        confirmed=True
+                        birth_date=relative['birth_date'],
+                        email=relative['email'],
+                        confirmed=False
                     )
                     if verbose:
                         print(
