@@ -23,8 +23,6 @@ class Graph:
         from app.models import Link
         self.Link = Link
         self.gpickle_path = app.config['GRAPH_PATH']
-        if app.config['TESTING'] is True or app.config['DEBUG'] is True:
-            self.testing = True
 
     def update(self):
         G = self.current
@@ -39,10 +37,9 @@ class Graph:
         self.save(G)
 
     def clear(self):
-        if self.testing:
-            G = self.current
-            G.clear()
-            self.save(G)
+        G = self.current
+        G.clear()
+        self.save(G)
 
     def delete_node(self, node_id):
         G = self.current

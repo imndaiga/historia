@@ -23,8 +23,6 @@ class Seed(Command):
         self.db = db
         self.graph = graph
         self.update_graph = update_graph
-        if app.config['DEBUG'] or app.config['TESTING']:
-            self.testing = True
 
     def run(self, family_units, family_size, layers, verbose):
         faker_index = 1
@@ -153,19 +151,18 @@ class Seed(Command):
 
     def relate(self, partners=None, parents=None, children=None):
         result_dict = {}
-        if self.testing is True:
-            if partners and not parents and not children:
-                result_dict['persons'] = self._commit_persons_to_db(
-                    partners=partners)
-                relations = self._relations_constructor(partners=partners)
-            elif parents and children and not partners:
-                result_dict['persons'] = self._commit_persons_to_db(
-                    parents=parents,
-                    children=children)
-                relations = self._relations_constructor(parents=parents,
-                                                        children=children)
-            else:
-                raise Exception('Expects: (**partners)/(**parents,**children)')
+        if partners and not parents and not children:
+            result_dict['persons'] = self._commit_persons_to_db(
+                partners=partners)
+            relations = self._relations_constructor(partners=partners)
+        elif parents and children and not partners:
+            result_dict['persons'] = self._commit_persons_to_db(
+                parents=parents,
+                children=children)
+            relations = self._relations_constructor(parents=parents,
+                                                    children=children)
+        else:
+            raise Exception('Expects: (**partners)/(**parents,**children)')
         result_dict['relations'] = self._connect_relations(relations)
         self.db.session.commit()
         self._graph_update(self.update_graph)
