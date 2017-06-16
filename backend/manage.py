@@ -3,7 +3,7 @@
 from app import create_app, db, graph, seed
 from app.email import send_email
 from app.models import Person, Link
-from app.seed import fake
+from app.faker import fake
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
 import os
