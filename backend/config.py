@@ -14,7 +14,7 @@ class Config:
     MAIL_USE_SSL = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    SEED_AUTO = os.environ.get('SEED_AUTO')
+    SEED_UPDATE_GRAPH = os.environ.get('SEED_UPDATE_GRAPH')
 
     # App context environment variables
     HISTORIA_MAIL_SUBJECT_PREFIX = '[HISTORIA]'

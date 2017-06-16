@@ -15,14 +15,14 @@ class Seed(Command):
         Option('--verbose', '-v', dest='verbose', action='store_true')
     )
 
-    def init_app(self, app, auto):
+    def init_app(self, app, update_graph):
         from app.models import Person, Link
         from app import db, graph
         self.Person = Person
         self.Link = Link
         self.db = db
         self.graph = graph
-        self.auto = auto
+        self.update_graph = update_graph
         if app.config['DEBUG'] or app.config['TESTING']:
             self.testing = True
 
@@ -168,7 +168,7 @@ class Seed(Command):
                 raise Exception('Expects: (**partners)/(**parents,**children)')
         result_dict['relations'] = self._connect_relations(relations)
         self.db.session.commit()
-        self._graph_update(self.auto)
+        self._graph_update(self.update_graph)
         return result_dict
 
     def _graph_update(self, auto_flag):
