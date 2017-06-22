@@ -13,15 +13,15 @@ class GraphTestCase(unittest.TestCase):
         self.app_context.push()
         db.create_all()
         self.reset()
-        seed.run(family_units=1, family_size=4, layers=0, verbose=False)
+        seed.run(units=1, size=4, layers=0, verbose=False)
         self.p1 = db.session.query(Person).filter_by(
-            first_name='Patricia').first()
+            first_name='Scott').first()
         self.p2 = db.session.query(Person).filter_by(
-            first_name='Tina').first()
+            first_name='Nicola').first()
         self.p3 = db.session.query(Person).filter_by(
-            first_name='Kerry').first()
+            first_name='Rosemary').first()
         self.p4 = db.session.query(Person).filter_by(
-            first_name='Paige').first()
+            first_name='Francesca').first()
 
     def tearDown(self):
         db.session.remove()
@@ -41,7 +41,6 @@ class GraphTestCase(unittest.TestCase):
             os.remove(self.app.config['GRAPH_PATH'])
 
     def test_graph_is_testing(self):
-        self.assertTrue(graph.testing)
         self.assertTrue('graph-test.gpickle' in self.app.config['GRAPH_PATH'])
 
     def test_graph_load_with_invalid_environment_variable(self):
@@ -140,14 +139,15 @@ class GraphTestCase(unittest.TestCase):
         self.assertEqual(n4_n3_relation[0][1], 'Sibling')
 
     def test_subgraph_null_relations(self):
-        relative = fake.family_member(sex='F')
+        relative = fake.family_member(sex='Female')
         a1 = Person(
-            first_name=relative['name'].split()[0],
-            last_name=relative['name'].split()[1],
+            first_name=relative['first_name'],
+            last_name=relative['last_name'],
+            ethnic_name=relative['ethnic_name'],
             sex=relative['sex'],
-            birth_date=relative['birthdate'],
-            email=relative['mail'],
-            confirmed=True
+            birth_date=relative['birth_date'],
+            email=relative['email'],
+            confirmed=False
         )
         db.session.add(a1)
         db.session.commit()
@@ -180,16 +180,19 @@ class GraphTestCase(unittest.TestCase):
         self.assertEqual(c2.get(4), 2)
 
     def test_subgraph_edge_count_parent_in_law(self):
-        relative = fake.family_member(sex='F')
+        relative = fake.family_member(sex='Female')
         a1 = Person(
-            first_name=relative['name'].split()[0],
-            last_name=relative['name'].split()[1],
+            first_name=relative['first_name'],
+            last_name=relative['last_name'],
+            ethnic_name=relative['ethnic_name'],
             sex=relative['sex'],
-            birth_date=relative['birthdate'],
-            email=relative['mail'],
-            confirmed=True
+            birth_date=relative['birth_date'],
+            email=relative['email'],
+            confirmed=False
         )
-        seed.relate(partners=[self.p3, a1])
+        db.session.add(a1)
+        db.session.commit()
+        self.p3.get_or_create_relation(a1, 1)
         graph.update()
         n1_subgraph = graph.get_subgraph(source=self.p1)
         data = n1_subgraph.edges(data=True)
@@ -200,16 +203,19 @@ class GraphTestCase(unittest.TestCase):
         self.assertIsNone(c3.get(4))
 
     def test_subgraph_edge_count_child_in_law(self):
-        relative = fake.family_member(sex='F')
+        relative = fake.family_member(sex='Female')
         a1 = Person(
-            first_name=relative['name'].split()[0],
-            last_name=relative['name'].split()[1],
+            first_name=relative['first_name'],
+            last_name=relative['last_name'],
+            ethnic_name=relative['ethnic_name'],
             sex=relative['sex'],
-            birth_date=relative['birthdate'],
-            email=relative['mail'],
-            confirmed=True
+            birth_date=relative['birth_date'],
+            email=relative['email'],
+            confirmed=False
         )
-        seed.relate(partners=[self.p3, a1])
+        db.session.add(a1)
+        db.session.commit()
+        self.p3.get_or_create_relation(a1, 1)
         graph.update()
         a1_subgraph = graph.get_subgraph(source=a1)
         data = a1_subgraph.edges(data=True)
@@ -220,25 +226,31 @@ class GraphTestCase(unittest.TestCase):
         self.assertEqual(c4.get(4), 2)
 
     def test_subgraph_edge_count_grandchild(self):
-        relative = fake.family_member(sex='F')
+        relative = fake.family_member(sex='Female')
         a1 = Person(
-            first_name=relative['name'].split()[0],
-            last_name=relative['name'].split()[1],
+            first_name=relative['first_name'],
+            last_name=relative['last_name'],
+            ethnic_name=relative['ethnic_name'],
             sex=relative['sex'],
-            birth_date=relative['birthdate'],
-            email=relative['mail'],
-            confirmed=True
+            birth_date=relative['birth_date'],
+            email=relative['email'],
+            confirmed=False
         )
-        relative = fake.family_member(sex='M')
+        relative = fake.family_member(sex='Male')
         a2 = Person(
-            first_name=relative['name'].split()[0],
-            last_name=relative['name'].split()[1],
+            first_name=relative['first_name'],
+            last_name=relative['last_name'],
+            ethnic_name=relative['ethnic_name'],
             sex=relative['sex'],
-            birth_date=relative['birthdate'],
-            email=relative['mail'],
-            confirmed=True
+            birth_date=relative['birth_date'],
+            email=relative['email'],
+            confirmed=False
         )
-        seed.relate(parents=[self.p3, a1], children=[a2])
+        db.session.add_all([a1, a2])
+        db.session.commit()
+        self.p3.get_or_create_relation(a1, 1)
+        self.p3.get_or_create_relation(a2, 3)
+        a1.get_or_create_relation(a2, 3)
         graph.update()
         a2_subgraph = graph.get_subgraph(source=a2)
         data = a2_subgraph.edges(data=True)
@@ -249,25 +261,31 @@ class GraphTestCase(unittest.TestCase):
         self.assertEqual(c5.get(4), 4)
 
     def test_subgraph_edge_count_grandparent(self):
-        relative = fake.family_member(sex='F')
+        relative = fake.family_member(sex='Female')
         a1 = Person(
-            first_name=relative['name'].split()[0],
-            last_name=relative['name'].split()[1],
+            first_name=relative['first_name'],
+            last_name=relative['last_name'],
+            ethnic_name=relative['ethnic_name'],
             sex=relative['sex'],
-            birth_date=relative['birthdate'],
-            email=relative['mail'],
-            confirmed=True
+            birth_date=relative['birth_date'],
+            email=relative['email'],
+            confirmed=False
         )
-        relative = fake.family_member(sex='M')
+        relative = fake.family_member(sex='Male')
         a2 = Person(
-            first_name=relative['name'].split()[0],
-            last_name=relative['name'].split()[1],
+            first_name=relative['first_name'],
+            last_name=relative['last_name'],
+            ethnic_name=relative['ethnic_name'],
             sex=relative['sex'],
-            birth_date=relative['birthdate'],
-            email=relative['mail'],
-            confirmed=True
+            birth_date=relative['birth_date'],
+            email=relative['email'],
+            confirmed=False
         )
-        seed.relate(parents=[self.p3, a1], children=[a2])
+        db.session.add_all([a1, a2])
+        db.session.commit()
+        self.p3.get_or_create_relation(a1, 1)
+        self.p3.get_or_create_relation(a2, 3)
+        a1.get_or_create_relation(a2, 3)
         graph.update()
         n1_subgraph = graph.get_subgraph(source=self.p1)
         data = n1_subgraph.edges(data=True)
@@ -277,23 +295,23 @@ class GraphTestCase(unittest.TestCase):
         self.assertEqual(c6.get(3), 3)
         self.assertIsNone(c6.get(4))
 
-    def test_subgraph_edge_node_count_with_one_layer_and_family_size_3(self):
+    def test_subgraph_edge_node_count_with_one_layer_and_size_3(self):
         self.reset()
-        seed.run(family_units=1, family_size=3, layers=1, verbose=False)
+        seed.run(units=1, size=3, layers=1, verbose=False)
         p1_graph = graph.get_subgraph(self.p1)
         self.assertEqual(p1_graph.number_of_nodes(), 9)
         self.assertEqual(p1_graph.number_of_edges(), 8)
 
-    def test_subgraph_edge_node_count_with_one_layer_and_family_size_4(self):
+    def test_subgraph_edge_node_count_with_one_layer_and_size_4(self):
         self.reset()
-        seed.run(family_units=1, family_size=4, layers=1, verbose=False)
+        seed.run(units=1, size=4, layers=1, verbose=False)
         p1_graph = graph.get_subgraph(self.p1)
         self.assertEqual(p1_graph.number_of_nodes(), 16)
         self.assertEqual(p1_graph.number_of_edges(), 15)
 
-    def test_subgraph_edge_node_count_with_one_layer_and_family_size_5(self):
+    def test_subgraph_edge_node_count_with_one_layer_and_size_5(self):
         self.reset()
-        seed.run(family_units=1, family_size=5, layers=1, verbose=False)
+        seed.run(units=1, size=5, layers=1, verbose=False)
         p1_graph = graph.get_subgraph(self.p1)
         self.assertEqual(p1_graph.number_of_nodes(), 25)
         self.assertEqual(p1_graph.number_of_edges(), 24)

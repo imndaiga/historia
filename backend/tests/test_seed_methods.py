@@ -10,17 +10,16 @@ class SeedTestCase(unittest.TestCase):
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
-        seed.auto = False
         graph.clear()
-        seed.run(family_units=1, family_size=4, layers=0, verbose=False)
+        seed.run(units=1, size=4, layers=0, verbose=False)
         self.p1 = db.session.query(Person).filter_by(
-            first_name='Tina').first()
+            first_name='Scott').first()
         self.p2 = db.session.query(Person).filter_by(
-            first_name='Patricia').first()
+            first_name='Nicola').first()
         self.p3 = db.session.query(Person).filter_by(
-            first_name='Paige').first()
+            first_name='Rosemary').first()
         self.p4 = db.session.query(Person).filter_by(
-            first_name='Kerry').first()
+            first_name='Francesca').first()
 
     @staticmethod
     def reset():
@@ -28,7 +27,6 @@ class SeedTestCase(unittest.TestCase):
         db.drop_all()
         db.create_all()
         graph.clear()
-        seed.auto = True
 
     def tearDown(self):
         db.session.remove()
@@ -36,52 +34,47 @@ class SeedTestCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_seed_count_is_valid(self):
-        relative = fake.family_member(sex='F')
+        relative = fake.family_member(sex='Female')
         a1 = Person(
-            first_name=relative['name'].split()[0],
-            last_name=relative['name'].split()[1],
+            first_name=relative['first_name'],
+            last_name=relative['last_name'],
+            ethnic_name=relative['ethnic_name'],
             sex=relative['sex'],
-            birth_date=relative['birthdate'],
-            email=relative['mail'],
-            confirmed=True
+            birth_date=relative['birth_date'],
+            email=relative['email'],
+            confirmed=False
         )
-        seed.relate(parents=[self.p1, self.p2],
-                    children=[self.p3, self.p4, a1])
+        db.session.add(a1)
+        db.session.commit()
+        self.p1.get_or_create_relation(self.p2, 1)
+        self.p1.get_or_create_relation(self.p3, 3)
+        self.p1.get_or_create_relation(self.p4, 3)
+        self.p1.get_or_create_relation(a1, 3)
+        self.p2.get_or_create_relation(self.p3, 3)
+        self.p2.get_or_create_relation(self.p4, 3)
+        self.p2.get_or_create_relation(a1, 3)
+        self.p3.get_or_create_relation(self.p4, 2)
+        self.p3.get_or_create_relation(a1, 2)
+        self.p4.get_or_create_relation(a1, 2)
         self.assertEqual(Link.query.count(), 20)
 
     def test_seed_link_count_is_valid(self):
         self.assertEqual(Link.query.count(), 12)
 
-    def test_seed_auto_graph_is_false(self):
-        G = graph.current
-        self.assertEqual(G.order(), 0)
-        self.assertEqual(G.size(), 0)
-
-    def test_seed_auto_graph_is_true(self):
-        seed.auto = True
-        db.session.remove()
-        db.drop_all()
-        db.create_all()
-        seed.auto = True
-        seed.run(family_units=1, family_size=4, layers=0, verbose=False)
-        G = graph.current
-        self.assertEqual(G.order(), 4)
-        self.assertEqual(G.size(), 12)
-
     def test_seed_person_link_count_with_one_layer_and_family_size_3(self):
         self.reset()
-        seed.run(family_units=1, family_size=3, layers=1, verbose=False)
+        seed.run(units=1, size=3, layers=1, verbose=False)
         self.assertEqual(Person.query.count(), 9)
         self.assertEqual(Link.query.count(), 24)
 
     def test_seed_person_link_count_with_one_layer_and_family_size_4(self):
         self.reset()
-        seed.run(family_units=1, family_size=4, layers=1, verbose=False)
+        seed.run(units=1, size=4, layers=1, verbose=False)
         self.assertEqual(Person.query.count(), 16)
         self.assertEqual(Link.query.count(), 60)
 
     def test_seed_person_link_count_with_one_layer_and_family_size_5(self):
         self.reset()
-        seed.run(family_units=1, family_size=5, layers=1, verbose=False)
+        seed.run(units=1, size=5, layers=1, verbose=False)
         self.assertEqual(Person.query.count(), 25)
         self.assertEqual(Link.query.count(), 120)
