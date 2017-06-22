@@ -1,5 +1,7 @@
-from . import db, graph
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 from datetime import date
+from . import db
 
 
 def get_inverse_weight(weight):
@@ -14,6 +16,27 @@ def get_inverse_weight(weight):
             if key == weight:
                 return value
     return None
+
+
+def get_one_or_create(session,
+                      model,
+                      create_method='',
+                      create_method_kwargs=None,
+                      **kwargs):
+    # reference: http://skien.cc/blog/2014/01/15/
+    # sqlalchemy-and-race-conditions-implementing/
+    try:
+        return session.query(model).filter_by(**kwargs).one(), True
+    except NoResultFound:
+        kwargs.update(create_method_kwargs or {})
+        created = getattr(model, create_method, model)(**kwargs)
+        try:
+            session.add(created)
+            session.flush()
+            return created, False
+        except IntegrityError:
+            session.rollback()
+            return session.query(model).filter_by(**kwargs).one(), True
 
 
 class LinkError(Exception):
@@ -58,18 +81,6 @@ class Link(db.Model):
         primary_key=True
     )
     weight = db.Column(db.Integer, default=0)
-
-    @classmethod
-    def safe(cls, ancestor, descendant, weight):
-        if ancestor != descendant:
-            if weight in graph.Relations['directed_types'] or \
-               weight in graph.Relations['undirected_types']:
-                return cls(
-                    ancestor=ancestor,
-                    descendant=descendant,
-                    weight=weight
-                )
-        return None
 
     def __repr__(self):
         return '<Link %s-%s:%s>' % (
@@ -120,7 +131,7 @@ class Person(db.Model):
         except LinkMissingError as e:
             # Fix relation errors here
             print(e)
-            return None
+            return None, False
 
         if not exists:
             link_1 = Link(
@@ -133,10 +144,12 @@ class Person(db.Model):
                 descendant_id=self.id,
                 weight=get_inverse_weight(weight)
             )
-            db.session.add_all([link_1, link_2])
-            db.session.commit()
+            relation = [link_1, link_2]
+            db.session.add_all(relation)
+            db.session.flush()
+            return relation, False
         else:
-            return relation
+            return relation, True
 
     def search_for_relation(self, target):
         '''
@@ -161,11 +174,22 @@ class Person(db.Model):
             return False, None
 
     @classmethod
-    def auto(cls, email=None, person=None):
-        if person is None and email is not None:
-            return cls(email=email)
-        elif person is not None and email is not None:
-            return person
+    def create_from_email(cls, **kwargs):
+        first_name = kwargs.get('first_name', None)
+        ethnic_name = kwargs.get('ethnic_name', None)
+        last_name = kwargs.get('last_name', None)
+        sex = kwargs.get('sex', None)
+        birth_date = kwargs.get('birth_date', date(9999, 1, 1))
+        email = kwargs.get('email', None)
+        confirmed = False
+        if email:
+            return cls(first_name=first_name,
+                       ethnic_name=ethnic_name,
+                       last_name=last_name,
+                       sex=sex,
+                       birth_date=birth_date,
+                       email=email,
+                       confirmed=confirmed)
 
     def __repr__(self):
         return 'Person: <%s:%s>' % (self.id, self.first_name)
