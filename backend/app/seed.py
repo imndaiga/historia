@@ -127,45 +127,8 @@ class Seed(Command):
         for family in person_list_of_families:
             for relation in family:
                 for index, member in enumerate(family[relation]):
-                    if relation == 'parents':
-                        # create parent to child relationships.
-                        for child in family['children']:
-                            relationship, exists = \
-                                member.get_or_create_relation(
-                                    child, 3)
-                            # do some stuff if an error occured.
-                            if not exists:
-                                relationship_list.append(relationship)
-
-                        # create partner to partner relationships.
-                        for partner_index in range(len(family['parents'])):
-                            if index != partner_index:
-                                partner = family[relation][partner_index]
-                                relationship, exists = \
-                                    member.get_or_create_relation(
-                                        partner, 1)
-                                if not exists:
-                                    relationship_list.append(relationship)
-
-                    # create child to parent relationships.
-                    elif relation == 'children':
-                        for parent in family['parents']:
-                            relationship, exists = \
-                                member.get_or_create_relation(
-                                    parent, 4)
-                            # do some stuff if an error occured.
-                            if not exists:
-                                relationship_list.append(relationship)
-
-                        # create sibling to sibling relationships.
-                        for sibling_index in range(len(family['children'])):
-                            if index != sibling_index:
-                                sibling = family[relation][sibling_index]
-                                relationship, exists = \
-                                    member.get_or_create_relation(
-                                        sibling, 2)
-                                if not exists:
-                                    relationship_list.append(relationship)
+                    relationship_list.extend(self._make_dependant_relations(
+                        family, index, member, relation))
 
         self.db.session.commit()
 
@@ -183,3 +146,41 @@ class Seed(Command):
                                 duplication_count += 1
 
         return duplication_count
+
+    @staticmethod
+    def _make_dependant_relations(family, index, member, relation):
+        relationship_list = []
+        inverse_relation = None
+        inverse_relation_weight = None
+        co_relation_weight = None
+
+        # set up inverse and co_member variables
+        if relation == 'parents':
+            inverse_relation = 'children'
+            inverse_relation_weight = 3
+            co_relation_weight = 1
+        elif relation == 'children':
+            inverse_relation = 'parents'
+            inverse_relation_weight = 4
+            co_relation_weight = 2
+
+        # create parent to child and child to parent relationships.
+        for inverse_member in family[inverse_relation]:
+            relationship, exists = \
+                member.get_or_create_relation(
+                    inverse_member, inverse_relation_weight)
+            # do some stuff if an error occured.
+            if not exists:
+                relationship_list.append(relationship)
+
+        # create partner to partner and sibling to sibling relationships.
+        for co_member_index in range(len(family[relation])):
+            if index != co_member_index:
+                co_member = family[relation][co_member_index]
+                relationship, exists = \
+                    member.get_or_create_relation(
+                        co_member, co_relation_weight)
+                if not exists:
+                    relationship_list.append(relationship)
+
+        return relationship_list
