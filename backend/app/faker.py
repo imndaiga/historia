@@ -5,8 +5,7 @@ fake = Factory.create('en_GB')
 
 
 class FamilyProvider(BaseProvider):
-    def family(self, seed, size, inject=None):
-        fake.seed(seed)
+    def family(self, size, inject=None):
         parents = [
             self.family_member(sex='Male'),
             self.family_member(sex='Female')

@@ -21,7 +21,7 @@ def create_app(config_name):
     db.init_app(app)
     mail.init_app(app)
     graph.init_app(app)
-    seed.init_app(app, update_graph=app.config['SEED_UPDATE_GRAPH'] or True)
+    seed.init_app(app)
 
     # register app blueprints here
 

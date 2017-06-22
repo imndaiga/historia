@@ -1,5 +1,3 @@
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm.exc import NoResultFound
 from flask_script import Command, Option
 import os
 from .faker import fake
@@ -9,292 +7,179 @@ class Seed(Command):
     """Create fake seed data and store in database"""
 
     option_list = (
-        Option('--units', '-u', dest='family_units'),
-        Option('--size', '-s', dest='family_size'),
+        Option('--units', '-u', dest='units'),
+        Option('--size', '-s', dest='size'),
         Option('--layers', '-l', dest='layers', default=0),
         Option('--verbose', '-v', dest='verbose', action='store_true')
     )
 
-    def init_app(self, app, update_graph):
-        from app.models import Person, Link
+    def init_app(self, app):
+        from app.models import Person, Link, get_one_or_create
         from app import db, graph
         self.Person = Person
         self.Link = Link
         self.db = db
         self.graph = graph
-        self.update_graph = update_graph
+        self.get_one_or_create = get_one_or_create
+        fake.seed(4321)
 
-    def run(self, family_units, family_size, layers, verbose):
-        faker_index = 1
-        units = int(family_units)
-        size = int(family_size)
-        tree_layers = int(layers)
-        self.generate_trees(
-            size=size,
-            units=units,
-            verbose=verbose,
-            faker_index=faker_index,
-            layers=tree_layers
+    def run(self, units, size, layers, verbose=False):
+        self.verbose = verbose
+
+        unchecked_dict_families = []
+        filtered_person_families = []
+        relationships = []
+
+        # create [units] distinct family trees.
+        for _ in range(units):
+            unchecked_dict_families.extend(self.get_family_tree(size, layers))
+
+        filtered_person_families = self.save_persons_to_db(
+            unchecked_dict_families
         )
+        relationships = self.save_relationships_to_db(filtered_person_families)
+        self.graph.update()
 
-    def generate_trees(self, size, units, verbose, faker_index, layers):
-        for i in range(1, units + 1):
-            admin_email = os.environ.get('HISTORIA_ADMIN')
-            admin_person = self.Person.query.filter_by(
-                email=admin_email).first()
-            family_unit = fake.family(seed=i, size=size)
-            if admin_email is not None and admin_person is None:
-                family_unit['parents'][1]['email'] = admin_email
-                if verbose:
-                    print('NOTICE: Admin added')
-            (parents, children, _) = self._faker_iterator(
-                family_unit, verbose, faker_index)
-            self.relate(parents=parents, children=children)
-            remainders = []
-            for layer in range(1, layers + 1):
-                if len(remainders) == 0:
-                    remainders = self._add_layer(
-                        family_unit, layer, i, size, verbose, faker_index)
-                else:
-                    for rem_unit in remainders:
-                        remainders = self._add_layer(
-                            rem_unit[0], layer, i, size, verbose, faker_index)
+        return filtered_person_families, relationships
 
-    def _add_layer(self, family_unit, layer, unit, size, verbose, faker_index):
-        created_units = []
-        if verbose:
-            print('************* LAYER {} ON UNIT {} '
-                  '************'.format(layer, unit))
-        for relation in family_unit:
-            for relative in family_unit[relation]:
-                new_family_unit = fake.family(
-                    seed=layer + 4321,
+    def get_family_tree(self, size, layers):
+        store = []
+        queue = []
+        tree = []
+
+        first_family = fake.family(size=size)
+        if os.environ.get('HISTORIA_ADMIN'):
+            first_family['parents'][0] = fake.family_member(
+                email=os.environ.get('HISTORIA_ADMIN')
+            )
+        store.append(first_family)
+
+        for _ in range(layers + 1):
+            queue = store[:]
+            store = []
+            for family in queue:
+                if self.count_family_member_instances(family, tree) < 2:
+                    tree.append(family)
+                    store.extend(self.add_layer(family, size))
+
+        return tree
+
+    def add_layer(self, family, size):
+        next_layer = []
+
+        for relation, inject_type in {
+            'children': 'parent', 'parents': 'child'
+        }.items():
+            # get family members who belong to the
+            # current operation's relation.
+            members = [
+                l[i] for k, l in family.items()
+                for i in range(len(l))
+                if k == relation
+            ]
+            # for each member, create an opposite relation family.
+            # i.e. if current member has a parent relation,
+            # create a new family where member is a child
+            # and vice versa.
+            for member in members:
+                next_layer.append(fake.family(
                     size=size,
-                    injection=[relation, relative]
-                )
-                (parents, children, fakers) = self._faker_iterator(
-                    new_family_unit,
-                    verbose,
-                    faker_index,
-                    superimpose_fake=relative
-                )
-                self.relate(parents=parents, children=children)
-                created_units.append([fakers])
-        if verbose:
-            print('********************************************')
-        return created_units
+                    inject={
+                        'type': inject_type,
+                        'member': member
+                    }
+                ))
 
-    def _faker_iterator(
-            self, family_unit, verbose, faker_index, superimpose_fake={}):
-        parents = []
-        children = []
-        successful_fakers = {'parents': [], 'children': []}
-        if verbose:
-            print('============================================')
-        for relation in family_unit:
-            for relative in family_unit[relation]:
-                created_status = False
-                while created_status is False:
-                    person = self.Person(
-                        first_name=relative['first_name'],
-                        last_name=relative['last_name'],
-                        ethnic_name=relative['ethnic_name'],
-                        sex=relative['sex'],
-                        birth_date=relative['birth_date'],
-                        email=relative['email'],
-                        confirmed=False
+        return next_layer
+
+    def save_persons_to_db(self, list_of_families):
+        # reference list_of_families from person_list_of_families
+        # copying would be a waste of memory.
+        person_list_of_families = list_of_families
+        for f_index, family in enumerate(person_list_of_families):
+            for relation in family:
+                for m_index, member in enumerate(family[relation]):
+                    person, exists = self.get_one_or_create(
+                        session=self.db.session,
+                        model=self.Person,
+                        create_method='create_from_email',
+                        create_method_kwargs={
+                            'first_name': member['first_name'],
+                            'ethnic_name': member['ethnic_name'],
+                            'last_name': member['last_name'],
+                            'sex': member['sex'],
+                            'birth_date': member['birth_date']
+                        },
+                        email=member['email']
                     )
-                    if verbose:
-                        print(
-                            '{0} Validating: {1} ...'.format(
-                                faker_index, person.email), end="")
-                    (created_person,
-                        created_status) = self._get_or_create_one(
-                            session=self.db.session,
-                            model=self.Person,
-                            create_method='auto',
-                            create_method_kwargs={
-                                'person': person
-                            },
-                            email=person.email)
-                    if created_status is True:
-                        faker_index += 1
-                        self.db.session.commit()
-                        if verbose:
-                            print('Success! --> ID = {} --> Relation = {}'.
-                                  format(created_person.id, relation))
-                        if relation == 'parents':
-                            parents.append(created_person)
-                            successful_fakers['parents'].append(relative)
-                        elif relation == 'children':
-                            children.append(created_person)
-                            successful_fakers['children'].append(relative)
-                    else:
-                        if superimpose_fake.get(
-                           'mail', 'None') == created_person.email:
-                            faker_index += 1
-                            created_status = True
-                            if verbose:
-                                print('Superimposed! --> ID = {}'
-                                      ' --> Relation = {}'.
-                                      format(created_person.id, relation))
-                            if relation == 'parents':
-                                parents.append(created_person)
-                            elif relation == 'children':
-                                children.append(created_person)
-                        else:
-                            if verbose:
-                                print('Failed!')
-                            sex = relative['sex']
-                            relative = fake.family_member(sex)
-        return (parents, children, successful_fakers)
+                    # Perform a callback if user exists?
 
-    def relate(self, partners=None, parents=None, children=None):
-        result_dict = {}
-        if partners and not parents and not children:
-            result_dict['persons'] = self._commit_persons_to_db(
-                partners=partners)
-            relations = self._relations_constructor(partners=partners)
-        elif parents and children and not partners:
-            result_dict['persons'] = self._commit_persons_to_db(
-                parents=parents,
-                children=children)
-            relations = self._relations_constructor(parents=parents,
-                                                    children=children)
-        else:
-            raise Exception('Expects: (**partners)/(**parents,**children)')
-        result_dict['relations'] = self._connect_relations(relations)
+                    # replace family members in list_of_families
+                    # with person models.
+                    person_list_of_families[
+                        f_index][relation][m_index] = person
         self.db.session.commit()
-        self._graph_update(self.update_graph)
-        return result_dict
 
-    def _graph_update(self, auto_flag):
-        if auto_flag is True:
-            self.graph.update()
+        return person_list_of_families
 
-    def _connect_relations(self, relations):
-        _processed_list = []
-        for relation in relations:
-            asc = relations[relation][0]
-            descedants = relations[relation][1:-1]
-            weight = relations[relation][-1]
-            for des in descedants:
-                (created_link, created_status) = self._get_or_create_one(
-                    session=self.db.session,
-                    model=self.Link,
-                    create_method='safe',
-                    ancestor=asc,
-                    descendant=des,
-                    weight=weight)
-                if created_status is True:
-                    _processed_list.append(created_link)
-        return _processed_list
+    def save_relationships_to_db(self, person_list_of_families):
+        relationship_list = []
+        for family in person_list_of_families:
+            for relation in family:
+                for index, member in enumerate(family[relation]):
+                    if relation == 'parents':
+                        # create parent to child relationships.
+                        for child in family['children']:
+                            relationship, exists = \
+                                member.get_or_create_relation(
+                                    child, 3)
+                            # do some stuff if an error occured.
+                            if not exists:
+                                relationship_list.append(relationship)
 
-    def _commit_persons_to_db(self, **kwargs):
-        _processed_list = []
-        for person_type in kwargs:
-            for person in kwargs[person_type]:
-                (created_person, created_status) = self._get_or_create_one(
-                    session=self.db.session,
-                    model=self.Person,
-                    create_method='auto',
-                    create_method_kwargs={'person': person},
-                    email=person.email)
-                if created_status is True:
-                    _processed_list.append(created_person)
-        return _processed_list
+                        # create partner to partner relationships.
+                        for partner_index in range(len(family['parents'])):
+                            if index != partner_index:
+                                partner = family[relation][partner_index]
+                                relationship, exists = \
+                                    member.get_or_create_relation(
+                                        partner, 1)
+                                if not exists:
+                                    relationship_list.append(relationship)
 
-    @staticmethod
-    def _get_or_create_one(session, model, create_method='',
-                           create_method_kwargs=None, **kwargs):
-        try:
-            return session.query(model).filter_by(**kwargs).one(), False
-        except NoResultFound:
-            kwargs.update(create_method_kwargs or {})
-            created = getattr(model, create_method, model)(**kwargs)
-            try:
-                session.add(created)
-                session.flush()
-                return created, True
-            except IntegrityError:
-                session.rollback()
-                return session.query(model).filter_by(**kwargs).one(),
-                False
+                    # create child to parent relationships.
+                    elif relation == 'children':
+                        for parent in family['parents']:
+                            relationship, exists = \
+                                member.get_or_create_relation(
+                                    parent, 4)
+                            # do some stuff if an error occured.
+                            if not exists:
+                                relationship_list.append(relationship)
+
+                        # create sibling to sibling relationships.
+                        for sibling_index in range(len(family['children'])):
+                            if index != sibling_index:
+                                sibling = family[relation][sibling_index]
+                                relationship, exists = \
+                                    member.get_or_create_relation(
+                                        sibling, 2)
+                                if not exists:
+                                    relationship_list.append(relationship)
+
+        self.db.session.commit()
+
+        return relationship_list
 
     @staticmethod
-    def _post_process_relations(preprocessed):
-        ret_dict = {}
-        _inverse = {}
+    def count_family_member_instances(family_dict, list_of_families):
+        duplication_count = 0
+        for fd in list_of_families:
+            for relation1 in fd:
+                for relation2 in family_dict:
+                    for member1 in fd[relation1]:
+                        for member2 in family_dict[relation2]:
+                            if member2 == member1:
+                                duplication_count += 1
 
-        if 2 in preprocessed and \
-           1 in preprocessed and \
-           0 not in preprocessed:
-
-            for i, parent_person in enumerate(preprocessed[1]):
-                index = i + 1
-                ret_dict[index] = [[parent_person], preprocessed[2], [3]]
-                next_index = index + 1
-            index = next_index
-            for child_person in preprocessed[2]:
-                ret_dict[index] = [[child_person], preprocessed[1], [4]]
-                index += 1
-                next_index = index
-            index = next_index
-
-            if len(preprocessed[1]) > 1:
-                # ensure self-loop relations are not constructed
-                for current_index, partner_person in enumerate(
-                        preprocessed[1]):
-                    _inverse['self'] = preprocessed[1].copy()
-                    _inverse['self'].pop(current_index)
-                    ret_dict[index] = [[partner_person], _inverse['self'], [1]]
-                    _inverse.clear()
-                    index += 1
-                    next_index = index
-                index = next_index
-            if len(preprocessed[2]) > 1:
-                # ensure self-loop relations are not constructed
-                for current_index, sibling_person in enumerate(
-                        preprocessed[2]):
-                    _inverse['self'] = preprocessed[2].copy()
-                    _inverse['self'].pop(current_index)
-                    ret_dict[index] = [[sibling_person], _inverse['self'], [2]]
-                    _inverse.clear()
-                    index += 1
-        elif 0 in preprocessed and \
-                2 not in preprocessed and \
-                1 not in preprocessed:
-
-            if len(preprocessed[0]) > 1:
-                # ensure self-loop relations are not constructed
-                index = 1
-                for current_index, partner_person in enumerate(
-                        preprocessed[0]):
-                    _inverse['self'] = preprocessed[0].copy()
-                    _inverse['self'].pop(current_index)
-                    ret_dict[index] = [[partner_person], _inverse['self'], [1]]
-                    _inverse.clear()
-                    index += 1
-
-        for nested_list in ret_dict:
-            flattened_list = [val
-                              for sublist in ret_dict[nested_list]
-                              for val in sublist]
-            ret_dict[nested_list] = flattened_list
-            flattened_list = []
-
-        return ret_dict
-
-    @classmethod
-    def _relations_constructor(cls, **kwargs):
-        _process_dict = {}
-        for person_type in kwargs:
-            if person_type == 'parents':
-                _process_dict[1] = kwargs[person_type]
-            elif person_type == 'partners':
-                _process_dict[0] = kwargs[person_type]
-            elif person_type == 'children':
-                _process_dict[2] = kwargs[person_type]
-
-        constructed_relation_dict = cls._post_process_relations(_process_dict)
-        return constructed_relation_dict
+        return duplication_count
