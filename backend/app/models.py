@@ -4,18 +4,30 @@ from datetime import date
 from . import db
 
 
-def get_inverse_weight(weight):
-    weight_pairings = [
-        {1: 1},
-        {2: 2},
-        {3: 4},
-        {4: 3}
-    ]
-    for pair in weight_pairings:
-        for key, value in pair.items():
-            if key == weight:
-                return value
-    return None
+class Relations:
+    ''' A model of weighted relations and labels'''
+
+    all_types = {
+        1: 'Partner', 2: 'Sibling', 3: 'Parent',
+        4: 'Child', 5: 'Niece-Nephew', 6: 'Uncle-Aunt'
+    }
+    undirected_types = [1, 2]
+    directed_types = [3, 4]
+    modifiers = ['Great', 'Grand', 'In-law']
+
+    @staticmethod
+    def get_inverse_weight(weight):
+        weight_pairings = [
+            {1: 1},
+            {2: 2},
+            {3: 4},
+            {4: 3}
+        ]
+        for pair in weight_pairings:
+            for key, value in pair.items():
+                if key == weight:
+                    return value
+        return None
 
 
 def get_one_or_create(session,
@@ -142,7 +154,7 @@ class Person(db.Model):
             link_2 = Link(
                 ancestor_id=target.id,
                 descendant_id=self.id,
-                weight=get_inverse_weight(weight)
+                weight=Relations.get_inverse_weight(weight)
             )
             relation = [link_1, link_2]
             db.session.add_all(relation)

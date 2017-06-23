@@ -7,22 +7,11 @@ class Graph:
     gpickle_path = None
     authorised = False
 
-    Relations = {
-        'directed_types': {
-            3: ['Parent', 4], 4: ['Child', 3]},
-        'undirected_types': {
-            1: ['Partner'], 2: ['Sibling']},
-        'all_types': {
-            1: 'Partner', 2: 'Sibling', 3: 'Parent',
-            4: 'Child', 5: 'Niece-Nephew', 6: 'Uncle-Aunt'},
-        'modifiers': {
-            1: 'Great', 2: 'Grand', 3: 'In-law'}
-    }
-
     def init_app(self, app):
-        from app.models import Link
+        from app.models import Link, Relations
         self.Link = Link
         self.gpickle_path = app.config['GRAPH_PATH']
+        self.Relations = Relations
 
     def update(self):
         G = self.current
@@ -122,14 +111,14 @@ class Graph:
         if weighted_edge_list:
             for edge_tuple in weighted_edge_list:
                 (node_id, weight) = edge_tuple
-                for relation_key in self.Relations['all_types']:
+                for relation_key in self.Relations.all_types:
                     if weight == relation_key:
                         if readable:
                             relation_list.append(
                                 [
                                     self._getTreeNodeId(
                                         source, target, node_id),
-                                    self.Relations['all_types'][relation_key]
+                                    self.Relations.all_types[relation_key]
                                 ])
                         else:
                             relation_list.append(
