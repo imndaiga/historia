@@ -1,8 +1,8 @@
 from . import api
 from flask_restful import Resource, reqparse
 from .decorators import requires_auth
-from .. import graph, db, seed
-from ..models import Person
+from .. import graph, db
+from ..models import Person, get_one_or_create
 from flask import _app_ctx_stack
 from networkx import NetworkXError
 from networkx.readwrite import json_graph
@@ -285,25 +285,22 @@ class personAPI(Resource):
         form = args.data['form']
         birth_date = datetime.strptime(
             form['birth_date'], '%b %d %Y')
-        new_person = Person(
-            first_name=form['first_name'],
-            ethnic_name=form['ethnic_name'],
-            last_name=form['last_name'],
-            email=form['email'],
-            sex=form['sex'],
-            birth_date=birth_date,
-            confirmed=False
-        )
-        (created_person, created_status) = seed._get_or_create_one(
+        created_person, exists = get_one_or_create(
             session=db.session,
             model=Person,
-            create_method='auto',
+            create_method='create_from_email',
             create_method_kwargs={
-                'person': new_person
+                'first_name': form['first_name'],
+                'ethnic_name': form['ethnic_name'],
+                'last_name': form['last_name'],
+                'sex': form['sex'],
+                'birth_date': birth_date
             },
-            email=new_person.email)
-        if created_status is True:
-            return {'person': new_person.id}
+            email=form['email']
+        )
+        if not exists:
+            db.session.commit()
+            return {'person': created_person.id}
         else:
             return {'person': -1}
 

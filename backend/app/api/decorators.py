@@ -2,8 +2,8 @@ from functools import wraps
 from flask import request, jsonify, _app_ctx_stack
 import jwt
 import os
-from ..models import Person
-from .. import db, seed
+from ..models import Person, get_one_or_create
+from .. import db
 
 jwt_secret = os.environ.get('JWT_SECRET', 'superSECRETth!ng')
 client_id = os.environ.get('AUTH0_ID', 'None')
@@ -11,6 +11,7 @@ client_id = os.environ.get('AUTH0_ID', 'None')
 # Strip start and end quotes
 client_id = client_id.strip('\'')
 jwt_secret = jwt_secret.strip('\'')
+
 
 def handle_error(error, status_code):
     resp = jsonify(error)
@@ -68,16 +69,22 @@ def requires_auth(f):
                                  ' authentication token'}, 400)
         user_email = payLoad['email']
         print('Validating ID: {}'.format(user_email))
-        (person, created_status) = seed._get_or_create_one(
+
+        person, exists = get_one_or_create(
             session=db.session,
             model=Person,
-            create_method='auto',
+            create_method='create_from_email',
+            create_method_kwargs={},
             email=user_email
         )
-        if (created_status is True):
-            print('User registered')
-        else:
+
+        if exists:
             print('User already registered')
+        else:
+            print('User registered')
+
         _app_ctx_stack.top.current_user = payLoad
+
         return f(*args, **kwargs)
+
     return decorated
