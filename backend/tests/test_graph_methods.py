@@ -1,7 +1,7 @@
 import unittest
-from app import create_app, db, graph, seed
+from app import create_app, db, graph, forge
+from app.faker import fake
 from app.models import Person
-from app.seed import fake
 import os
 import networkx as nx
 
@@ -13,7 +13,7 @@ class GraphTestCase(unittest.TestCase):
         self.app_context.push()
         db.create_all()
         self.reset()
-        seed.run(units=1, size=4, layers=0, verbose=False)
+        forge.run(units=1, size=4, layers=0, verbose=False)
         self.p1 = db.session.query(Person).filter_by(
             first_name='Scott').first()
         self.p2 = db.session.query(Person).filter_by(
@@ -34,7 +34,7 @@ class GraphTestCase(unittest.TestCase):
         db.drop_all()
         db.create_all()
         graph.clear()
-        seed.auto = True
+        forge.auto = True
 
     def delete_gpickle_file(self):
         if os.path.exists(self.app.config['GRAPH_PATH']):
@@ -297,21 +297,21 @@ class GraphTestCase(unittest.TestCase):
 
     def test_subgraph_edge_node_count_with_one_layer_and_size_3(self):
         self.reset()
-        seed.run(units=1, size=3, layers=1, verbose=False)
+        forge.run(units=1, size=3, layers=1, verbose=False)
         p1_graph = graph.get_subgraph(self.p1)
         self.assertEqual(p1_graph.number_of_nodes(), 9)
         self.assertEqual(p1_graph.number_of_edges(), 8)
 
     def test_subgraph_edge_node_count_with_one_layer_and_size_4(self):
         self.reset()
-        seed.run(units=1, size=4, layers=1, verbose=False)
+        forge.run(units=1, size=4, layers=1, verbose=False)
         p1_graph = graph.get_subgraph(self.p1)
         self.assertEqual(p1_graph.number_of_nodes(), 16)
         self.assertEqual(p1_graph.number_of_edges(), 15)
 
     def test_subgraph_edge_node_count_with_one_layer_and_size_5(self):
         self.reset()
-        seed.run(units=1, size=5, layers=1, verbose=False)
+        forge.run(units=1, size=5, layers=1, verbose=False)
         p1_graph = graph.get_subgraph(self.p1)
         self.assertEqual(p1_graph.number_of_nodes(), 25)
         self.assertEqual(p1_graph.number_of_edges(), 24)

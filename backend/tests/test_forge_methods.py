@@ -1,17 +1,17 @@
 import unittest
-from app import db, create_app, seed, graph
-from app.seed import fake
+from app import db, create_app, forge, graph
+from app.faker import fake
 from app.models import Link, Person
 
 
-class SeedTestCase(unittest.TestCase):
+class ForgeTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
         graph.clear()
-        seed.run(units=1, size=4, layers=0, verbose=False)
+        forge.run(units=1, size=4, layers=0, verbose=False)
         self.p1 = db.session.query(Person).filter_by(
             first_name='Scott').first()
         self.p2 = db.session.query(Person).filter_by(
@@ -33,7 +33,7 @@ class SeedTestCase(unittest.TestCase):
         db.drop_all()
         self.app_context.pop()
 
-    def test_seed_count_is_valid(self):
+    def test_forge_count_is_valid(self):
         relative = fake.family_member(sex='Female')
         a1 = Person(
             first_name=relative['first_name'],
@@ -58,23 +58,23 @@ class SeedTestCase(unittest.TestCase):
         self.p4.get_or_create_relation(a1, 2)
         self.assertEqual(Link.query.count(), 20)
 
-    def test_seed_link_count_is_valid(self):
+    def test_forge_link_count_is_valid(self):
         self.assertEqual(Link.query.count(), 12)
 
-    def test_seed_person_link_count_with_one_layer_and_family_size_3(self):
+    def test_forge_person_link_count_with_one_layer_and_family_size_3(self):
         self.reset()
-        seed.run(units=1, size=3, layers=1, verbose=False)
+        forge.run(units=1, size=3, layers=1, verbose=False)
         self.assertEqual(Person.query.count(), 9)
         self.assertEqual(Link.query.count(), 24)
 
-    def test_seed_person_link_count_with_one_layer_and_family_size_4(self):
+    def test_forge_person_link_count_with_one_layer_and_family_size_4(self):
         self.reset()
-        seed.run(units=1, size=4, layers=1, verbose=False)
+        forge.run(units=1, size=4, layers=1, verbose=False)
         self.assertEqual(Person.query.count(), 16)
         self.assertEqual(Link.query.count(), 60)
 
-    def test_seed_person_link_count_with_one_layer_and_family_size_5(self):
+    def test_forge_person_link_count_with_one_layer_and_family_size_5(self):
         self.reset()
-        seed.run(units=1, size=5, layers=1, verbose=False)
+        forge.run(units=1, size=5, layers=1, verbose=False)
         self.assertEqual(Person.query.count(), 25)
         self.assertEqual(Link.query.count(), 120)

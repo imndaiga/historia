@@ -1,5 +1,5 @@
 import unittest
-from app import create_app, db, seed
+from app import create_app, db, forge
 from app.models import Person
 
 
@@ -9,7 +9,7 @@ class ModelsTestCase(unittest.TestCase):
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
-        seed.run(units=1, size=4, layers=0, verbose=False)
+        forge.run(units=1, size=4, layers=0, verbose=False)
 
     def tearDown(self):
         db.session.remove()

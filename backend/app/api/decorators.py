@@ -74,13 +74,17 @@ def requires_auth(f):
             session=db.session,
             model=Person,
             create_method='create_from_email',
-            create_method_kwargs={},
+            create_method_kwargs={
+                'confirmed': True
+            },
             email=user_email
         )
 
         if exists:
             print('User already registered')
         else:
+            db.session.add(person)
+            db.session.commit()
             print('User registered')
 
         _app_ctx_stack.top.current_user = payLoad

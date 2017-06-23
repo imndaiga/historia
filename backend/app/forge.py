@@ -3,8 +3,9 @@ import os
 from .faker import fake
 
 
-class Seed(Command):
-    """Create fake seed data and store in database"""
+class Forge(Command):
+    """Create fake data and save in both
+    the database and graph instance"""
 
     option_list = (
         Option('--units', '-u', dest='units'),

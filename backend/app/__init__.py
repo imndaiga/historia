@@ -3,13 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from config import config
 from .graph import Graph
-from .seed import Seed
+from .forge import Forge
 
 # extension attribute references here
 db = SQLAlchemy()
 mail = Mail()
 graph = Graph()
-seed = Seed()
+forge = Forge()
 
 
 def create_app(config_name):
@@ -21,7 +21,7 @@ def create_app(config_name):
     db.init_app(app)
     mail.init_app(app)
     graph.init_app(app)
-    seed.init_app(app)
+    forge.init_app(app)
 
     # register app blueprints here
 

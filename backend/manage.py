@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from app import create_app, db, graph, seed
+from app import create_app, db, graph, forge
 from app.email import send_email
 from app.models import Person, Link
 from app.faker import fake
@@ -33,12 +33,12 @@ def create_db():
 def make_shell_context():
     return dict(db=db, Person=Person, Link=Link,
                 graph=graph, app=app,
-                send_email=send_email, seed=seed, fake=fake)
+                send_email=send_email, forge=forge, fake=fake)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
-manager.add_command('forge', seed)
+manager.add_command('forge', forge)
 
 if __name__ == '__main__':
     with app.app_context():
