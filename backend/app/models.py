@@ -5,7 +5,7 @@ from . import db
 
 
 class Relations:
-    ''' A model of weighted relations and labels'''
+    '''A model of weighted relations and labels'''
 
     all_types = {
         1: 'Partner', 2: 'Sibling', 3: 'Parent',
@@ -56,7 +56,7 @@ class LinkError(Exception):
 
     def __init__(self, msg=None):
         if msg is None:
-            msg = 'An link error occured involving'
+            msg = 'A link error occured!'
         super(LinkError, self).__init__(msg)
 
 
@@ -65,7 +65,7 @@ class LinkMissingError(LinkError):
 
     def __init__(self, available_link):
         super(LinkMissingError, self).__init__(
-            msg='Complementary link to %s missing' % available_link)
+            msg='Complementary link to %s missing!' % available_link)
 
 
 class RelationInvalidError(LinkError):
@@ -73,7 +73,7 @@ class RelationInvalidError(LinkError):
 
     def __init__(self, error_links):
         super(RelationInvalidError, self).__init__(
-            msg='Invalid relation found: [%s, %s]'
+            msg='Invalid relation found: [%s, %s]!'
                 % (error_links[0], error_links[1])
         )
 

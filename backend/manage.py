@@ -31,9 +31,16 @@ def create_db():
 
 
 def make_shell_context():
-    return dict(db=db, Person=Person, Link=Link,
-                graph=graph, app=app,
-                send_email=send_email, forge=forge, fake=fake)
+    return dict(
+        db=db,
+        Person=Person,
+        Link=Link,
+        graph=graph,
+        app=app,
+        send_email=send_email,
+        forge=forge,
+        fake=fake
+    )
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))

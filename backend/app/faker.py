@@ -5,6 +5,8 @@ fake = Factory.create('en_GB')
 
 
 class FamilyProvider(BaseProvider):
+    ''' A family and family member Faker provider '''
+
     def family(self, size, inject=None):
         parents = [
             self.family_member(sex='Male'),
@@ -16,6 +18,12 @@ class FamilyProvider(BaseProvider):
                 sex=fake.random.choice(['Male', 'Female']))
             children.append(a_child)
 
+        # replace inject type relative with inject member
+        # if inject object is provided.
+        # where inject = {
+        #       'type': ['parent','child'],
+        #       'member': family_member
+        # }
         if inject:
             if inject['type'] == 'parent':
                 parents[0] = inject['member']
