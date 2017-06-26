@@ -71,10 +71,10 @@ class LinkMissingError(LinkError):
 class RelationInvalidError(LinkError):
     '''Raised when a relation composed of 2 links is invalid'''
 
-    def __init__(self, error_links):
+    def __init__(self, ancestor, descendant):
         super(RelationInvalidError, self).__init__(
-            msg='Invalid relation found: [%s, %s]!'
-                % (error_links[0], error_links[1])
+            msg='Invalid relation found: [%s-%s]!'
+                % (ancestor, descendant)
         )
 
 
@@ -132,58 +132,28 @@ class Person(db.Model):
 
     def get_or_create_relation(self, target, weight):
         '''
-        Tries to create a relation (two complementary links) between
+        Creates a relation (two complementary links) between
         instance and target Person.
-        If one already exists, it returns the relation.
-        If a missing link from a relation pair is missing, it 'heals'
-        the Link table.
+        it 'heals' the Link table if one or more link(s) are not found.
         '''
-        try:
-            exists, relation = self.search_for_relation(target)
-        except LinkMissingError as e:
-            # Fix relation errors here
-            print(e)
-            return None, False
+        link1, link1_exists = get_one_or_create(
+            session=db.session,
+            model=Link,
+            ancestor_id=self.id,
+            descendant_id=target.id,
+            weight=weight
+        )
+        link2, link2_exists = get_one_or_create(
+            session=db.session,
+            model=Link,
+            ancestor_id=target.id,
+            descendant_id=self.id,
+            weight=Relations.get_inverse_weight(weight)
+        )
 
-        if not exists:
-            link_1 = Link(
-                ancestor_id=self.id,
-                descendant_id=target.id,
-                weight=weight
-            )
-            link_2 = Link(
-                ancestor_id=target.id,
-                descendant_id=self.id,
-                weight=Relations.get_inverse_weight(weight)
-            )
-            relation = [link_1, link_2]
-            db.session.add_all(relation)
-            db.session.flush()
-            return relation, False
-        else:
-            return relation, True
+        db.session.commit()
 
-    def search_for_relation(self, target):
-        '''
-        Search the Link table for paired records.
-        Return a LinkMissingError if only one link is found.
-        Otherwise, no relation exists.
-        '''
-        descendant_self = [
-            d for d in target.descendants if d.descendant_id == self.id
-        ]
-        descendant_target = [
-            a for a in target.ancestors if a.ancestor_id == self.id
-        ]
-
-        if descendant_self and descendant_target:
-            return True, [descendant_target, descendant_self]
-        elif descendant_self and not descendant_target:
-            raise LinkMissingError(descendant_self)
-        elif not descendant_self and descendant_target:
-            raise LinkMissingError(descendant_target)
-        else:
-            return False, None
+        return [link1, link2], link1_exists and link2_exists
 
     @classmethod
     def create_from_email(cls, **kwargs):
