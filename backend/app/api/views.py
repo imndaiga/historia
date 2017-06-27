@@ -64,8 +64,7 @@ class graphAPI(Resource):
 
     def get(self):
         print('Returning graph for node {}'.format(self.current_user.id))
-        current_user_graph = graph.get_subgraph(self.current_user)
-        json_graph = self.formatResponse(current_user_graph)
+        json_graph = self.formatResponse(self.current_user.get_graph())
         return {'graph': json_graph}
 
 
@@ -155,7 +154,7 @@ class relationshipsAPI(Resource):
     def get(self):
         args = self.reqparse.parse_args()
         page = 1 if not args['page'] else int(args['page'])
-        node_list = graph.get_subgraph(self.current_user).nodes()
+        node_list = self.current_user.get_graph().nodes()
         for index, node in enumerate(node_list):
             if node == self.current_user.id:
                 del node_list[index]
@@ -194,7 +193,7 @@ class relationshipsAPI(Resource):
             print('{} deleted from database'.format(delete_person_id))
             try:
                 db.session.commit()
-                graph.delete_node(delete_person_id)
+                graph.GlobalGraph.remove_node(delete_person_id)
                 print('{} deleted from graph'.format(delete_person_id))
                 return {'person': delete_person_id}
             except NetworkXError:
@@ -315,60 +314,59 @@ class familyAPI(Resource):
 
     def formatResponse(self, relations_list):
         family_array = []
-        for relation_tree in relations_list:
-            for relation_degree in relation_tree:
-                target_id = relation_degree[0]
-                relation = relation_degree[1]
-                target = Person.query.get(target_id)
-                listed_names = [
-                    target.first_name or '',
-                    target.ethnic_name or '',
-                    target.last_name or ''
-                ]
-                target_fullname = ' '.join(filter(None, listed_names))
-                family_array.append(
-                    {
-                        'type': 'multiselect-input',
-                        'placeholder': relation,
-                        'value': relation,
-                        'label': 'Relation',
-                        'validators': ['required'],
-                        'field_name': 'to_relation_' + str(target_id),
-                        'multiselect_options': [
-                            'Parent', 'Sibling', 'Step-Parent',
-                            'Step-Sibling', 'Child'
-                        ],
-                        'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12',
-                        'SelectLabel': '',
-                        'DeselectLabel': ''
-                    }
-                )
-                family_array.append(
-                    {
-                        'type': 'search-input',
-                        'placeholder': 'Search for Relative',
-                        'value': target_fullname,
-                        'label': 'To',
-                        'validators': ['required'],
-                        'field_name': 'to_fullname_' + str(target_id),
-                        'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12',
-                        'SelectLabel': '',
-                        'DeselectLabel': ''
-                    }
-                )
+        for relationship in relations_list:
+            target_id = relationship[0]
+            relation = relationship[1]
+            target = Person.query.get(target_id)
+            listed_names = [
+                target.first_name or '',
+                target.ethnic_name or '',
+                target.last_name or ''
+            ]
+            target_fullname = ' '.join(filter(None, listed_names))
+            family_array.append(
+                {
+                    'type': 'multiselect-input',
+                    'placeholder': relation,
+                    'value': relation,
+                    'label': 'Relation',
+                    'validators': ['required'],
+                    'field_name': 'to_relation_' + str(target_id),
+                    'multiselect_options': [
+                        'Parent', 'Sibling', 'Step-Parent',
+                        'Step-Sibling', 'Child'
+                    ],
+                    'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12',
+                    'SelectLabel': '',
+                    'DeselectLabel': ''
+                }
+            )
+            family_array.append(
+                {
+                    'type': 'search-input',
+                    'placeholder': 'Search for Relative',
+                    'value': target_fullname,
+                    'label': 'To',
+                    'validators': ['required'],
+                    'field_name': 'to_fullname_' + str(target_id),
+                    'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12',
+                    'SelectLabel': '',
+                    'DeselectLabel': ''
+                }
+            )
         return family_array
 
     def get(self):
         args = self.reqparse.parse_args()
-        person_id = args['id']
+        source_id = args['id']
         relations_list = []
-        if person_id is not None:
-            source = Person.query.get(person_id)
-            neighbor_list = graph.current.neighbors(person_id)
-            for node in neighbor_list:
-                target = Person.query.get(node)
-                relationship = graph.get_relation_tree(source, target)
-                relations_list.append(relationship)
+
+        if source_id:
+            neighbour_list = graph.GlobalGraph.neighbors(source_id)
+            for target_id in neighbour_list:
+                relations_list.append([
+                    target_id, graph.get_relationship(source_id, target_id)
+                ])
             return self.formatResponse(relations_list)
         return {'message': 'missing person_id'}
 
@@ -388,7 +386,7 @@ class statisticsAPI(Resource):
             user = Person.query.get(person_id)
         else:
             user = getUser()
-        nodeSize = graph.get_subgraph(user).number_of_nodes()
+        nodeSize = user.get_graph().number_of_nodes()
         return {'nodeSize': nodeSize}
 
 

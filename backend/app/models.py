@@ -1,58 +1,11 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from datetime import date
-from . import db
-
-
-class Relations:
-    '''A model of weighted relations and labels'''
-
-    all_types = {
-        1: 'Partner', 2: 'Sibling', 3: 'Parent',
-        4: 'Child', 5: 'Niece-Nephew', 6: 'Uncle-Aunt'
-    }
-    undirected_types = [1, 2]
-    directed_types = [3, 4]
-    modifiers = ['Great', 'Grand', 'In-law']
-
-    @staticmethod
-    def get_inverse_weight(weight):
-        weight_pairings = [
-            {1: 1},
-            {2: 2},
-            {3: 4},
-            {4: 3}
-        ]
-        for pair in weight_pairings:
-            for key, value in pair.items():
-                if key == weight:
-                    return value
-        return None
-
-
-def get_one_or_create(session,
-                      model,
-                      create_method='',
-                      create_method_kwargs=None,
-                      **kwargs):
-    # reference: http://skien.cc/blog/2014/01/15/
-    # sqlalchemy-and-race-conditions-implementing/
-    try:
-        return session.query(model).filter_by(**kwargs).one(), True
-    except NoResultFound:
-        kwargs.update(create_method_kwargs or {})
-        created = getattr(model, create_method, model)(**kwargs)
-        try:
-            session.add(created)
-            session.flush()
-            return created, False
-        except IntegrityError:
-            session.rollback()
-            return session.query(model).filter_by(**kwargs).one(), True
+from . import db, graph
 
 
 class Link(db.Model):
-    '''Sqlalchemy model for a single-edge relation between two persons'''
+    '''Sqlalchemy model for a single-edge relationship between two persons'''
     __tablename__ = 'links'
 
     ancestor_id = db.Column(
@@ -105,7 +58,7 @@ class Person(db.Model):
 
     def get_or_create_relation(self, target, weight):
         '''
-        Creates a relation (two complementary links) between
+        Creates a relationship (two complementary links) between
         instance and target Person.
         it 'heals' the Link table if one or more link(s) are not found.
         '''
@@ -125,8 +78,14 @@ class Person(db.Model):
         )
 
         db.session.commit()
+        relationship = [link1, link2]
 
-        return [link1, link2], link1_exists and link2_exists
+        graph.add_relationship(relationship)
+
+        return relationship, link1_exists and link2_exists
+
+    def get_graph(self):
+        return graph.get_subgraph_from_person(self)
 
     @classmethod
     def create_from_email(cls, **kwargs):
@@ -148,3 +107,50 @@ class Person(db.Model):
 
     def __repr__(self):
         return 'Person: <%s:%s>' % (self.id, self.first_name)
+
+
+class Relations:
+    '''A model of weighted relations and labels'''
+
+    all_types = {
+        1: 'Partner', 2: 'Sibling', 3: 'Parent',
+        4: 'Child', 5: 'Niece-Nephew', 6: 'Uncle-Aunt'
+    }
+    undirected_types = [1, 2]
+    directed_types = [3, 4]
+    modifiers = ['Great', 'Grand', 'In-law']
+
+    @staticmethod
+    def get_inverse_weight(weight):
+        weight_pairings = [
+            {1: 1},
+            {2: 2},
+            {3: 4},
+            {4: 3}
+        ]
+        for pair in weight_pairings:
+            for key, value in pair.items():
+                if key == weight:
+                    return value
+        return None
+
+
+def get_one_or_create(session,
+                      model,
+                      create_method='',
+                      create_method_kwargs=None,
+                      **kwargs):
+    # reference: http://skien.cc/blog/2014/01/15/
+    # sqlalchemy-and-race-conditions-implementing/
+    try:
+        return session.query(model).filter_by(**kwargs).one(), True
+    except NoResultFound:
+        kwargs.update(create_method_kwargs or {})
+        created = getattr(model, create_method, model)(**kwargs)
+        try:
+            session.add(created)
+            session.flush()
+            return created, False
+        except IntegrityError:
+            session.rollback()
+            return session.query(model).filter_by(**kwargs).one(), True

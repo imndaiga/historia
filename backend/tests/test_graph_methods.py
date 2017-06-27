@@ -33,7 +33,7 @@ class GraphTestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         db.create_all()
-        graph.clear()
+        graph.GlobalGraph.clear()
         forge.auto = True
 
     def delete_gpickle_file(self):
@@ -86,7 +86,7 @@ class GraphTestCase(unittest.TestCase):
         self.assertEqual(G.size(), 12)
 
     def test_graph_clear_is_successful(self):
-        graph.clear()
+        graph.GlobalGraph.clear()
         G = graph.current
         self.assertEqual(G.order(), 0)
         self.assertEqual(G.size(), 0)
