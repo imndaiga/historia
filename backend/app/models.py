@@ -51,33 +51,6 @@ def get_one_or_create(session,
             return session.query(model).filter_by(**kwargs).one(), True
 
 
-class LinkError(Exception):
-    '''Basic exception for errors raised by relational inconsistencies'''
-
-    def __init__(self, msg=None):
-        if msg is None:
-            msg = 'A link error occured!'
-        super(LinkError, self).__init__(msg)
-
-
-class LinkMissingError(LinkError):
-    '''Raised when a two-way relation is missing a link'''
-
-    def __init__(self, available_link):
-        super(LinkMissingError, self).__init__(
-            msg='Complementary link to %s missing!' % available_link)
-
-
-class RelationInvalidError(LinkError):
-    '''Raised when a relation composed of 2 links is invalid'''
-
-    def __init__(self, ancestor, descendant):
-        super(RelationInvalidError, self).__init__(
-            msg='Invalid relation found: [%s-%s]!'
-                % (ancestor, descendant)
-        )
-
-
 class Link(db.Model):
     '''Sqlalchemy model for a single-edge relation between two persons'''
     __tablename__ = 'links'
