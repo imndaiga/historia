@@ -10,23 +10,24 @@ class ForgeTestCase(unittest.TestCase):
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
-        graph.clear()
-        forge.run(units=1, size=4, layers=0, verbose=False)
-        self.p1 = db.session.query(Person).filter_by(
-            first_name='Scott').first()
-        self.p2 = db.session.query(Person).filter_by(
-            first_name='Nicola').first()
-        self.p3 = db.session.query(Person).filter_by(
-            first_name='Rosemary').first()
-        self.p4 = db.session.query(Person).filter_by(
-            first_name='Francesca').first()
+        graph.GlobalGraph.clear()
+
+        person_families, _ = forge.run(
+            units=1,
+            size=4,
+            layers=0,
+            verbose=False
+        )
+
+        self.p1, self.p2 = person_families[0]['parents']
+        self.p3, self.p4 = person_families[0]['children']
 
     @staticmethod
     def reset():
         db.session.remove()
         db.drop_all()
         db.create_all()
-        graph.clear()
+        graph.GlobalGraph.clear()
 
     def tearDown(self):
         db.session.remove()

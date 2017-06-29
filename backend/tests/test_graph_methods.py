@@ -3,7 +3,6 @@ from app import create_app, db, graph, forge
 from app.faker import fake
 from app.models import Person
 import os
-import networkx as nx
 
 
 class GraphTestCase(unittest.TestCase):
@@ -11,30 +10,32 @@ class GraphTestCase(unittest.TestCase):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()
+        self.GG = graph.GlobalGraph
+
         db.create_all()
-        self.reset()
-        forge.run(units=1, size=4, layers=0, verbose=False)
-        self.p1 = db.session.query(Person).filter_by(
-            first_name='Scott').first()
-        self.p2 = db.session.query(Person).filter_by(
-            first_name='Nicola').first()
-        self.p3 = db.session.query(Person).filter_by(
-            first_name='Rosemary').first()
-        self.p4 = db.session.query(Person).filter_by(
-            first_name='Francesca').first()
+        self.GG.clear()
+
+        person_families, _ = forge.run(
+            units=1,
+            size=4,
+            layers=0,
+            verbose=False
+        )
+
+        self.p1, self.p2 = person_families[0]['parents']
+        self.p3, self.p4 = person_families[0]['children']
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+        self.GG.clear()
         self.app_context.pop()
 
-    @staticmethod
-    def reset():
+    def reset(self):
         db.session.remove()
         db.drop_all()
         db.create_all()
-        graph.GlobalGraph.clear()
-        forge.auto = True
+        self.GG.clear()
 
     def delete_gpickle_file(self):
         if os.path.exists(self.app.config['GRAPH_PATH']):
@@ -46,97 +47,78 @@ class GraphTestCase(unittest.TestCase):
     def test_graph_load_with_invalid_environment_variable(self):
         graph.gpickle_path = None
         with self.assertRaises(EnvironmentError):
-            graph.load_or_create()
+            graph._get_or_create_global_graph()
 
     def test_graph_load_instatiates_gpickle_file(self):
         self.delete_gpickle_file()
         self.assertFalse(os.path.exists(self.app.config['GRAPH_PATH']))
-        G = graph.load_or_create()
         self.assertTrue(os.path.exists(self.app.config['GRAPH_PATH']))
-        self.assertEqual(G.order(), 0)
-        self.assertEqual(G.size(), 0)
+        self.assertEqual(self.GG.order(), 0)
+        self.assertEqual(self.GG.size(), 0)
 
     def test_graph_load_is_successful(self):
-        G = graph.load_or_create()
-        self.assertEqual(G.order(), 4)
-        self.assertEqual(G.size(), 12)
-
-    def test_graph_save_with_invalid_environment_variable(self):
-        graph.gpickle_path = None
-        G = nx.MultiGraph()
-        with self.assertRaises(EnvironmentError):
-            graph.save(G)
-
-    def test_graph_save_is_successful(self):
-        self.delete_gpickle_file()
-        self.assertFalse(os.path.exists(self.app.config['GRAPH_PATH']))
-        G = nx.MultiGraph()
-        graph.save(G)
-        self.assertTrue(os.path.exists(self.app.config['GRAPH_PATH']))
-        os.remove(self.app.config['GRAPH_PATH'])
+        self.assertEqual(self.GG.order(), 4)
+        self.assertEqual(self.GG.size(), 12)
 
     def test_graph_update_is_successful(self):
         self.delete_gpickle_file()
-        G = graph.current
-        self.assertEqual(G.order(), 0)
-        self.assertEqual(G.size(), 0)
+        self.assertEqual(self.GG.order(), 0)
+        self.assertEqual(self.GG.size(), 0)
         graph.update()
-        G = graph.current
-        self.assertEqual(G.order(), 4)
-        self.assertEqual(G.size(), 12)
+        self.assertEqual(self.GG.order(), 4)
+        self.assertEqual(self.GG.size(), 12)
 
     def test_graph_clear_is_successful(self):
-        graph.GlobalGraph.clear()
-        G = graph.current
-        self.assertEqual(G.order(), 0)
-        self.assertEqual(G.size(), 0)
+        self.GG.clear()
+        self.assertEqual(self.GG.order(), 0)
+        self.assertEqual(self.GG.size(), 0)
 
     def test_graph_has_no_selfloops(self):
-        G = graph.current
-        self.assertEqual(G.number_of_selfloops(), 0)
+        self.assertEqual(self.GG.number_of_selfloops(), 0)
 
     def test_graph_get_subgraph_is_successful(self):
-        n1_subgraph = graph.get_subgraph(source=self.p1)
+        n1_subgraph = self.p1.get_graph()
         self.assertEqual(n1_subgraph.number_of_edges(), 3)
         self.assertEqual(n1_subgraph.number_of_nodes(), 4)
 
     def test_subgraph_basic_relations(self):
-        n1_n2_relation = graph.get_relation_tree(
-            source=self.p1, target=self.p2)
-        n1_n3_relation = graph.get_relation_tree(
-            source=self.p1, target=self.p3)
-        n1_n4_relation = graph.get_relation_tree(
-            source=self.p1, target=self.p4)
-        n2_n1_relation = graph.get_relation_tree(
-            source=self.p2, target=self.p1)
-        n2_n3_relation = graph.get_relation_tree(
-            source=self.p2, target=self.p3)
-        n2_n4_relation = graph.get_relation_tree(
-            source=self.p2, target=self.p4)
-        n3_n1_relation = graph.get_relation_tree(
-            source=self.p3, target=self.p1)
-        n3_n2_relation = graph.get_relation_tree(
-            source=self.p3, target=self.p2)
-        n3_n4_relation = graph.get_relation_tree(
-            source=self.p3, target=self.p4)
-        n4_n1_relation = graph.get_relation_tree(
-            source=self.p4, target=self.p1)
-        n4_n2_relation = graph.get_relation_tree(
-            source=self.p4, target=self.p2)
-        n4_n3_relation = graph.get_relation_tree(
-            source=self.p4, target=self.p3)
-        self.assertEqual(n1_n2_relation[0][1], 'Partner')
-        self.assertEqual(n1_n3_relation[0][1], 'Parent')
-        self.assertEqual(n1_n4_relation[0][1], 'Parent')
-        self.assertEqual(n2_n1_relation[0][1], 'Partner')
-        self.assertEqual(n2_n3_relation[0][1], 'Parent')
-        self.assertEqual(n2_n4_relation[0][1], 'Parent')
-        self.assertEqual(n3_n1_relation[0][1], 'Child')
-        self.assertEqual(n3_n2_relation[0][1], 'Child')
-        self.assertEqual(n3_n4_relation[0][1], 'Sibling')
-        self.assertEqual(n4_n1_relation[0][1], 'Child')
-        self.assertEqual(n4_n2_relation[0][1], 'Child')
-        self.assertEqual(n4_n3_relation[0][1], 'Sibling')
+        n1_n2_relation = graph.get_relationship(
+            source_id=self.p1.id, target_id=self.p2.id)
+        n1_n3_relation = graph.get_relationship(
+            source_id=self.p1.id, target_id=self.p3.id)
+        n1_n4_relation = graph.get_relationship(
+            source_id=self.p1.id, target_id=self.p4.id)
+        n2_n1_relation = graph.get_relationship(
+            source_id=self.p2.id, target_id=self.p1.id)
+        n2_n3_relation = graph.get_relationship(
+            source_id=self.p2.id, target_id=self.p3.id)
+        n2_n4_relation = graph.get_relationship(
+            source_id=self.p2.id, target_id=self.p4.id)
+        n3_n1_relation = graph.get_relationship(
+            source_id=self.p3.id, target_id=self.p1.id)
+        n3_n2_relation = graph.get_relationship(
+            source_id=self.p3.id, target_id=self.p2.id)
+        n3_n4_relation = graph.get_relationship(
+            source_id=self.p3.id, target_id=self.p4.id)
+        n4_n1_relation = graph.get_relationship(
+            source_id=self.p4.id, target_id=self.p1.id)
+        n4_n2_relation = graph.get_relationship(
+            source_id=self.p4.id, target_id=self.p2.id)
+        n4_n3_relation = graph.get_relationship(
+            source_id=self.p4.id, target_id=self.p3.id)
+
+        self.assertEqual(n1_n2_relation, 'Partner')
+        self.assertEqual(n1_n3_relation, 'Parent')
+        self.assertEqual(n1_n4_relation, 'Parent')
+        self.assertEqual(n2_n1_relation, 'Partner')
+        self.assertEqual(n2_n3_relation, 'Parent')
+        self.assertEqual(n2_n4_relation, 'Parent')
+        self.assertEqual(n3_n1_relation, 'Child')
+        self.assertEqual(n3_n2_relation, 'Child')
+        self.assertEqual(n3_n4_relation, 'Sibling')
+        self.assertEqual(n4_n1_relation, 'Child')
+        self.assertEqual(n4_n2_relation, 'Child')
+        self.assertEqual(n4_n3_relation, 'Sibling')
 
     def test_subgraph_null_relations(self):
         relative = fake.family_member(sex='Female')
@@ -152,32 +134,30 @@ class GraphTestCase(unittest.TestCase):
         db.session.add(a1)
         db.session.commit()
         with self.assertRaises(KeyError):
-            graph.get_relation_tree(source=a1, target=self.p1)
-            graph.get_relation_tree(source=a1, target=self.p2)
-            graph.get_relation_tree(source=a1, target=self.p3)
-            graph.get_relation_tree(source=a1, target=self.p4)
-            graph.get_relation_tree(source=self.p1, target=a1)
-            graph.get_relation_tree(source=self.p2, target=a1)
-            graph.get_relation_tree(source=self.p3, target=a1)
-            graph.get_relation_tree(source=self.p4, target=a1)
+            graph.get_relationship(source_id=a1.id, target_id=self.p1.id)
+            graph.get_relationship(source_id=a1.id, target_id=self.p2.id)
+            graph.get_relationship(source_id=a1.id, target_id=self.p3.id)
+            graph.get_relationship(source_id=a1.id, target_id=self.p4.id)
+            graph.get_relationship(source_id=self.p1.id, target_id=a1.id)
+            graph.get_relationship(source_id=self.p2.id, target_id=a1.id)
+            graph.get_relationship(source_id=self.p3.id, target_id=a1.id)
+            graph.get_relationship(source_id=self.p4.id, target_id=a1.id)
 
     def test_subgraph_edge_count_parent(self):
-        n1_subgraph = graph.get_subgraph(source=self.p1)
-        data = n1_subgraph.edges(data=True)
-        c1 = graph.count_subgraph_weights(data=data)
+        n1_subgraph = self.p1.get_graph()
+        c1 = graph.count_relationship_weights(self.p1, n1_subgraph)
         self.assertEqual(c1.get(1), 1)
         self.assertIsNone(c1.get(2))
         self.assertEqual(c1.get(3), 2)
         self.assertIsNone(c1.get(4))
 
     def test_subgraph_edge_count_child(self):
-        n3_subgraph = graph.get_subgraph(source=self.p3)
-        data = n3_subgraph.edges(data=True)
-        c2 = graph.count_subgraph_weights(data=data)
-        self.assertIsNone(c2.get(1))
-        self.assertEqual(c2.get(2), 1)
-        self.assertIsNone(c2.get(3))
-        self.assertEqual(c2.get(4), 2)
+        n3_subgraph = self.p3.get_graph()
+        c3 = graph.count_relationship_weights(self.p3, n3_subgraph)
+        self.assertIsNone(c3.get(1))
+        self.assertEqual(c3.get(2), 1)
+        self.assertIsNone(c3.get(3))
+        self.assertEqual(c3.get(4), 2)
 
     def test_subgraph_edge_count_parent_in_law(self):
         relative = fake.family_member(sex='Female')
@@ -193,14 +173,12 @@ class GraphTestCase(unittest.TestCase):
         db.session.add(a1)
         db.session.commit()
         self.p3.get_or_create_relation(a1, 1)
-        graph.update()
-        n1_subgraph = graph.get_subgraph(source=self.p1)
-        data = n1_subgraph.edges(data=True)
-        c3 = graph.count_subgraph_weights(data=data)
-        self.assertEqual(c3.get(1), 2)
-        self.assertIsNone(c3.get(2))
-        self.assertEqual(c3.get(3), 2)
-        self.assertIsNone(c3.get(4))
+        n1_subgraph = self.p1.get_graph()
+        c1 = graph.count_relationship_weights(self.p1, n1_subgraph)
+        self.assertEqual(c1.get(1), 2)
+        self.assertIsNone(c1.get(2))
+        self.assertEqual(c1.get(3), 2)
+        self.assertIsNone(c1.get(4))
 
     def test_subgraph_edge_count_child_in_law(self):
         relative = fake.family_member(sex='Female')
@@ -216,10 +194,8 @@ class GraphTestCase(unittest.TestCase):
         db.session.add(a1)
         db.session.commit()
         self.p3.get_or_create_relation(a1, 1)
-        graph.update()
-        a1_subgraph = graph.get_subgraph(source=a1)
-        data = a1_subgraph.edges(data=True)
-        c4 = graph.count_subgraph_weights(data=data)
+        a1_subgraph = a1.get_graph()
+        c4 = graph.count_relationship_weights(a1, a1_subgraph)
         self.assertEqual(c4.get(1), 1)
         self.assertEqual(c4.get(2), 1)
         self.assertIsNone(c4.get(3))
@@ -251,10 +227,8 @@ class GraphTestCase(unittest.TestCase):
         self.p3.get_or_create_relation(a1, 1)
         self.p3.get_or_create_relation(a2, 3)
         a1.get_or_create_relation(a2, 3)
-        graph.update()
-        a2_subgraph = graph.get_subgraph(source=a2)
-        data = a2_subgraph.edges(data=True)
-        c5 = graph.count_subgraph_weights(data=data)
+        a2_subgraph = a2.get_graph()
+        c5 = graph.count_relationship_weights(a2, a2_subgraph)
         self.assertIsNone(c5.get(1))
         self.assertEqual(c5.get(2), 1)
         self.assertIsNone(c5.get(3))
@@ -286,10 +260,8 @@ class GraphTestCase(unittest.TestCase):
         self.p3.get_or_create_relation(a1, 1)
         self.p3.get_or_create_relation(a2, 3)
         a1.get_or_create_relation(a2, 3)
-        graph.update()
-        n1_subgraph = graph.get_subgraph(source=self.p1)
-        data = n1_subgraph.edges(data=True)
-        c6 = graph.count_subgraph_weights(data=data)
+        n1_subgraph = self.p1.get_graph()
+        c6 = graph.count_relationship_weights(self.p1, n1_subgraph)
         self.assertEqual(c6.get(1), 2)
         self.assertIsNone(c6.get(2))
         self.assertEqual(c6.get(3), 3)
@@ -298,20 +270,20 @@ class GraphTestCase(unittest.TestCase):
     def test_subgraph_edge_node_count_with_one_layer_and_size_3(self):
         self.reset()
         forge.run(units=1, size=3, layers=1, verbose=False)
-        p1_graph = graph.get_subgraph(self.p1)
+        p1_graph = self.p1.get_graph()
         self.assertEqual(p1_graph.number_of_nodes(), 9)
         self.assertEqual(p1_graph.number_of_edges(), 8)
 
     def test_subgraph_edge_node_count_with_one_layer_and_size_4(self):
         self.reset()
         forge.run(units=1, size=4, layers=1, verbose=False)
-        p1_graph = graph.get_subgraph(self.p1)
+        p1_graph = self.p1.get_graph()
         self.assertEqual(p1_graph.number_of_nodes(), 16)
         self.assertEqual(p1_graph.number_of_edges(), 15)
 
     def test_subgraph_edge_node_count_with_one_layer_and_size_5(self):
         self.reset()
         forge.run(units=1, size=5, layers=1, verbose=False)
-        p1_graph = graph.get_subgraph(self.p1)
+        p1_graph = self.p1.get_graph()
         self.assertEqual(p1_graph.number_of_nodes(), 25)
         self.assertEqual(p1_graph.number_of_edges(), 24)
