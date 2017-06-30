@@ -13,12 +13,7 @@ class Graph:
 
     def update(self):
         all_links = self.Link.query.all()
-        for link in all_links:
-            self.GlobalGraph.add_weighted_edges_from([(
-                link.ancestor_id,
-                link.descendant_id,
-                link.weight
-            )])
+        self.add_relationship(all_links)
         nx.write_gpickle(self.GlobalGraph, self.gpickle_path)
 
     def add_relationship(self, relationship):
