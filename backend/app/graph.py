@@ -30,34 +30,40 @@ class Graph:
                 weight=link.weight
             )
 
-    def get_relationship(self, source_id, target_id):
-        search_weight = self.GlobalGraph[source_id][target_id][source_id][
-            'weight']
-        return self.Relations.all_types[search_weight]
+    def get_relationship(self, source_person, target_person):
+        weight_list = self.all_relationship_weights(
+            source_person)[target_person.id]
 
-    def get_subgraph_from_person(self, person):
+        if len(weight_list) < 2:
+            return self.Relations.all_types[weight_list[0]]
+        else:
+            raise NotImplementedError(
+                'Multi-step relationship analysis not implemented!'
+            )
+
+    def get_subgraph_from_person(self, source_person):
         edge_list = []
         processed_nodes = []
-        target_id = person.id
+        source_id = source_person.id
         subgraph = nx.Graph()
 
         queue = [
             (u, v, w)
             for u, v, w in self.GlobalGraph.edges(data='weight')
-            if u == target_id
+            if u == source_id
         ]
 
-        if self.GlobalGraph.has_node(person.id):
+        if self.GlobalGraph.has_node(source_id):
             for u, v, w in queue:
-                processed_nodes.append(target_id)
-                edge_list.extend(self._get_neighbours(target_id, queue))
+                processed_nodes.append(source_id)
+                edge_list.extend(self._get_neighbours(source_id, queue))
 
-                target_id = v
+                source_id = v
                 queue.extend([
                     (new_u, new_v, new_w)
                     for new_u, new_v, new_w in
                     self.GlobalGraph.edges(data='weight')
-                    if target_id in [new_u, new_v] and
+                    if source_id in [new_u, new_v] and
                     new_v not in processed_nodes and
                     new_u not in processed_nodes
                 ])
@@ -65,20 +71,31 @@ class Graph:
 
         return subgraph
 
-    @staticmethod
-    def count_relationship_weights(source_id, graph):
-        count = {}
-        for node in graph.nodes():
-            node_neighbors = graph.neighbors(node)
-            for neighbor in node_neighbors:
-                weight = graph[node][neighbor]['weight']
+    def all_relationship_weights(self, source_person):
+        connections = {}
 
-                if count.get(weight):
-                    count[weight] = count.get(weight) + 1
-                else:
-                    count.setdefault(weight, 0)
+        lengths, paths = nx.single_source_dijkstra(
+            source_person.get_graph(), source_person.id
+        )
+        del paths[source_person.id]
 
-        return count
+        for target in paths:
+            if len(paths[target]) < 3:
+                connections[target] = [lengths[target]]
+            else:
+                connections[target] = []
+                for index, node in enumerate(paths[target]):
+                    try:
+                        next_node_in_path = paths[target][index + 1]
+
+                        weight = self.GlobalGraph[
+                            node][next_node_in_path][node]['weight']
+
+                        connections[target].append(weight)
+                    except IndexError:
+                        pass
+
+        return connections
 
     @staticmethod
     def _get_neighbours(target_id, ebunch):
