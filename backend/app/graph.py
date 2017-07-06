@@ -36,33 +36,50 @@ class Graph:
                 'Multi-step relationship analysis not implemented!'
             )
 
-    def get_subgraph_from_person(self, source_person):
-        edge_list = []
+    def get_subgraph_from_person(self, source_person, span_type='maze'):
+        '''
+        Returns an nx.Graph object containing all nodes connected to
+        source_person. Span_type parameter [maze, star, tree] dictates the
+        algorithm used to move across the GlobalGraph.
+        '''
+        ebunch = []
         processed_nodes = []
-        source_id = source_person.id
         subgraph = nx.Graph()
 
-        queue = [
-            (u, v, w)
-            for u, v, w in self.GlobalGraph.edges(data='weight')
-            if u == source_id
-        ]
+        if span_type == 'maze':
+            queue = [
+                (u, v, w)
+                for u, v, w in self.GlobalGraph.edges(data='weight')
+                if u == source_person.id
+            ]
 
-        if self.GlobalGraph.has_node(source_id):
             for u, v, w in queue:
-                processed_nodes.append(source_id)
-                edge_list.extend(self._get_neighbours(source_id, queue))
+                processed_nodes.append(u)
+                ebunch.extend(self._get_neighbours(u, queue))
 
-                source_id = v
                 queue.extend([
                     (new_u, new_v, new_w)
                     for new_u, new_v, new_w in
                     self.GlobalGraph.edges(data='weight')
-                    if source_id in [new_u, new_v] and
-                    new_v not in processed_nodes and
-                    new_u not in processed_nodes
+                    if v == new_u and
+                    new_v not in processed_nodes
                 ])
-        subgraph.add_weighted_edges_from(edge_list)
+            subgraph.add_weighted_edges_from(ebunch)
+
+        if span_type == 'star':
+            dijkstra_path_lengths = nx.single_source_dijkstra_path_length(
+                self.GlobalGraph, source_person.id
+            )
+
+            subgraph.add_weighted_edges_from([
+                (source_person.id, v, w)
+                for v, w in dijkstra_path_lengths.items()
+            ])
+
+        if span_type == 'tree':
+            raise NotImplementedError(
+                'Tree spanning has not been implemented!'
+            )
 
         return subgraph
 
