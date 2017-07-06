@@ -83,29 +83,29 @@ class GraphTestCase(unittest.TestCase):
 
     def test_subgraph_basic_relations(self):
         n1_n2_relation = graph.get_relationship(
-            source_id=self.p1.id, target_id=self.p2.id)
+            source_person=self.p1, target_person=self.p2)
         n1_n3_relation = graph.get_relationship(
-            source_id=self.p1.id, target_id=self.p3.id)
+            source_person=self.p1, target_person=self.p3)
         n1_n4_relation = graph.get_relationship(
-            source_id=self.p1.id, target_id=self.p4.id)
+            source_person=self.p1, target_person=self.p4)
         n2_n1_relation = graph.get_relationship(
-            source_id=self.p2.id, target_id=self.p1.id)
+            source_person=self.p2, target_person=self.p1)
         n2_n3_relation = graph.get_relationship(
-            source_id=self.p2.id, target_id=self.p3.id)
+            source_person=self.p2, target_person=self.p3)
         n2_n4_relation = graph.get_relationship(
-            source_id=self.p2.id, target_id=self.p4.id)
+            source_person=self.p2, target_person=self.p4)
         n3_n1_relation = graph.get_relationship(
-            source_id=self.p3.id, target_id=self.p1.id)
+            source_person=self.p3, target_person=self.p1)
         n3_n2_relation = graph.get_relationship(
-            source_id=self.p3.id, target_id=self.p2.id)
+            source_person=self.p3, target_person=self.p2)
         n3_n4_relation = graph.get_relationship(
-            source_id=self.p3.id, target_id=self.p4.id)
+            source_person=self.p3, target_person=self.p4)
         n4_n1_relation = graph.get_relationship(
-            source_id=self.p4.id, target_id=self.p1.id)
+            source_person=self.p4, target_person=self.p1)
         n4_n2_relation = graph.get_relationship(
-            source_id=self.p4.id, target_id=self.p2.id)
+            source_person=self.p4, target_person=self.p2)
         n4_n3_relation = graph.get_relationship(
-            source_id=self.p4.id, target_id=self.p3.id)
+            source_person=self.p4, target_person=self.p3)
 
         self.assertEqual(n1_n2_relation, 'Partner')
         self.assertEqual(n1_n3_relation, 'Parent')
@@ -134,14 +134,14 @@ class GraphTestCase(unittest.TestCase):
         db.session.add(a1)
         db.session.commit()
         with self.assertRaises(KeyError):
-            graph.get_relationship(source_id=a1.id, target_id=self.p1.id)
-            graph.get_relationship(source_id=a1.id, target_id=self.p2.id)
-            graph.get_relationship(source_id=a1.id, target_id=self.p3.id)
-            graph.get_relationship(source_id=a1.id, target_id=self.p4.id)
-            graph.get_relationship(source_id=self.p1.id, target_id=a1.id)
-            graph.get_relationship(source_id=self.p2.id, target_id=a1.id)
-            graph.get_relationship(source_id=self.p3.id, target_id=a1.id)
-            graph.get_relationship(source_id=self.p4.id, target_id=a1.id)
+            graph.get_relationship(source_person=a1, target_person=self.p1)
+            graph.get_relationship(source_person=a1, target_person=self.p2)
+            graph.get_relationship(source_person=a1, target_person=self.p3)
+            graph.get_relationship(source_person=a1, target_person=self.p4)
+            graph.get_relationship(source_person=self.p1, target_person=a1)
+            graph.get_relationship(source_person=self.p2, target_person=a1)
+            graph.get_relationship(source_person=self.p3, target_person=a1)
+            graph.get_relationship(source_person=self.p4, target_person=a1)
 
     def test_subgraph_edge_count_parent(self):
         n1_subgraph = self.p1.get_graph()
@@ -172,7 +172,7 @@ class GraphTestCase(unittest.TestCase):
         )
         db.session.add(a1)
         db.session.commit()
-        self.p3.get_or_create_relation(a1, 1)
+        self.p3.get_or_create_relationship(a1, 1)
         n1_subgraph = self.p1.get_graph()
         c1 = graph.count_relationship_weights(self.p1, n1_subgraph)
         self.assertEqual(c1.get(1), 2)
@@ -193,7 +193,7 @@ class GraphTestCase(unittest.TestCase):
         )
         db.session.add(a1)
         db.session.commit()
-        self.p3.get_or_create_relation(a1, 1)
+        self.p3.get_or_create_relationship(a1, 1)
         a1_subgraph = a1.get_graph()
         c4 = graph.count_relationship_weights(a1, a1_subgraph)
         self.assertEqual(c4.get(1), 1)
@@ -224,9 +224,9 @@ class GraphTestCase(unittest.TestCase):
         )
         db.session.add_all([a1, a2])
         db.session.commit()
-        self.p3.get_or_create_relation(a1, 1)
-        self.p3.get_or_create_relation(a2, 3)
-        a1.get_or_create_relation(a2, 3)
+        self.p3.get_or_create_relationship(a1, 1)
+        self.p3.get_or_create_relationship(a2, 3)
+        a1.get_or_create_relationship(a2, 3)
         a2_subgraph = a2.get_graph()
         c5 = graph.count_relationship_weights(a2, a2_subgraph)
         self.assertIsNone(c5.get(1))
@@ -257,9 +257,9 @@ class GraphTestCase(unittest.TestCase):
         )
         db.session.add_all([a1, a2])
         db.session.commit()
-        self.p3.get_or_create_relation(a1, 1)
-        self.p3.get_or_create_relation(a2, 3)
-        a1.get_or_create_relation(a2, 3)
+        self.p3.get_or_create_relationship(a1, 1)
+        self.p3.get_or_create_relationship(a2, 3)
+        a1.get_or_create_relationship(a2, 3)
         n1_subgraph = self.p1.get_graph()
         c6 = graph.count_relationship_weights(self.p1, n1_subgraph)
         self.assertEqual(c6.get(1), 2)

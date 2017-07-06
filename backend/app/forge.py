@@ -31,8 +31,8 @@ class Forge(Command):
         filtered_person_families = []
         relationships = []
 
-        # create [units] distinct family trees.
         for _ in range(units):
+            # create [units] number of distict family trees.
             unchecked_dict_families.extend(self.get_family_tree(size, layers))
 
         filtered_person_families = self.save_persons_to_db(
@@ -44,6 +44,9 @@ class Forge(Command):
         return filtered_person_families, relationships
 
     def get_family_tree(self, size, layers):
+        '''
+        Returns a family tree with specified layer depth and family unit size.
+        '''
         store = []
         queue = []
         tree = []
@@ -56,16 +59,28 @@ class Forge(Command):
         store.append(first_family)
 
         for _ in range(layers + 1):
+            # iterate until specified family layer depth is reached.
             queue = store[:]
             store = []
             for family in queue:
+                # using the store variable ensures all families in the queue
+                # are processed before the queue is modified. If not, queue
+                # would indefinitely grow and this loop would never stop.
                 if self.count_family_member_instances(family, tree) < 2:
+                    # before we add a family to the tree, we must make sure
+                    # that each family member has only one ancestral and
+                    # descendant root within their family tree.
                     tree.append(family)
                     store.extend(self.add_layer(family, size))
 
         return tree
 
     def add_layer(self, family, size):
+        '''
+        Returns a single layer where each member of the provided family
+        has an inverse family i.e. if a member is a child, the newly created
+        layer has them as a parent.
+        '''
         next_layer = []
 
         for relation, inject_type in {
@@ -94,9 +109,10 @@ class Forge(Command):
         return next_layer
 
     def save_persons_to_db(self, list_of_families):
+        person_list_of_families = list_of_families
         # reference list_of_families from person_list_of_families
         # copying would be a waste of memory.
-        person_list_of_families = list_of_families
+
         for f_index, family in enumerate(person_list_of_families):
             for relation in family:
                 for m_index, member in enumerate(family[relation]):
@@ -168,7 +184,7 @@ class Forge(Command):
         # create parent to child and child to parent relationships.
         for inverse_member in family[inverse_relation]:
             relationship, exists = \
-                member.get_or_create_relation(
+                member.get_or_create_relationship(
                     inverse_member, inverse_relation_weight)
             # do some stuff if an error occured.
             if not exists:
@@ -179,7 +195,7 @@ class Forge(Command):
             if index != co_member_index:
                 co_member = family[relation][co_member_index]
                 relationship, exists = \
-                    member.get_or_create_relation(
+                    member.get_or_create_relationship(
                         co_member, co_relation_weight)
                 if not exists:
                     relationship_list.append(relationship)

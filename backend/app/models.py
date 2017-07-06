@@ -56,7 +56,7 @@ class Person(db.Model):
         cascade='all, delete-orphan'
     )
 
-    def get_or_create_relation(self, target, weight):
+    def get_or_create_relationship(self, target, weight):
         '''
         Creates a relationship (two complementary links) between
         instance and target Person.
