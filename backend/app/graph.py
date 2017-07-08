@@ -18,6 +18,30 @@ class Graph:
 
     def add_relationship(self, relationship):
         for link in relationship:
+            self.GlobalGraph.add_nodes_from([
+                (
+                    link.ancestor_id,
+                    {
+                        'first_name': link.ancestor.first_name,
+                        'ethnic_name': link.ancestor.ethnic_name,
+                        'last_name': link.ancestor.last_name,
+                        'birth_date': link.ancestor.birth_date,
+                        'sex': link.ancestor.sex,
+                        'email': link.ancestor.email
+                    }
+                ),
+                (
+                    link.descendant_id,
+                    {
+                        'first_name': link.descendant.first_name,
+                        'ethnic_name': link.descendant.ethnic_name,
+                        'last_name': link.descendant.last_name,
+                        'birth_date': link.descendant.birth_date,
+                        'sex': link.descendant.sex,
+                        'email': link.descendant.email
+                    }
+                )
+            ])
             self.GlobalGraph.add_edge(
                 link.ancestor_id,
                 link.descendant_id,
@@ -44,7 +68,6 @@ class Graph:
         '''
         ebunch = []
         processed_nodes = []
-        subgraph = nx.Graph()
 
         if span_type == 'maze':
             queue = [
@@ -64,24 +87,23 @@ class Graph:
                     if v == new_u and
                     new_v not in processed_nodes
                 ])
-            subgraph.add_weighted_edges_from(ebunch)
 
         if span_type == 'star':
             dijkstra_path_lengths = nx.single_source_dijkstra_path_length(
                 self.GlobalGraph, source_person.id
             )
 
-            subgraph.add_weighted_edges_from([
+            ebunch = [
                 (source_person.id, v, w)
                 for v, w in dijkstra_path_lengths.items()
-            ])
+            ]
 
         if span_type == 'tree':
             raise NotImplementedError(
                 'Tree spanning has not been implemented!'
             )
 
-        return subgraph
+        return self._create_digraph_from_ebunch(ebunch)
 
     def all_relationship_weights(self, source_person):
         connections = {}
@@ -108,6 +130,19 @@ class Graph:
                         pass
 
         return connections
+
+    def _create_digraph_from_ebunch(self, ebunch):
+        g = nx.DiGraph()
+
+        for edge in ebunch:
+            (u, v, w) = edge
+            u_data = self.GlobalGraph.node[u]
+            v_data = self.GlobalGraph.node[v]
+            g.add_nodes_from([(u, u_data), (v, v_data)])
+
+        g.add_weighted_edges_from(ebunch)
+
+        return g
 
     @staticmethod
     def _get_neighbours(target_id, ebunch):
