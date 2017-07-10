@@ -5,7 +5,9 @@ import os
 class Graph:
 
     def init_app(self, app):
-        from app.models import Person, Link, Relations
+        from app.models import Person, Link
+        from .utils import Relations
+
         self.gpickle_path = app.config['GRAPH_PATH']
         self.Link = Link
         self.Relations = Relations

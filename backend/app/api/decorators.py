@@ -2,8 +2,9 @@ from functools import wraps
 from flask import request, jsonify, _app_ctx_stack
 import jwt
 import os
-from ..models import Person, get_one_or_create
-from .. import db
+from ..models import Person
+from ..utils import get_one_or_create
+from .. import db, graph
 
 jwt_secret = os.environ.get('JWT_SECRET', 'superSECRETth!ng')
 client_id = os.environ.get('AUTH0_ID', 'None')
@@ -85,6 +86,7 @@ def requires_auth(f):
         else:
             db.session.add(person)
             db.session.commit()
+            graph.create_from_model_instance(person)
             print('User registered')
 
         _app_ctx_stack.top.current_user = payLoad

@@ -15,8 +15,10 @@ class Forge(Command):
     )
 
     def init_app(self, app):
-        from app.models import Person, Link, get_one_or_create
+        from app.models import Person, Link
         from app import db, graph
+        from .utils import get_one_or_create
+
         self.Person = Person
         self.Link = Link
         self.db = db
