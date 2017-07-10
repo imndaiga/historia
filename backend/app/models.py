@@ -78,11 +78,11 @@ class Person(db.Model):
         )
 
         db.session.commit()
-        relationship = [link1, link2]
 
-        graph.add_relationship(relationship)
+        graph.create_from_model_instance(link1)
+        graph.create_from_model_instance(link2)
 
-        return relationship, link1_exists and link2_exists
+        return [link1, link2], link1_exists and link2_exists
 
     def get_graph(self):
         return graph.get_subgraph_from_person(self)

@@ -39,7 +39,7 @@ class Forge(Command):
             unchecked_dict_families
         )
         relationships = self.save_relationships_to_db(filtered_person_families)
-        self.graph.update()
+        self.graph.update_edges()
 
         return filtered_person_families, relationships
 

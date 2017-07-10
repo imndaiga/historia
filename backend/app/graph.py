@@ -5,49 +5,20 @@ import os
 class Graph:
 
     def init_app(self, app):
-        from app.models import Link, Relations
+        from app.models import Person, Link, Relations
         self.gpickle_path = app.config['GRAPH_PATH']
         self.Link = Link
         self.Relations = Relations
         self.GlobalGraph = self._get_or_create_global_graph()
+        self.Person = Person
 
-    def update(self):
+    def update_edges(self):
         all_links = self.Link.query.all()
-        self.add_relationship(all_links)
+        for link in all_links:
+            self.create_from_model_instance(link)
+            self.create_from_model_instance(link.ancestor)
+            self.create_from_model_instance(link.descendant)
         nx.write_gpickle(self.GlobalGraph, self.gpickle_path)
-
-    def add_relationship(self, relationship):
-        for link in relationship:
-            self.GlobalGraph.add_nodes_from([
-                (
-                    link.ancestor_id,
-                    {
-                        'first_name': link.ancestor.first_name,
-                        'ethnic_name': link.ancestor.ethnic_name,
-                        'last_name': link.ancestor.last_name,
-                        'birth_date': link.ancestor.birth_date,
-                        'sex': link.ancestor.sex,
-                        'email': link.ancestor.email
-                    }
-                ),
-                (
-                    link.descendant_id,
-                    {
-                        'first_name': link.descendant.first_name,
-                        'ethnic_name': link.descendant.ethnic_name,
-                        'last_name': link.descendant.last_name,
-                        'birth_date': link.descendant.birth_date,
-                        'sex': link.descendant.sex,
-                        'email': link.descendant.email
-                    }
-                )
-            ])
-            self.GlobalGraph.add_edge(
-                link.ancestor_id,
-                link.descendant_id,
-                key=link.ancestor_id,
-                weight=link.weight
-            )
 
     def get_relationship(self, source_person, target_person):
         weight_list = self.all_relationship_weights(
@@ -130,6 +101,27 @@ class Graph:
                         pass
 
         return connections
+
+    def create_from_model_instance(self, model):
+        if isinstance(model, self.Person):
+            self.GlobalGraph.add_node(
+                model.id,
+                {
+                    'first_name': model.first_name,
+                    'ethnic_name': model.ethnic_name,
+                    'last_name': model.last_name,
+                    'birth_date': model.birth_date,
+                    'sex': model.sex,
+                    'email': model.email
+                }
+            )
+        if isinstance(model, self.Link):
+            self.GlobalGraph.add_edge(
+                model.ancestor_id,
+                model.descendant_id,
+                key=model.ancestor_id,
+                weight=model.weight
+            )
 
     def _create_digraph_from_ebunch(self, ebunch):
         g = nx.DiGraph()
