@@ -362,10 +362,13 @@ class familyAPI(Resource):
         relations_list = []
 
         if source_id:
+            source_person = Person.query.get(source_id)
             neighbour_list = graph.GlobalGraph.neighbors(source_id)
             for target_id in neighbour_list:
+                target_person = Person.query.get(target_id)
                 relations_list.append([
-                    target_id, graph.get_relationship(source_id, target_id)
+                    target_id,
+                    graph.get_relationship(source_person, target_person)
                 ])
             return self.formatResponse(relations_list)
         return {'message': 'missing person_id'}

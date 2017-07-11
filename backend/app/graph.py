@@ -33,7 +33,7 @@ class Graph:
                 'Multi-step relationship analysis not implemented!'
             )
 
-    def get_subgraph_from_person(self, source_person, span_type='maze'):
+    def get_subgraph_from_person(self, source_person, span_type='tree'):
         '''
         Returns an nx.Graph object containing all nodes connected to
         source_person. Span_type parameter [maze, star, tree] dictates the
@@ -93,7 +93,7 @@ class Graph:
         connections = {}
 
         lengths, paths = nx.single_source_dijkstra(
-            source_person.get_graph(), source_person.id
+            self.GlobalGraph, source_person.id
         )
         del paths[source_person.id]
 
