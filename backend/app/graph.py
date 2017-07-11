@@ -72,9 +72,20 @@ class Graph:
             ]
 
         if span_type == 'tree':
-            raise NotImplementedError(
-                'Tree spanning has not been implemented!'
+            paths = nx.single_source_dijkstra_path(
+                self.GlobalGraph, source_person.id
             )
+            paths.pop(source_person.id)
+
+            for target in paths:
+                path_size = len(paths[target])
+                for i in range(path_size):
+                    if i + 1 < path_size:
+                        u = paths[target][i]
+                        v = paths[target][i + 1]
+                        w = self.GlobalGraph[u][v][u]
+
+                        ebunch.append((u, v, w))
 
         return self._create_digraph_from_ebunch(ebunch)
 
