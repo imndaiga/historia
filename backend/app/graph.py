@@ -103,15 +103,13 @@ class Graph:
             else:
                 connections[target] = []
                 for index, node in enumerate(paths[target]):
-                    try:
+                    if index + 1 < len(paths[target]):
                         next_node_in_path = paths[target][index + 1]
 
                         weight = self.GlobalGraph[
                             node][next_node_in_path][node]['weight']
 
                         connections[target].append(weight)
-                    except IndexError:
-                        pass
 
         return connections
 
