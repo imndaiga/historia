@@ -48,8 +48,7 @@ class graphAPI(Resource):
         serialised_graph['nodes'] = [
             {
                 'id': node['id'],
-                'label': Person.query.filter_by(
-                    id=node['id']).first().first_name,
+                'label': node['first_name'],
                 'x': random.randrange(1, 10),
                 'y': random.randrange(1, 10),
                 'color': self.getNodeColor(node['id']),
@@ -112,38 +111,38 @@ class relationshipsAPI(Resource):
         self.relationships_per_page = 10
         super(relationshipsAPI, self).__init__()
 
-    def formatResponse(self, nodes):
+    @staticmethod
+    def formatResponse(nodes, digraph):
         relatives = []
-        for node in nodes:
-            relation = Person.query.get(node)
+        for node_id in nodes:
             relatives.append([
                 {
-                    'type': 'hidden-input', 'value': relation.id or '',
+                    'type': 'hidden-input', 'value': node_id or '',
                     'label': 'ID', 'field_name': 'id'
                 },
                 {
                     'type': 'alpha-input',
-                    'value': relation.first_name or '',
+                    'value': digraph.node[node_id]['first_name'] or '',
                     'label': 'First Name',
                     'validators': ['required', 'alpha'],
                     'field_name': 'first_name'
                 },
                 {
                     'type': 'alpha-input',
-                    'value': relation.ethnic_name or '',
+                    'value': digraph.node[node_id]['ethnic_name'] or '',
                     'label': 'Ethnic Name',
                     'validators': ['required', 'alpha'],
                     'field_name': 'ethnic_name'},
                 {
                     'type': 'alpha-input', 'value':
-                        relation.last_name or '',
+                        digraph.node[node_id]['last_name'] or '',
                     'label': 'Last Name',
                     'validators': ['required', 'alpha'],
-                    'field_name': 'last_name'
+                    'field_name': 'last_nmae'
                 },
                 {
                     'type': 'email-input', 'value':
-                        relation.email or '',
+                        digraph.node[node_id]['email'] or '',
                     'label': 'Email', 'validators':
                         ['required', 'email'],
                     'field_name': 'email'
@@ -154,10 +153,11 @@ class relationshipsAPI(Resource):
     def get(self):
         args = self.reqparse.parse_args()
         page = 1 if not args['page'] else int(args['page'])
-        node_list = self.current_user.get_graph().nodes()
-        for index, node in enumerate(node_list):
-            if node == self.current_user.id:
-                del node_list[index]
+
+        digraph = self.current_user.get_graph()
+        node_list = digraph.nodes()
+        node_list.remove(self.current_user.id)
+
         max_page = math.ceil(len(node_list) / self.relationships_per_page)
         max_rows = page * self.relationships_per_page
         max_index = max_rows \
@@ -165,7 +165,9 @@ class relationshipsAPI(Resource):
         min_index = max_rows - self.relationships_per_page \
             if page < max_page or max_rows == len(node_list) \
             else len(node_list) - self.relationships_per_page
+
         node_list = node_list[min_index: max_index]
+
         response = {
             'current_page': page,
             'last_page': max_page,
@@ -177,7 +179,7 @@ class relationshipsAPI(Resource):
                                   str(int(page) + 1),
             'data': []
         }
-        response['data'] = self.formatResponse(node_list)
+        response['data'] = self.formatResponse(node_list, digraph)
         return response
 
     def put(self):
@@ -315,15 +317,15 @@ class familyAPI(Resource):
     def formatResponse(self, relations_list):
         family_array = []
         for relationship in relations_list:
-            target_id = relationship[0]
+            target = relationship[0]
+            target_fullname = ' '.join(
+                filter(None, [
+                    target['first_name'],
+                    target['ethnic_name'],
+                    target['last_name']
+                ])
+            )
             relation = relationship[1]
-            target = Person.query.get(target_id)
-            listed_names = [
-                target.first_name or '',
-                target.ethnic_name or '',
-                target.last_name or ''
-            ]
-            target_fullname = ' '.join(filter(None, listed_names))
             family_array.append(
                 {
                     'type': 'multiselect-input',
@@ -331,7 +333,7 @@ class familyAPI(Resource):
                     'value': relation,
                     'label': 'Relation',
                     'validators': ['required'],
-                    'field_name': 'to_relation_' + str(target_id),
+                    'field_name': 'to_relation_' + str(target['id']),
                     'multiselect_options': [
                         'Parent', 'Sibling', 'Step-Parent',
                         'Step-Sibling', 'Child'
@@ -348,7 +350,7 @@ class familyAPI(Resource):
                     'value': target_fullname,
                     'label': 'To',
                     'validators': ['required'],
-                    'field_name': 'to_fullname_' + str(target_id),
+                    'field_name': 'to_fullname_' + str(target['id']),
                     'classes': 'col-lg-6 col-md-6 col-sm-6 col-xs-12',
                     'SelectLabel': '',
                     'DeselectLabel': ''
@@ -362,13 +364,13 @@ class familyAPI(Resource):
         relations_list = []
 
         if source_id:
-            source_person = Person.query.get(source_id)
             neighbour_list = graph.GlobalGraph.neighbors(source_id)
             for target_id in neighbour_list:
-                target_person = Person.query.get(target_id)
+                target = graph.GlobalGraph.node[target_id]
+                target.update({'id': target_id})
                 relations_list.append([
-                    target_id,
-                    graph.get_relationship(source_person.id, target_person.id)
+                    target,
+                    graph.get_relationship(source_id, target_id)
                 ])
             return self.formatResponse(relations_list)
         return {'message': 'missing person_id'}
