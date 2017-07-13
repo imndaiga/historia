@@ -22,9 +22,9 @@ class Graph:
             self.create_from_model_instance(link.descendant)
         nx.write_gpickle(self.GlobalGraph, self.gpickle_path)
 
-    def get_relationship(self, source_person, target_person):
+    def get_relationship(self, source_id, target_id):
         weight_list = self.all_relationship_weights(
-            source_person)[target_person.id]
+            source_id)[target_id]
 
         if len(weight_list) < 2:
             return self.Relations.all_types[weight_list[0]]
@@ -33,10 +33,10 @@ class Graph:
                 'Multi-step relationship analysis not implemented!'
             )
 
-    def get_subgraph_from_person(self, source_person, span_type='tree'):
+    def get_subgraph_from_id(self, source_id, span_type='tree'):
         '''
         Returns an nx.Graph object containing all nodes connected to
-        source_person. Span_type parameter [maze, star, tree] dictates the
+        source_id. Span_type parameter [maze, star, tree] dictates the
         algorithm used to move across the GlobalGraph.
         '''
         ebunch = []
@@ -46,7 +46,7 @@ class Graph:
             queue = [
                 (u, v, w)
                 for u, v, w in self.GlobalGraph.edges(data='weight')
-                if u == source_person.id
+                if u == source_id
             ]
 
             for u, v, w in queue:
@@ -63,19 +63,19 @@ class Graph:
 
         if span_type == 'star':
             dijkstra_path_lengths = nx.single_source_dijkstra_path_length(
-                self.GlobalGraph, source_person.id
+                self.GlobalGraph, source_id
             )
 
             ebunch = [
-                (source_person.id, v, w)
+                (source_id, v, w)
                 for v, w in dijkstra_path_lengths.items()
             ]
 
         if span_type == 'tree':
             paths = nx.single_source_dijkstra_path(
-                self.GlobalGraph, source_person.id
+                self.GlobalGraph, source_id
             )
-            paths.pop(source_person.id)
+            paths.pop(source_id)
 
             for target in paths:
                 path_size = len(paths[target])
@@ -89,13 +89,13 @@ class Graph:
 
         return self._create_digraph_from_ebunch(ebunch)
 
-    def all_relationship_weights(self, source_person):
+    def all_relationship_weights(self, source_id):
         connections = {}
 
         lengths, paths = nx.single_source_dijkstra(
-            self.GlobalGraph, source_person.id
+            self.GlobalGraph, source_id
         )
-        del paths[source_person.id]
+        del paths[source_id]
 
         for target in paths:
             if len(paths[target]) < 3:

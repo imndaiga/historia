@@ -368,7 +368,7 @@ class familyAPI(Resource):
                 target_person = Person.query.get(target_id)
                 relations_list.append([
                     target_id,
-                    graph.get_relationship(source_person, target_person)
+                    graph.get_relationship(source_person.id, target_person.id)
                 ])
             return self.formatResponse(relations_list)
         return {'message': 'missing person_id'}
